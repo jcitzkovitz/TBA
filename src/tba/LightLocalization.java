@@ -12,8 +12,9 @@ public class LightLocalization {
 	private Navigation navi;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private double lightDistance = 11.3;
+	private int corner;
 	
-	public LightLocalization(Odometer odo, SampleProvider colorSensor, float[] colorData, Navigation navi) {
+	public LightLocalization(Odometer odo, SampleProvider colorSensor, float[] colorData, Navigation navi, int startingCorner) {
 		this.odo = odo;
 		this.colorSensor = colorSensor;
 		this.colorData = colorData;
@@ -21,6 +22,7 @@ public class LightLocalization {
 		EV3LargeRegulatedMotor[] motors = this.odo.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
+		this.corner = startingCorner;
 	}
 	
 	public void doLocalization() {
@@ -120,7 +122,22 @@ public class LightLocalization {
 		
 		navi.travelTo(0, 0);
 		Sound.buzz();
-		navi.turnTo(0, true);
+		navi.turnTo(90, true);
+		
+		if(corner==2){
+			this.odo.setPosition(new double[]{304.8-odo.getY(),odo.getX(),90+odo.getAng()}, new boolean [] {true, true, true});
+		}
+		if(corner==3){
+			this.odo.setPosition(new double[]{304.8-odo.getX(),304.8-odo.getX(),180+odo.getAng()}, new boolean [] {true, true, true});
+		}
+		if(corner==4){
+			if((odo.getAng()+270)<360){
+				this.odo.setPosition(new double[]{odo.getY(),304.8-odo.getX(),270+odo.getAng()}, new boolean [] {true, true, true});
+			}
+			else{
+				this.odo.setPosition(new double[]{odo.getY(),304.8-odo.getX(),odo.getAng()-90}, new boolean [] {true, true, true});
+			}
+		}
 	}
 	
 	private float getLightStrength(){
