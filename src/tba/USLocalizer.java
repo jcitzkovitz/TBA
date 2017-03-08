@@ -26,14 +26,15 @@ public class USLocalizer {
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	
 	
-	public USLocalizer(Odometer odo, Navigation nav, SampleProvider usSensor, float[] usData, LocalizationType locType, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
+	public USLocalizer(Odometer odo, Navigation nav, SampleProvider usSensor, float[] usData, LocalizationType locType) {
 		this.odo = odo;
 		this.nav=nav;
 		this.usSensor = usSensor;
 		this.usData = usData;
 		this.locType = locType;
-		this.leftMotor=leftMotor;
-		this.rightMotor= rightMotor;
+		EV3LargeRegulatedMotor[] motors = this.odo.getMotors();
+		this.leftMotor = motors[0];
+		this.rightMotor = motors[1];
 	}
 	
 	public void doLocalization() {
