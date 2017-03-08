@@ -31,15 +31,36 @@ public class LightLocalization {
 		boolean FourthlineDetected= false;
 		
 		int lineCounter=0;			//counts the number of lines detected.
-		double minLight = 0.25;		//minimum light reflected by a black line
-		float lightStrength;		//current light reflection recorded by the light sensor
+		double minLight = 0.25;		//minimum light reflected by a black line	
 		double thetaYminus= 0, thetaXplus=0, thetaYplus=0, thetaXminus=0, thetaY, thetaX, deltatheta, theta=0;
 		double[] position = new double[3];
 		
 		// drive to location listed in tutorial
 		navi.turnTo(90, true);
-		
-		
+		while(!FirstlineDetected){
+			leftMotor.setSpeed(200);
+			rightMotor.setSpeed(200);
+			leftMotor.forward();
+			rightMotor.forward();
+			if(getLightStrength()<minLight){
+				FirstlineDetected = true;
+			}
+		}
+		navi.goForward(-5);
+		navi.turnTo(0, true);
+		while(!SecondlineDetected){
+			leftMotor.setSpeed(200);
+			rightMotor.setSpeed(200);
+			leftMotor.forward();
+			rightMotor.forward();
+			if(getLightStrength()<minLight){
+				SecondlineDetected = true;
+			}
+		}
+		navi.goForward(-5);
+		navi.turnTo(0, true);
+		FirstlineDetected = false;
+		SecondlineDetected = false;
 		// start rotating and clock all 4 gridlines
 		// do trig to compute (0,0) and 0 degrees
 		// when done travel to (0,0) and turn to 0 degrees
@@ -51,10 +72,6 @@ public class LightLocalization {
 		//navi.turnTo(225, true); //turn the robot towards a heading of 225 degrees
 		
 		while(!(FirstlineDetected && SecondlineDetected && ThirdlineDetected && FourthlineDetected)){
-			colorSensor.fetchSample(colorData, 0); //fetch the sample from colorSensor and store them in colorData, a buffer
-			
-			lightStrength = colorData[0];	
-			
 			
 			leftMotor.setSpeed(100);
 			rightMotor.setSpeed(100);
@@ -62,7 +79,7 @@ public class LightLocalization {
 			rightMotor.forward();
 				
 				
-			if(lightStrength< minLight){ //if the amount of light reflected bt the light sensor is smaller than minLight
+			if(getLightStrength() < minLight){ //if the amount of light reflected bt the light sensor is smaller than minLight
 				lineCounter++;			 //increment the lineCounter by 1
 				Sound.beep();
 			
@@ -85,15 +102,14 @@ public class LightLocalization {
 			}
 		}
 			
-		thetaY= (thetaYminus-thetaYplus);
-		thetaX= (thetaXplus-thetaXminus);
+		thetaY = (thetaYplus-thetaYminus);
+		thetaX = (thetaXplus-thetaXminus);
 		
 		double x=-lightDistance*Math.cos(thetaY*Math.PI/180/2) ;
 		double y=-lightDistance*Math.cos(thetaX*Math.PI/180/2) ;
 		
-		//deltatheta= 90 + thetaY/2 - (thetaYminus-180);
-		deltatheta= Math.atan(y/x)*180/Math.PI;
-		theta = odo.getAng()-deltatheta;
+		deltatheta= 90 + thetaY/2 - (thetaYminus-180);
+		theta = odo.getAng()+deltatheta;
 		
 		
 		position[0]=x;
@@ -103,10 +119,14 @@ public class LightLocalization {
 					
 		
 		navi.travelTo(0, 0);
-		Sound.beep();
-		Sound.beep();
-		Sound.beep();
-		navi.turnTo(270, true);
+		Sound.buzz();
+		navi.turnTo(0, true);
+	}
+	
+	private float getLightStrength(){
+		colorSensor.fetchSample(colorData, 0);
+		float lightStrength = colorData[0];
+		return lightStrength;
 	}
 	
 }
