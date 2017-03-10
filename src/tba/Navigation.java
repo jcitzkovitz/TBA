@@ -75,12 +75,45 @@ public class Navigation {
 	 */
 	public void travelTo(double x, double y) {
 		double minAng;
+		boolean yAxis = true;
 		while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
-			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
+			/*minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
 			if (minAng < 0)
 				minAng += 360.0;
-			this.turnTo(minAng, false);
-			this.setSpeeds(FAST, FAST);
+			this.turnTo(minAng, false);*/
+			if(yAxis)
+			{
+				if(y - odometer.getY() > 0)
+				{
+					this.turnTo(90, false);
+				}
+				else if ((y - odometer.getY()) < 0)
+				{
+					this.turnTo(270, false);
+				}
+				
+				if(Math.abs(y - odometer.getY()) <= CM_ERR)
+				{
+					yAxis = false;
+					this.setSpeeds(0, 0);
+				}
+				else
+					this.setSpeeds(FAST, FAST);
+			}
+			else
+			{
+				if(x - odometer.getX() > 0)
+				{
+					this.turnTo(0, false);
+				}
+				else if ((x - odometer.getX()) < 0)
+				{
+					this.turnTo(180, false);
+				}
+				
+				this.setSpeeds(FAST, FAST);
+			}
+			
 		}
 		this.setSpeeds(0, 0);
 	}

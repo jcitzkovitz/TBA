@@ -1,5 +1,6 @@
 package tests;
 
+import tba.Odometer;
 import lejos.hardware.lcd.TextLCD;
 
 public class LCDInfo extends Thread{
