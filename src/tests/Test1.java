@@ -7,7 +7,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import tba.Navigation;
 import tba.Odometer;
 
-public class Exp5 {
+public class Test1 {
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final EV3LargeRegulatedMotor liftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
@@ -15,9 +15,7 @@ public class Exp5 {
 	
 	
 	public static void main(String[] args) {
-		
-		int buttonChoice;
-      	// setup the odometer and display
+		// setup the odometer and display
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 30, true);
 		
 		//setup Navigator 
@@ -25,33 +23,38 @@ public class Exp5 {
 		
 	
 		
-		//setup the TestRun
+		//setup the ballLauncher
 		BallLauncher test = new BallLauncher(liftMotor, launchMotor );
 		
-		//interface to ask what the user wants 
-		final TextLCD t = LocalEV3.get().getTextLCD();
-
-		
-		do {
-			// clear the display
+		int buttonChoice = Button.ID_ENTER;
+		while(buttonChoice != Button.ID_ESCAPE){
+	      
+			
+			//interface to ask what the user wants 
+			final TextLCD t = LocalEV3.get().getTextLCD();
+	
+			
+			do {
+				// clear the display
+				t.clear();
+	
+				// ask the user which test to perform 
+				t.drawString(" PRESS ENTER TO START LAUNCH", 0, 0);
+				
+				
+				buttonChoice = Button.waitForAnyPress();
+				
+			} while (buttonChoice != Button.ID_ENTER && buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT 
+					&& buttonChoice != Button.ID_ESCAPE);
 			t.clear();
-
-			// ask the user which test to perform 
-			t.drawString(" PRESS ENTER TO START LAUNCH", 0, 0);
+			LCDInfo lcd = new LCDInfo(odometer, t);
+			lcd.start();
+			if (buttonChoice == Button.ID_ENTER)
+				test.launch();
 			
-			
-			buttonChoice = Button.waitForAnyPress();
-		     }
-		
-	 while (buttonChoice != Button.ID_ENTER && buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT 
-				&& buttonChoice != Button.ID_ESCAPE);;
-		t.clear();
-		LCDInfo lcd = new LCDInfo(odometer, t);
-		lcd.start();
-		if (buttonChoice == Button.ID_ENTER)
-			test.launch();
-		
-		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
+			/*while (Button.waitForAnyPress() != Button.ID_ESCAPE);
+			System.exit(0);*/
+		}
 		System.exit(0);
 	}
 }
