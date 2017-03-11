@@ -12,19 +12,22 @@ public class BallLauncher {
 	}
 	public void launch(){
 	
-		this.liftMotor.setAcceleration(200);
-		this.liftMotor.setSpeed(100);
-		this.liftMotor.rotate(-100, false);
+		/*this.liftMotor.setAcceleration(10000);
+		this.liftMotor.setSpeed(10000);
+		this.liftMotor.rotate(-90, false);
 		Sound.beep();
 		this.liftMotor.setSpeed(100);
-		this.liftMotor.rotate(100,false);
-		
+		this.liftMotor.rotate(90,false);*/
+		this.launchMotor.setAcceleration(2200);
+		this.launchMotor.setSpeed(1200);
+		this.launchMotor.rotate(-150, false);
 		this.launchMotor.setAcceleration(100000);
 		this.launchMotor.setSpeed(100000);
-		this.launchMotor.rotate(130, false);
+		this.launchMotor.rotate(180, false);
 		Sound.beep();
-		this.launchMotor.setSpeed(100);
-		this.launchMotor.rotate(-130, false);
+		
+		this.launchMotor.rotate(-85, false);
+		
 	
 	}
 

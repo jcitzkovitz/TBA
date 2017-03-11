@@ -17,12 +17,6 @@ public class Test1 {
 	public static void main(String[] args) {
 		// setup the odometer and display
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 30, true);
-		
-		//setup Navigator 
-		Navigation navigate= new Navigation(odometer);
-		
-	
-		
 		//setup the ballLauncher
 		BallLauncher test = new BallLauncher(liftMotor, launchMotor );
 		
@@ -51,9 +45,6 @@ public class Test1 {
 			lcd.start();
 			if (buttonChoice == Button.ID_ENTER)
 				test.launch();
-			
-			/*while (Button.waitForAnyPress() != Button.ID_ESCAPE);
-			System.exit(0);*/
 		}
 		System.exit(0);
 	}
