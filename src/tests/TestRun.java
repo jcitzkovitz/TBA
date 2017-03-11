@@ -7,6 +7,8 @@
 
 package tests;
 
+import tba.Navigation;
+
 public class TestRun {
 
 	private Navigation navigation;

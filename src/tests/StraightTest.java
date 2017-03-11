@@ -1,5 +1,7 @@
 package tests;
 
+import tba.Navigation;
+import tba.Odometer;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 

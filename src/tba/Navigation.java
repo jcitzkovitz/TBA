@@ -1,3 +1,5 @@
+package tba;
+
 /*
  * File: Navigation.java
  * Written by: Sean Lawlor
@@ -8,8 +10,6 @@
  * 
  * Movement control class (turnTo, travelTo, flt, localize)
  */
-package tba;
-
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation {
@@ -75,13 +75,60 @@ public class Navigation {
 	 */
 	public void travelTo(double x, double y) {
 		double minAng;
-		while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
+		
+		// The commented code below is the original navigation code given by the TAs
+		/*while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
 			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
 			if (minAng < 0)
 				minAng += 360.0;
 			this.turnTo(minAng, false);
 			this.setSpeeds(FAST, FAST);
+		}*/
+		
+		/* The navigation will work as follows: the robot will travel in the y direction followed by the
+		 * x direction. This is done in order to more easily correct odometry with the light sensor as 
+		 * the robot will only be traveling along the x and y axes*/
+		
+		// Turn in the direction of the positive y axis (90 degrees)
+		if(y - odometer.getY() >= 0)
+		{
+			this.turnTo(90, false);
 		}
+		
+		// Turn in the direction of the negative y axis (270 degrees)
+		else
+		{
+			this.turnTo(270, false);
+		}
+		
+		// Drive forward
+		while(Math.abs(y - odometer.getY()) > CM_ERR)
+		{
+			this.setSpeeds(FAST,FAST);
+		}
+		
+		// Stop the robots motion
+		this.setSpeeds(0, 0);
+		
+		// Turn in the positive x direction (0 degrees)
+		if(x - odometer.getX() >= 0)
+		{
+			this.turnTo(0, false);
+		}
+		
+		// Turn in the negative x direction (270 degrees)
+		else
+		{
+			this.turnTo(180, false);
+		}
+		
+		// Drive forward
+		while(Math.abs(x - odometer.getX()) > CM_ERR)
+		{
+			this.setSpeeds(FAST,FAST);
+		}
+		
+		// Stop the robots motion
 		this.setSpeeds(0, 0);
 	}
 
