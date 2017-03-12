@@ -19,6 +19,8 @@ public class StraightTest {
 		this.rightMotor = motors[1];
 	}
 	public void goStraight(){
+		
+		Sound.beep();
 		while(odo.getY()<60.96){
 			leftMotor.setSpeed(200);
 			rightMotor.setSpeed(200);
@@ -27,7 +29,8 @@ public class StraightTest {
 			
 		}
 		Sound.beep();
-		navi.turnTo(270, true);
+		navi.turnTo(270, false);
+		Sound.beep();
 		while(odo.getY()>=0){
 			leftMotor.setSpeed(200);
 			rightMotor.setSpeed(200);
@@ -35,7 +38,7 @@ public class StraightTest {
 			leftMotor.forward();
 			
 		}
-		navi.turnTo(90, true);
+		navi.turnTo(90, false);
 	}
 	
 }

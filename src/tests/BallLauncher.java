@@ -18,8 +18,8 @@ public class BallLauncher {
 		Sound.beep();
 		this.liftMotor.setSpeed(100);
 		this.liftMotor.rotate(90,false);*/
-		this.launchMotor.setAcceleration(2200);
-		this.launchMotor.setSpeed(1200);
+		this.launchMotor.setAcceleration(3000);
+		this.launchMotor.setSpeed(2000);
 		this.launchMotor.rotate(-150, false);
 		this.launchMotor.setAcceleration(100000);
 		this.launchMotor.setSpeed(100000);
