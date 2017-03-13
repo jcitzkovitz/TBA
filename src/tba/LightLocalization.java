@@ -38,29 +38,29 @@ public class LightLocalization {
 		double[] position = new double[3];
 		
 		// drive to location listed in tutorial
-		navi.turnTo(90, true);
+		navi.turnTo(270, true);
 		while(!FirstlineDetected){
 			leftMotor.setSpeed(200);
 			rightMotor.setSpeed(200);
-			leftMotor.forward();
-			rightMotor.forward();
+			leftMotor.backward();
+			rightMotor.backward();
 			if(getLightStrength()<minLight){
 				FirstlineDetected = true;
 			}
 		}
 		navi.goForward(-5);
-		navi.turnTo(0, true);
+		navi.turnTo(180, true);
 		while(!SecondlineDetected){
 			leftMotor.setSpeed(200);
 			rightMotor.setSpeed(200);
-			leftMotor.forward();
-			rightMotor.forward();
+			leftMotor.backward();
+			rightMotor.backward();
 			if(getLightStrength()<minLight){
 				SecondlineDetected = true;
 			}
 		}
 		navi.goForward(-5);
-		navi.turnTo(0, true);
+		navi.turnTo(45, true);
 		FirstlineDetected = false;
 		SecondlineDetected = false;
 		// start rotating and clock all 4 gridlines
