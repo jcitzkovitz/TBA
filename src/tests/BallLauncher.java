@@ -27,8 +27,12 @@ public class BallLauncher {
 		Sound.beep();
 		
 		this.launchMotor.rotate(-85, false);
-		
-	
+	}
+	public void launch2(){
+		this.liftMotor.setAcceleration(2000);
+		this.liftMotor.setSpeed(2000);
+		this.liftMotor.rotate(-90, false);
+		Sound.beep();
 	}
 
 }
