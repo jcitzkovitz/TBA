@@ -7,7 +7,12 @@
 package tba;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+
 import lejos.robotics.SampleProvider;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 public class USLocalizer {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
@@ -24,6 +29,7 @@ public class USLocalizer {
 	//constant of the wall distance 
 	private double Wall_dist=35;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	
 	
 	
 	public USLocalizer(Odometer odo, Navigation nav, SampleProvider usSensor, float[] usData, LocalizationType locType) {
@@ -172,12 +178,27 @@ public class USLocalizer {
        //retrieve data from the sensor 
 		usSensor.fetchSample(usData, 0);
 		float distance = (usData[0]*100);
-		
+		try {
+			writeToFile(String.valueOf(distance), "SensorData.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//Filter to set garbage values as being 200 cm 
 		if (distance >255){
 			distance =200;
 		}
 		return distance;
+	}
+	
+	public void writeToFile(String textLine, String path) throws IOException {
+		
+		boolean append_to_file = true;
+		FileWriter write = new FileWriter( path , append_to_file);
+		PrintWriter print_line = new PrintWriter( write );
+		print_line.printf( "%s" + "%n" , textLine);
+		print_line.close();
+		
 	}
 	
 }
