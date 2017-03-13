@@ -11,7 +11,7 @@ public class LightLocalization {
 	private float[] colorData;	
 	private Navigation navi;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private double lightDistance = 11.3;
+	private double lightDistance = 15.8;
 	private int corner;
 	
 	public LightLocalization(Odometer odo, SampleProvider colorSensor, float[] colorData, Navigation navi, int startingCorner) {
@@ -33,11 +33,12 @@ public class LightLocalization {
 		boolean FourthlineDetected= false;
 		
 		int lineCounter=0;			//counts the number of lines detected.
-		double minLight = 0.25;		//minimum light reflected by a black line	
+		double minLight = 0.3;		//minimum light reflected by a black line	
 		double thetaYminus= 0, thetaXplus=0, thetaYplus=0, thetaXminus=0, thetaY, thetaX, deltatheta, theta=0;
 		double[] position = new double[3];
 		
 		// drive to location listed in tutorial
+		/*
 		navi.turnTo(270, true);
 		while(!FirstlineDetected){
 			leftMotor.setSpeed(200);
@@ -63,6 +64,7 @@ public class LightLocalization {
 		navi.turnTo(45, true);
 		FirstlineDetected = false;
 		SecondlineDetected = false;
+		*/
 		// start rotating and clock all 4 gridlines
 		// do trig to compute (0,0) and 0 degrees
 		// when done travel to (0,0) and turn to 0 degrees
