@@ -1,6 +1,7 @@
 package tests;
 
 import tba.LightLocalization;
+import tba.LightLocalizer;
 import tba.Navigation;
 import tba.Odometer;
 import tba.USLocalizer;
@@ -54,6 +55,8 @@ public class LocalizationTest {
 				
 				LightLocalization lightLoc = new LightLocalization(odometer, colorValue, colorData, navigate, 1);
 				lightLoc.doLocalization();
+				
+				
 				
 	}
 	
