@@ -11,6 +11,8 @@ import tba.Navigation;
 import tba.Odometer;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.utility.Delay;
+import tba.Navigation;
+import tba.Odometer;
 
 public class Launcher {
 	
