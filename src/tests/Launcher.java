@@ -7,6 +7,8 @@
 package tests;
 
 
+import tba.Navigation;
+import tba.Odometer;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.utility.Delay;
 
