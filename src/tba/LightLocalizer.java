@@ -19,7 +19,7 @@ public class LightLocalizer {
 	private Navigation nav;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	//Max light value of reading for a light
-	private static final int  Line_light = 25;
+	private static final int  Line_light = 40;
 
 	//Value of reflecting light on the ground 
 	private static float color; 
@@ -95,6 +95,8 @@ public class LightLocalizer {
 					 //if a line is intersected, play sound and record the value in the array
 					 Sound.playNote(Sound.FLUTE, 440, 250);
 					 line_Angle[LineCount++] = odo.getAng();
+					 
+					 //delay to avoid reading to values at the same line 
 					Delay.msDelay(2000);
 			}
 		

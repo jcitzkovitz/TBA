@@ -79,7 +79,8 @@ public class ThomasLocalizerTest {
 		   buttonChoice = Button.waitForAnyPress();
 	
 			if (buttonChoice == Button.ID_LEFT) { 
-			usLoc.doLocalization();
+				odometer.start();
+			    usLoc.doLocalization();
 				lightLoc.doLocalization();
 				
 				buttonChoice = Button.waitForAnyPress();
