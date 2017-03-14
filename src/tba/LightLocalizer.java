@@ -54,30 +54,12 @@ public class LightLocalizer {
 			leftMotor.setSpeed(SPEED);
 	     	rightMotor.setSpeed(SPEED);
 		 
-	     	//go forward and check for a black line 
-	     	while  (navigate){
-	    	
-	     	colorSensor.fetchSample(colorData, 0);
-			 color = (colorData[0]*100);
-	        
-			    leftMotor.forward();
-	    		rightMotor.forward();
-			 
-	    		//if the sensor detects a black line 
-	    		if (color< Line_light){
-	    			
-	    			//backward of 10 cm 
-	    			leftMotor.rotate(-290,true);
-			        rightMotor.rotate(-290, false);
-			        //stop robot 
-			        navigate = false;
-	    		}
-	     	}
-			 
+	    // go forward 5cm
+	     	leftMotor.rotate(10,true);
+	     	rightMotor.rotate(10,false);
 		
-		
-		//reset the x and y position 
-		odo.setPosition(new double [] {0, 0, odo.getAng()}, new boolean [] {true, true, true});
+//		//reset the x and y position 
+//		odo.setPosition(new double [] {0, 0, odo.getAng()}, new boolean [] {true, true, true});
 		
 		// set the speed and start rotating counter clockwise
 	
@@ -94,10 +76,9 @@ public class LightLocalizer {
 				 if (color< Line_light){
 					 //if a line is intersected, play sound and record the value in the array
 					 Sound.playNote(Sound.FLUTE, 440, 250);
-					 line_Angle[LineCount++] = odo.getAng();
-					 
-					 //delay to avoid reading to values at the same line 
-					Delay.msDelay(2000);
+					 line_Angle[LineCount] = odo.getAng();
+					 LineCount++;
+
 			}
 		
 		}
@@ -110,18 +91,21 @@ public class LightLocalizer {
 		        double   angleX = line_Angle[1] - line_Angle[3];
 				double angleY = line_Angle[0] - line_Angle[2];
 				
-				double lengthX =(-1)* sensorDist * Math.cos(Math.toRadians(angleY/2));
+				double lengthX = sensorDist * Math.cos(Math.toRadians(angleY/2));
 				double lengthY = (-1)*sensorDist * Math.cos(Math.toRadians(angleX/2));
-				
-				double deltaTheta = -(angleY/2) +(line_Angle[3]-180)+90;
+//				double deltaThetaY = 90+angleY/2 - (line_Angle[0]-180);
+//				double deltaThetaX = 90+angleX/2 - (line_Angle[1]-180);
+//				double deltaTheta = (deltaThetaY+deltaThetaX)/2;
+//				double currentTheta = Math.abs(this.odo.getAng()-deltaTheta);
 				 
 				// set the new position in odometer
-				odo.setPosition(new double [] {(lengthX), (lengthY), deltaTheta}, new boolean [] {true, true, true});
+				odo.setPosition(new double [] {(lengthX), (lengthY), 0}, new boolean [] {true, true, false});
 				Sound.beep();
 				
+				nav.turnTo(0,false);
+				Sound.beep();
 				// At the end turn and travel to (0,0)
-				nav.travelTo(0.0, 0.0);
-				nav.turnTo(0.0,true);	
+				nav.travelTo(0.0, 0.0);	
 				
 				// set the angle to zero and axis to the o as well
 				odo.setPosition(new double [] {0.0, 0.0, 0}, new boolean [] {true, true, true});
