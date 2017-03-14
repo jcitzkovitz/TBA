@@ -29,6 +29,7 @@ public class USLocalizer {
 	//constant of the wall distance 
 	private double Wall_dist=35;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	private float[] medianFilter = new float[]{0,0,0};
 	
 	
 	
@@ -185,9 +186,36 @@ public class USLocalizer {
 			e.printStackTrace();
 		}
 		//Filter to set garbage values as being 200 cm 
-		if (distance >255){
+		if (distance >200){
 			distance =200;
 		}
+		medianFilter[0]=medianFilter[1];
+		medianFilter[1]=medianFilter[2];
+		medianFilter[2]=distance;
+		
+		if(medianFilter[0]<medianFilter[1]){
+			if(medianFilter[0]>medianFilter[2]){
+				distance = medianFilter[0];
+			}
+			else if(medianFilter[1]<medianFilter[2]){
+				distance = medianFilter[1];
+			}
+			else{
+				distance = medianFilter[2];
+			}
+		}
+		else{
+			if(medianFilter[1]>medianFilter[2]){
+				distance = medianFilter[1];
+			}
+			else if(medianFilter[0]<medianFilter[2]){
+				distance = medianFilter[0];
+			}
+			else{
+				distance = medianFilter[2];
+			}
+		}
+		
 		return distance;
 	}
 	
