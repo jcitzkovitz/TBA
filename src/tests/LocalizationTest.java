@@ -2,6 +2,7 @@ package tests;
 
 import tba.LightLocalization;
 import tba.LightLocalizer;
+import tba.LightLocalizerV2;
 import tba.Navigation;
 import tba.Odometer;
 import tba.OdometryDisplay;
@@ -52,13 +53,14 @@ public class LocalizationTest {
 				final TextLCD t = LocalEV3.get().getTextLCD();
 				
 				OdometryDisplay odoDisplay = new OdometryDisplay(odometer,t);
+				
 				odoDisplay.start();
 				
 				USLocalizerV2 usLoc = new USLocalizerV2(odometer, usDistance, usData, USLocalizerV2.LocalizationType.FALLING_EDGE);
 				usLoc.doLocalization();
 				
-//				LightLocalizer lightLoc = new LightLocalizer(odometer,navigate,colorData,colorValue,leftMotor,rightMotor);
-//				lightLoc.doLocalization();
+				LightLocalizerV2 lightLoc = new LightLocalizerV2(odometer,colorValue,colorData, navigate,1);
+				lightLoc.doLocalization();
 				
 				
 				

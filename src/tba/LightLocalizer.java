@@ -88,27 +88,27 @@ public class LightLocalizer {
 		
 		        // Compute  x, y and theta differences
 		        // using formulas from the tutorial slides 
-		        double   angleX = line_Angle[1] - line_Angle[3];
-				double angleY = line_Angle[0] - line_Angle[2];
+		        double   angleX = line_Angle[3] - line_Angle[1];
+				double angleY = line_Angle[2] - line_Angle[0];
 				
 				double lengthX = sensorDist * Math.cos(Math.toRadians(angleY/2));
 				double lengthY = (-1)*sensorDist * Math.cos(Math.toRadians(angleX/2));
-//				double deltaThetaY = 90+angleY/2 - (line_Angle[0]-180);
-//				double deltaThetaX = 90+angleX/2 - (line_Angle[1]-180);
-//				double deltaTheta = (deltaThetaY+deltaThetaX)/2;
-//				double currentTheta = Math.abs(this.odo.getAng()-deltaTheta);
+				double deltaThetaY = 90+angleY/2 - (line_Angle[0]-180);
+				double deltaThetaX = 90+angleX/2 - (line_Angle[1]-180);
+				double deltaTheta = (deltaThetaY+deltaThetaX)/2;
+				double currentTheta = Math.abs(this.odo.getAng()-deltaTheta);
 				 
 				// set the new position in odometer
-				odo.setPosition(new double [] {(lengthX), (lengthY), 0}, new boolean [] {true, true, false});
+				odo.setPosition(new double [] {(lengthX), (lengthY), currentTheta}, new boolean [] {true, true, true});
 				Sound.beep();
 				
-				nav.turnTo(0,false);
-				Sound.beep();
-				// At the end turn and travel to (0,0)
-				nav.travelTo(0.0, 0.0);	
-				
-				// set the angle to zero and axis to the o as well
-				odo.setPosition(new double [] {0.0, 0.0, 0}, new boolean [] {true, true, true});
+//				nav.turnTo(0,false);
+//				Sound.beep();
+//				// At the end turn and travel to (0,0)
+//				nav.travelTo(0.0, 0.0);	
+//				
+//				// set the angle to zero and axis to the o as well
+//				odo.setPosition(new double [] {0.0, 0.0, 0}, new boolean [] {true, true, true});
 			}
 
 

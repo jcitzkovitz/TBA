@@ -167,6 +167,7 @@ public class USLocalizerV2 {
 			
 			// Rotate to angle 0
 			navigation.turnTo(0, true);
+
 		}
 	}
 	
