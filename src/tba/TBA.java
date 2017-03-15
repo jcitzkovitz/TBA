@@ -9,6 +9,8 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 
+/**
+ * The TBA class will be the main class for playing the game*/
 
 public class TBA {
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
@@ -45,8 +47,6 @@ public class TBA {
 		
 		Button.waitForAnyPress();
 		
-		LightLocalization lsl = new LightLocalization(odo, colorValue, colorData, navi, 1);
-		lsl.doLocalization();	
 		
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);

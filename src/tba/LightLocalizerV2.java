@@ -4,6 +4,12 @@ import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
+/**
+ * The LightLocalizerV2 class is the secon version od LightLocalizer. This class performs localization through the use of a light sensor in terms of the robot's
+ * x and y position on the grid. It tracks the distance of both the x and y axis lines from its original 
+ * position by driving forward until a line is detected for both directions. The robot then advances to its 
+ * starting position where it's correct coordinates are set.*/
+ 
 
 public class LightLocalizerV2 {
 	private Odometer odo;

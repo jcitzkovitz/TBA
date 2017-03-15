@@ -30,6 +30,12 @@ import lejos.utility.Timer;
 import lejos.utility.TimerListener;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/**
+ * The Odometer class keeps track of the position and angle that the robot has
+ * moved. It uses the information given by the wheel motor's sensors, which tracks
+ * how many revolutions have been made, and produces other valuable information
+ * needed for the robot's functionality.*/
+
 public class Odometer implements TimerListener {
 
 	private Timer timer;

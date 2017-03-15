@@ -1,6 +1,6 @@
 package tests;
 
-import tba.LightLocalization;
+
 import tba.LightLocalizer;
 import tba.LightLocalizerV2;
 import tba.Navigation;

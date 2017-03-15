@@ -2,6 +2,10 @@ package tba;
 
 import lejos.robotics.SampleProvider;
 
+/**
+ * The OdometerCorrection class corrects Odometer inaccuracies produced by wheel slippage
+ * and other sources error while navigating*/
+
 public class OdometerCorrection extends Thread {
 
 	private Odometer odo;

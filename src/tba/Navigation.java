@@ -2,6 +2,7 @@ package tba;
 
 /*
  * File: Navigation.java
+
  * Written by: Sean Lawlor
  * ECSE 211 - Design Principles and Methods, Head TA
  * Fall 2011
@@ -10,7 +11,13 @@ package tba;
  * 
  * Movement control class (turnTo, travelTo, flt, localize)
  */
+
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+
+/**
+ * The navigation class controls how the robot will maneuver about the grid.
+ * The robot navigates along the x and y axes only, thus at no angles other
+ * than 0 degrees, 90 degrees, 180 degrees and 270 degrees.*/
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;

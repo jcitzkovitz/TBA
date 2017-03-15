@@ -14,6 +14,10 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.IOException;
 
+/**
+ * The USLocalization class uses ultra-sonic sensors to locate the walls surrounding 
+ * the robot, where this information is used to locate the 0 degree angle.*/
+
 public class USLocalizer {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
 	public static double ROTATION_SPEED =150;

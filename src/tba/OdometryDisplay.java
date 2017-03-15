@@ -6,6 +6,9 @@ package tba;
 
 import lejos.hardware.lcd.TextLCD;
 
+/**
+ * The Odometer Display class is used to display the odometer's readings on the robot.*/
+
 public class OdometryDisplay extends Thread {
 	private static final long DISPLAY_PERIOD = 250;
 	private Odometer odometer;
