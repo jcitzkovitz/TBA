@@ -12,6 +12,11 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
+/**
+ * The LightLocalizaer class performs localization through the use of a light sensor in terms of the robot's
+ * x and y position on the grid. It continuously rotates until it tracks 4 grid lines
+ * and uses information about the angle to locate the x and y position it is in.*/
+
 public class LightLocalizer {
 	private Odometer odo;
 	private SampleProvider colorSensor;

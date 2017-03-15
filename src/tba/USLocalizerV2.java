@@ -4,6 +4,11 @@ import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
+/**
+ * The USLocalizerV2 class is the second version of USLocalization. It uses 
+ * ultra-sonic sensors to locate the walls surrounding the robot, where this
+ * information is used to locate the 0 degree angle.*/
+
 public class USLocalizerV2 {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
 	public static float ROTATION_SPEED = 80;
