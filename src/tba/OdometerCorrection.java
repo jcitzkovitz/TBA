@@ -34,89 +34,75 @@ public class OdometerCorrection extends Thread {
 		double minLight = 0.25;		//minimum light reflected by a black line
 		boolean firstXLineCrossed = false;
 		boolean firstYLineCrossed = false;
-		boolean blackLineCrossed = false;
-
+		double correctXPoint = 0;
+		double correctYPoint = 0;
+		double currentAngle;
+		boolean posX, posY, negX, negY;
 		while(true)
 		{
-			if(getLightStrength() <= .25)
+			if(getLightStrength() < minLight)
 			{
-				blackLineCrossed = true;
-			}
-
-			if(blackLineCrossed)
-			{
-				if(getLightStrength() - minLight >= .7)
+				currentAngle = this.odo.getAng();
+				
+				posX = (currentAngle > -1 && currentAngle < 1);
+				posY = (currentAngle > 89 && currentAngle < 91);
+				negX = (currentAngle > 179 && currentAngle < 181);
+				negY = (currentAngle > 269 && currentAngle < 271);
+				
+				if(posX)
 				{
-
-					/*Check which direction the robot is facing according to the odometer to decide whether
-					to correct the x/y odometer readings.*/
-
-					// +Y direction
-					if(this.odo.getAng() >= 90-1 && this.odo.getAng() <= 90+1)
+					if(!firstXLineCrossed)
 					{
-
-						if(!firstYLineCrossed)
-						{
-							firstYLineCrossed = true;
-							lastYLineCrossedPoint = this.odo.getY();
-						}
-						else
-						{
-							lastYLineCrossedPoint+=30.48;
-							this.odo.setY(lastYLineCrossedPoint);
-						}
-
+						correctXPoint = this.odo.getX();
+						firstXLineCrossed=true;
 					}
-
-					// -Y direction
-					else if (this.odo.getAng() >= 270-1 && this.odo.getAng() <= 270+1)
+					else
 					{
-						if(!firstYLineCrossed)
-						{
-							firstYLineCrossed = true;
-							lastYLineCrossedPoint = this.odo.getY();
-						}
-						else
-						{
-							lastYLineCrossedPoint-=30.48;
-							this.odo.setY(lastYLineCrossedPoint);
-						}
+						correctXPoint+=30.48;
+						this.odo.setPosition((new double[] {correctXPoint,0,0}), (new boolean[] {true,false,false}));
 					}
-
-					// +X direction
-					else if(this.odo.getAng() >= -1 && this.odo.getAng() <= 1)
+				}
+				else if(negX)
+				{
+					if(!firstXLineCrossed)
 					{
-						if(!firstXLineCrossed)
-						{
-							firstXLineCrossed = true;
-							lastXLineCrossedPoint = this.odo.getX();
-						}
-						else
-						{
-							lastXLineCrossedPoint+=30.48;
-							this.odo.setX(lastYLineCrossedPoint);
-						}
+						correctXPoint = this.odo.getX();
+						firstXLineCrossed=true;
 					}
-
-					// -X direction
-					else if(this.odo.getAng() >= 180-1 && this.odo.getAng() <= 180+1)
+					else
 					{
-						if(!firstXLineCrossed)
-						{
-							firstXLineCrossed = true;
-							lastXLineCrossedPoint = this.odo.getX();
-						}
-						else
-						{
-							lastXLineCrossedPoint-=30.48;
-							this.odo.setX(lastYLineCrossedPoint);
-						}
+						correctXPoint-=30.48;
+						this.odo.setPosition((new double[] {correctXPoint,0,0}), (new boolean[] {true,false,false}));
+					}
+				}
+				else if(posY)
+				{
+					if(!firstYLineCrossed)
+					{
+						correctYPoint = this.odo.getX();
+						firstYLineCrossed=true;
+					}
+					else
+					{
+						correctYPoint+=30.48;
+						this.odo.setPosition((new double[] {0,correctYPoint,0}), (new boolean[] {false,true,false}));
+					}
+				}
+				else if(negY)
+				{
+					if(!firstYLineCrossed)
+					{
+						correctYPoint = this.odo.getX();
+						firstYLineCrossed=true;
+					}
+					else
+					{
+						correctYPoint-=30.48;
+						this.odo.setPosition((new double[] {0,correctYPoint,0}), (new boolean[] {false,true,false}));
 					}
 				}
 			}
-
 		}
-
 
 	}
 

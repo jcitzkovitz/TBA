@@ -11,7 +11,7 @@ import lejos.utility.Delay;
 
 public class USLocalizerV2 {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
-	public static float ROTATION_SPEED = 80;
+	public static float ROTATION_SPEED = 60;
 	
 	private Odometer odo;
 	private SampleProvider usSensor;

@@ -20,7 +20,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  * than 0 degrees, 90 degrees, 180 degrees and 270 degrees.*/
 
 public class Navigation {
-	final static int FAST = 200, SLOW = 100, ACCELERATION = 4000;
+	final static int FAST = 200, SLOW = 100, ACCELERATION = 1000;
 	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -99,13 +99,13 @@ public class Navigation {
 		// Turn in the direction of the positive y axis (90 degrees)
 		if(y - odometer.getY() >= 0)
 		{
-			this.turnTo(90, false);
+			this.turnTo(90, true);
 		}
 		
 		// Turn in the direction of the negative y axis (270 degrees)
 		else
 		{
-			this.turnTo(270, false);
+			this.turnTo(270, true);
 		}
 		
 		// Drive forward
@@ -120,13 +120,13 @@ public class Navigation {
 		// Turn in the positive x direction (0 degrees)
 		if(x - odometer.getX() >= 0)
 		{
-			this.turnTo(0, false);
+			this.turnTo(0, true);
 		}
 		
 		// Turn in the negative x direction (270 degrees)
 		else
 		{
-			this.turnTo(180, false);
+			this.turnTo(180, true);
 		}
 		
 		// Drive forward
@@ -147,24 +147,27 @@ public class Navigation {
 
 		double error = angle - this.odometer.getAng();
 
+		if (error < -180.0) {
+			this.setSpeeds(-SLOW, SLOW);
+		} else if (error < 0.0) {
+			this.setSpeeds(SLOW, -SLOW);
+		} else if (error > 180.0) {
+			this.setSpeeds(SLOW, -SLOW);
+		} else {
+			this.setSpeeds(-SLOW, SLOW);
+		}
+		
 		while (Math.abs(error) > DEG_ERR) {
 
 			error = angle - this.odometer.getAng();
 
-			if (error < -180.0) {
-				this.setSpeeds(-SLOW, SLOW);
-			} else if (error < 0.0) {
-				this.setSpeeds(SLOW, -SLOW);
-			} else if (error > 180.0) {
-				this.setSpeeds(SLOW, -SLOW);
-			} else {
-				this.setSpeeds(-SLOW, SLOW);
-			}
 		}
 
 		if (stop) {
 			this.setSpeeds(0, 0);
 		}
+		
+		try{Thread.sleep(1000);}catch(Exception e){}
 	}
 	
 	/*

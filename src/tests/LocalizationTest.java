@@ -3,6 +3,7 @@ package tests;
 
 import tba.LightLocalizer;
 import tba.LightLocalizerV2;
+import tba.LightLocalizerV3;
 import tba.Navigation;
 import tba.Odometer;
 import tba.OdometryDisplay;
@@ -59,7 +60,7 @@ public class LocalizationTest {
 				USLocalizerV2 usLoc = new USLocalizerV2(odometer, usDistance, usData, USLocalizerV2.LocalizationType.FALLING_EDGE);
 				usLoc.doLocalization();
 				
-				LightLocalizerV2 lightLoc = new LightLocalizerV2(odometer,colorValue,colorData, navigate,1);
+				LightLocalizerV3 lightLoc = new LightLocalizerV3(odometer,colorValue,colorData, navigate,1);
 				lightLoc.doLocalization();
 				
 				
