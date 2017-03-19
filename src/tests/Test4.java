@@ -9,15 +9,15 @@ import tba.Odometer;
 public class Test4 {
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private static final EV3LargeRegulatedMotor liftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-	private static final EV3LargeRegulatedMotor launchMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
+	private static final EV3LargeRegulatedMotor leftCatapultMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	private static final EV3LargeRegulatedMotor rightCatapultMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	
 	
 	public static void main(String[] args) {
 		// setup the odometer and display
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 30, true);
 		//setup the ballLauncher
-		BallLauncher test = new BallLauncher(liftMotor, launchMotor );
+		BallLauncher test = new BallLauncher(leftCatapultMotor, rightCatapultMotor );
 		
 		int buttonChoice = Button.ID_ENTER;
 		while(buttonChoice != Button.ID_ESCAPE){
@@ -43,7 +43,7 @@ public class Test4 {
 			LCDInfo lcd = new LCDInfo(odometer, t);
 			lcd.start();
 			if (buttonChoice == Button.ID_ENTER)
-				test.launch2();
+				test.launch();
 		}
 		System.exit(0);
 	}
