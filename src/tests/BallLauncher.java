@@ -12,22 +12,21 @@ public class BallLauncher {
 	}
 	public void launch(){
 	//launch the ball
-<<<<<<< Updated upstream
+
 	this.leftCatapultMotor.setAcceleration(2000);
 	this.rightCatapultMotor.setAcceleration(2000);
 	this.leftCatapultMotor.setSpeed(1500);
 	this.rightCatapultMotor.setSpeed(1500);
-	this.leftCatapultMotor.rotate(-120, true);
-	this.rightCatapultMotor.rotate(-120,false);
+	this.leftCatapultMotor.rotate(-100, true);
+	this.rightCatapultMotor.rotate(-100,false);
 	Sound.twoBeeps();
 	//return to the initial position
 	this.leftCatapultMotor.setAcceleration(500);
 	this.rightCatapultMotor.setAcceleration(500);
 	this.leftCatapultMotor.setSpeed(100);
 	this.rightCatapultMotor.setSpeed(100);
-	this.leftCatapultMotor.rotate(120, true);
-	this.rightCatapultMotor.rotate(120, false);
-=======
+	this.leftCatapultMotor.rotate(100, true);
+	this.rightCatapultMotor.rotate(100, false);
 	this.leftCatapultMotor.setAcceleration(3000);
 	this.rightCatapultMotor.setAcceleration(3000);
 	this.leftCatapultMotor.setSpeed(2500);
@@ -40,8 +39,8 @@ public class BallLauncher {
 	this.rightCatapultMotor.setAcceleration(100);
 	this.leftCatapultMotor.setSpeed(90);
 	this.rightCatapultMotor.setSpeed(90);
-	this.leftCatapultMotor.rotate(-85, true);
-	this.rightCatapultMotor.rotate(-85, false);
->>>>>>> Stashed changes
+	this.leftCatapultMotor.rotate(-120, true);
+	this.rightCatapultMotor.rotate(-120, false);
+
 	}
 }
