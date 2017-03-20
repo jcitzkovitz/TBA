@@ -21,12 +21,12 @@ public class USLocalizerV2 {
 	
 	private static final int BANDWIDTH	= 30;
 	
-	public USLocalizerV2(Odometer odo,  SampleProvider usSensor, float[] usData, LocalizationType fallingEdge) {
+	public USLocalizerV2(Odometer odo,  SampleProvider usSensor, float[] usData, Navigation navigation, LocalizationType fallingEdge) {
 		this.odo = odo;
 		this.usSensor = usSensor;
 		this.usData = usData;
 		this.locType = fallingEdge;
-		this.navigation = new Navigation(this.odo);
+		this.navigation = navigation;
 	}
 	
 	public void doLocalization() {

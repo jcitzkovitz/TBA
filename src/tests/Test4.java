@@ -18,6 +18,7 @@ public class Test4 {
 		Odometer odometer = new Odometer(leftMotor, rightMotor, 30, true);
 		//setup the ballLauncher
 		BallLauncher test = new BallLauncher(leftCatapultMotor, rightCatapultMotor );
+		test.launch();
 		
 		int buttonChoice = Button.ID_ENTER;
 		while(buttonChoice != Button.ID_ESCAPE){

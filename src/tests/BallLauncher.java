@@ -16,15 +16,15 @@ public class BallLauncher {
 	this.rightCatapultMotor.setAcceleration(2000);
 	this.leftCatapultMotor.setSpeed(1500);
 	this.rightCatapultMotor.setSpeed(1500);
-	this.leftCatapultMotor.rotate(-150, true);
-	this.rightCatapultMotor.rotate(-150,false);
+	this.leftCatapultMotor.rotate(-120, true);
+	this.rightCatapultMotor.rotate(-120,false);
 	Sound.twoBeeps();
 	//return to the initial position
 	this.leftCatapultMotor.setAcceleration(500);
 	this.rightCatapultMotor.setAcceleration(500);
 	this.leftCatapultMotor.setSpeed(100);
 	this.rightCatapultMotor.setSpeed(100);
-	this.leftCatapultMotor.rotate(150, true);
-	this.rightCatapultMotor.rotate(150, false);
+	this.leftCatapultMotor.rotate(120, true);
+	this.rightCatapultMotor.rotate(120, false);
 	}
 }

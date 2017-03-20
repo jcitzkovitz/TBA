@@ -4,6 +4,7 @@ package tests;
 
 import tba.Navigation;
 import tba.Odometer;
+import tba.OdometryDisplay;
 import lejos.hardware.*;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
@@ -33,32 +34,19 @@ public class Exp4{
 		//setup Navigator 
 		Navigation navigate= new Navigation(odometer);
 		
-	
-		
-		//setup the TestRun
-		StraightTest test = new StraightTest(odometer, navigate);
-		
-		//interface to ask what the user wants 
 		final TextLCD t = LocalEV3.get().getTextLCD();
+		OdometryDisplay disp = new OdometryDisplay(odometer,t);
+		disp.start();
+		
+//		//setup the TestRun
+//		StraightTest test = new StraightTest(odometer, navigate);
+//		test.goStraight();
+		
+		RotationTest test2 = new RotationTest(odometer,navigate);
+		test2.rotate(271);
+		//interface to ask what the user wants 
 
 		
-		do {
-			// clear the display
-			t.clear();
-
-			// ask the user which test to perform 
-			t.drawString(" DRIVE STRAIGHT", 0, 0);
-			
-			
-			buttonChoice = Button.waitForAnyPress();
-		     }
-		
-	 while (buttonChoice != Button.ID_LEFT && buttonChoice != Button.ID_RIGHT && buttonChoice!= Button.ID_ENTER);
-		t.clear();
-		LCDInfo lcd = new LCDInfo(odometer, t);
-		lcd.start();
-		if (buttonChoice == Button.ID_LEFT)
-			test.goStraight();
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);

@@ -97,6 +97,7 @@ public class Navigation {
 		 * the robot will only be traveling along the x and y axes*/
 		
 		// Turn in the direction of the positive y axis (90 degrees)
+
 		if(y - odometer.getY() >= 0)
 		{
 			this.turnTo(90, true);
@@ -108,6 +109,7 @@ public class Navigation {
 			this.turnTo(270, true);
 		}
 		
+		
 		// Drive forward
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
@@ -116,6 +118,8 @@ public class Navigation {
 		
 		// Stop the robots motion
 		this.setSpeeds(0, 0);
+		
+		
 		
 		// Turn in the positive x direction (0 degrees)
 		if(x - odometer.getX() >= 0)
@@ -129,6 +133,7 @@ public class Navigation {
 			this.turnTo(180, true);
 		}
 		
+		
 		// Drive forward
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
@@ -137,7 +142,8 @@ public class Navigation {
 		
 		// Stop the robots motion
 		this.setSpeeds(0, 0);
-	}
+		}
+	
 
 	/*
 	 * TurnTo function which takes an angle and boolean as arguments The boolean controls whether or not to stop the
@@ -145,29 +151,70 @@ public class Navigation {
 	 */
 	public void turnTo(double angle, boolean stop) {
 
-		double error = angle - this.odometer.getAng();
-
-		if (error < -180.0) {
-			this.setSpeeds(-SLOW, SLOW);
-		} else if (error < 0.0) {
-			this.setSpeeds(SLOW, -SLOW);
-		} else if (error > 180.0) {
-			this.setSpeeds(SLOW, -SLOW);
-		} else {
-			this.setSpeeds(-SLOW, SLOW);
-		}
+//		double error = angle - this.odometer.getAng();
+//
+//		if (error < -180.0) {
+//			this.setSpeeds(-SLOW, SLOW);
+//		} else if (error < 0.0) {
+//			this.setSpeeds(SLOW, -SLOW);
+//		} else if (error > 180.0) {
+//			this.setSpeeds(SLOW, -SLOW);
+//		} else {
+//			this.setSpeeds(-SLOW, SLOW);
+//		}
+//		
+//		while (Math.abs(error) > DEG_ERR) {
+//
+//			error = angle - this.odometer.getAng();
+//
+//		}
+//
+//		if (stop) {
+//			this.setSpeeds(0, 0);
+//		}
+//		
+//		try{Thread.sleep(1000);}catch(Exception e){}
 		
-		while (Math.abs(error) > DEG_ERR) {
-
-			error = angle - this.odometer.getAng();
-
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
+		
+		double error = angle - this.odometer.getAng();
+		
+		if(error < -180)
+		{
+			angle = 360-Math.abs(error);
+			leftMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
+			rightMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
 		}
-
-		if (stop) {
-			this.setSpeeds(0, 0);
+		else if(error > 180)
+		{
+			angle = 360-Math.abs(error);
+			leftMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
+			rightMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
+		}
+		else if(error < 0)
+		{
+			angle = Math.abs(error);
+			leftMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
+			rightMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
+		}
+		else
+		{
+			angle = Math.abs(error);
+			leftMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
+			rightMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
 		}
 		
 		try{Thread.sleep(1000);}catch(Exception e){}
+		
+	}
+	
+	private static int convertDistance(double radius, double distance) {
+		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
+
+	private static int convertAngle(double radius, double width, double angle) {
+		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 	
 	/*

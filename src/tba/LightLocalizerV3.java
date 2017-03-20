@@ -17,11 +17,10 @@ public class LightLocalizerV3 {
 	private float[] colorData;	
 	private Navigation navi;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private int corner;
 	private float SPEED = 100;
 	private double lightSensorDistance = 3;
 	
-	public LightLocalizerV3(Odometer odo, SampleProvider colorSensor, float[] colorData, Navigation navi, int startingCorner) {
+	public LightLocalizerV3(Odometer odo, SampleProvider colorSensor, float[] colorData, Navigation navi) {
 		this.odo = odo;
 		this.colorSensor = colorSensor;
 		this.colorData = colorData;
@@ -29,7 +28,6 @@ public class LightLocalizerV3 {
 		EV3LargeRegulatedMotor[] motors = this.odo.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
-		this.corner = startingCorner;
 	}
 	
 	public void doLocalization() {
