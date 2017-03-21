@@ -1,4 +1,4 @@
-package tba;
+	package tba;
 
 /*
  * File: Navigation.java
@@ -24,6 +24,7 @@ public class Navigation {
 	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	private boolean isTurning = false;
 
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -150,7 +151,7 @@ public class Navigation {
 	 * motors when the turn is completed
 	 */
 	public void turnTo(double angle, boolean stop) {
-
+		isTurning = true;
 //		double error = angle - this.odometer.getAng();
 //
 //		if (error < -180.0) {
@@ -207,6 +208,7 @@ public class Navigation {
 		
 		try{Thread.sleep(1000);}catch(Exception e){}
 		
+		isTurning = false;
 	}
 	
 	private static int convertDistance(double radius, double distance) {
@@ -223,5 +225,9 @@ public class Navigation {
 	public void goForward(double distance) {
 		this.travelTo(Math.cos(Math.toRadians(this.odometer.getAng())) * distance, Math.cos(Math.toRadians(this.odometer.getAng())) * distance);
 
+	}
+	
+	public boolean isTurning(){
+		return isTurning;
 	}
 }

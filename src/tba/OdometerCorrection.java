@@ -9,6 +9,7 @@ import lejos.robotics.SampleProvider;
 public class OdometerCorrection extends Thread {
 
 	private Odometer odo;
+	private Navigation navi;
 	private SampleProvider colorSensor;
 	private float[] colorData;
 	private boolean xDirection;
@@ -17,9 +18,10 @@ public class OdometerCorrection extends Thread {
 	private double lastYLineCrossedPoint;
 	private double startingPosition;
 
-	public OdometerCorrection(Odometer odo,SampleProvider colorSensor, float[] colorData, double startingPosition)
+	public OdometerCorrection(Odometer odo, Navigation navi,SampleProvider colorSensor, float[] colorData, double startingPosition)
 	{
 		this.odo = odo;
+		this.navi = navi;
 		this.colorSensor = colorSensor;
 		this.colorData = colorData;
 		this.xDirection = false;
@@ -31,23 +33,23 @@ public class OdometerCorrection extends Thread {
 
 	public void run() {
 
-		double minLight = 0.25;		//minimum light reflected by a black line
+		double minLight = 0.3;		//minimum light reflected by a black line
 		boolean firstXLineCrossed = false;
 		boolean firstYLineCrossed = false;
 		double correctXPoint = 0;
 		double correctYPoint = 0;
 		double currentAngle;
 		boolean posX, posY, negX, negY;
-		while(true)
+		while(true&&!navi.isTurning())
 		{
 			if(getLightStrength() < minLight)
 			{
 				currentAngle = this.odo.getAng();
 				
-				posX = (currentAngle > -1 && currentAngle < 1);
-				posY = (currentAngle > 89 && currentAngle < 91);
-				negX = (currentAngle > 179 && currentAngle < 181);
-				negY = (currentAngle > 269 && currentAngle < 271);
+				posX = (currentAngle > 355 || currentAngle < 5);
+				posY = (currentAngle > 85 && currentAngle < 95);
+				negX = (currentAngle > 175 && currentAngle < 185);
+				negY = (currentAngle > 265 && currentAngle < 275);
 				
 				if(posX)
 				{
