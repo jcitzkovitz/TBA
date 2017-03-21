@@ -32,7 +32,7 @@ public static void main(String[] args) {
 		float[] colorData = new float[colorValue.sampleSize()];			// colorData is the buffer in which data are returned
 		
 		// setup odometer correction
-		OdometerCorrection odoCorrection = new OdometerCorrection(odometer, colorValue, colorData,1);
+		OdometerCorrection odoCorrection = new OdometerCorrection(odometer, navigate, colorValue, colorData,1);
 		
 		odometer.start();
 		//odoCorrection.start();

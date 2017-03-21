@@ -15,8 +15,8 @@ import lejos.robotics.SampleProvider;
 
 public class OdometryCorrectionTest {
 
-	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	private static final Port colorPort = LocalEV3.get().getPort("S1");	
 
 	
@@ -45,7 +45,7 @@ public static void main(String[] args) {
 			t.drawString(" R: Half Square Run  ", 0, 1);
 		
 //		// setup odometer correction
-		OdometerCorrection odoCorrection = new OdometerCorrection(odometer, colorValue, colorData,1);
+		OdometerCorrection odoCorrection = new OdometerCorrection(odometer, navigate, colorValue, colorData,1);
 		OdometryDisplay odoDisplay = new OdometryDisplay(odometer, t);
 		odoCorrection.start();
 		odoDisplay.start();
