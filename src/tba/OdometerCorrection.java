@@ -17,6 +17,11 @@ public class OdometerCorrection extends Thread {
 	private double lastXLineCrossedPoint;
 	private double lastYLineCrossedPoint;
 	private double startingPosition;
+	private boolean previousXPositive = true;
+	private boolean previousYPositive = true;
+	private double correctXPoint = 0;
+	private double correctYPoint = 0;
+
 
 	public OdometerCorrection(Odometer odo, Navigation navi,SampleProvider colorSensor, float[] colorData, double startingPosition)
 	{
@@ -36,8 +41,6 @@ public class OdometerCorrection extends Thread {
 		double minLight = 0.3;		//minimum light reflected by a black line
 		boolean firstXLineCrossed = false;
 		boolean firstYLineCrossed = false;
-		double correctXPoint = 0;
-		double correctYPoint = 0;
 		double currentAngle;
 		boolean posX, posY, negX, negY;
 		while(true&&!navi.isTurning())
@@ -57,11 +60,15 @@ public class OdometerCorrection extends Thread {
 					{
 						correctXPoint = this.odo.getX();
 						firstXLineCrossed=true;
+						previousXPositive = true;
 					}
 					else
 					{
-						correctXPoint+=30.48;
-						this.odo.setPosition((new double[] {correctXPoint,0,0}), (new boolean[] {true,false,false}));
+						if(previousXPositive){
+							correctXPoint+=30.48;
+						}
+						setPosition(correctXPoint, 0);
+						previousXPositive = true;
 					}
 				}
 				else if(negX)
@@ -70,11 +77,15 @@ public class OdometerCorrection extends Thread {
 					{
 						correctXPoint = this.odo.getX();
 						firstXLineCrossed=true;
+						previousXPositive = false;
 					}
 					else
 					{
-						correctXPoint-=30.48;
-						this.odo.setPosition((new double[] {correctXPoint,0,0}), (new boolean[] {true,false,false}));
+						if(!previousXPositive){
+							correctXPoint-=30.48;
+						}
+						setPosition(correctXPoint, 0);
+						previousXPositive = false;
 					}
 				}
 				else if(posY)
@@ -83,11 +94,15 @@ public class OdometerCorrection extends Thread {
 					{
 						correctYPoint = this.odo.getX();
 						firstYLineCrossed=true;
+						previousYPositive = true;
 					}
 					else
 					{
-						correctYPoint+=30.48;
-						this.odo.setPosition((new double[] {0,correctYPoint,0}), (new boolean[] {false,true,false}));
+						if(previousYPositive){
+							correctYPoint+=30.48;
+						}
+						setPosition(correctYPoint, 1);
+						previousYPositive = true;
 					}
 				}
 				else if(negY)
@@ -96,11 +111,15 @@ public class OdometerCorrection extends Thread {
 					{
 						correctYPoint = this.odo.getX();
 						firstYLineCrossed=true;
+						previousYPositive = false;
 					}
 					else
 					{
-						correctYPoint-=30.48;
-						this.odo.setPosition((new double[] {0,correctYPoint,0}), (new boolean[] {false,true,false}));
+						if(!previousYPositive){
+							correctYPoint-=30.48;
+						}
+						setPosition(correctYPoint, 1);
+						previousYPositive = false;
 					}
 				}
 			}
@@ -112,5 +131,24 @@ public class OdometerCorrection extends Thread {
 		colorSensor.fetchSample(colorData, 0);
 		float lightStrength = colorData[0];
 		return lightStrength;
+	}
+	
+	private void setPosition(double value, int XorY){
+		if(XorY==0){
+			if(Math.abs(value-odo.getX())<20){
+				this.odo.setX(value);
+			}
+			else{
+				correctXPoint = odo.getX();
+			}
+		}
+		if(XorY==1){
+			if(Math.abs(value-odo.getY())<20){
+				this.odo.setY(value);
+			}
+			else{
+				correctXPoint = odo.getY();
+			}
+		}
 	}
 }
