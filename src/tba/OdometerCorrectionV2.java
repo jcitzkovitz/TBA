@@ -3,6 +3,11 @@ package tba;
 import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This is the second version of Odmetry correction
+ * The OdometerCorrection class corrects Odometer inaccuracies produced by wheel slippage
+ * and other sources error while navigating*/
+
 public class OdometerCorrectionV2 {
 	private static final long CORRECTION_PERIOD = 10;
 	private Odometer odo;

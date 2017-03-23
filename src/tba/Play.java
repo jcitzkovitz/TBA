@@ -2,8 +2,8 @@ package tba;
 
 import java.util.Map;
 
+
 import tba.USLocalizerV2.LocalizationType;
-import tba.WifiConnection;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -12,6 +12,11 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
+
+/** The Play class is the main class of which the game will be played.
+ * All other classes will be called upon in this class to perform the
+ * required tasks.
+ * */
 
 public class Play {
 
