@@ -9,22 +9,27 @@ import lejos.utility.Delay;
  * ultra-sonic sensors to locate the walls surrounding the robot, where this
  * information is used to locate the 0 degree angle.*/
 
-public class USLocalizerV2 {
+public class USLocalizerV3 {
 	public enum LocalizationType { FALLING_EDGE, RISING_EDGE };
-	public static float ROTATION_SPEED = 100;
+	public static float ROTATION_SPEED = 60;
 	
 	private Odometer odo;
-	private SampleProvider usSensor;
-	private float[] usData;
+	private SampleProvider usSensorL;
+	private float[] usDataL;
+	private SampleProvider usSensorM;
+	private float[] usDataM;
+	private SampleProvider usSensorR;
+	private float[] usDataR;
 	private LocalizationType locType;
 	public Navigation navigation; 
 	
 	private static final int BANDWIDTH	= 30;
 	
-	public USLocalizerV2(Odometer odo,  SampleProvider usSensor, float[] usData, Navigation navigation, LocalizationType fallingEdge) {
+	
+	public USLocalizerV3(Odometer odo,  SampleProvider usSensorL, float[] usDataL,SampleProvider usSensorM, float[] usDataM,SampleProvider usSensorR, float[] usDataR, Navigation navigation, LocalizationType fallingEdge) {
 		this.odo = odo;
-		this.usSensor = usSensor;
-		this.usData = usData;
+		this.usSensorL = usSensorL;
+		this.usDataL = usDataL;
 		this.locType = fallingEdge;
 		this.navigation = navigation;
 	}
@@ -32,10 +37,12 @@ public class USLocalizerV2 {
 	public void doLocalization() {
 		
 		// Angle variables
-		double angleA, angleB;
+		double angleAL, angleBL, angleAM, angleBM, angleAR, angleBR;
 		
 		// Angle used to for ending orientation
-		double orientationAngle = 0;
+		double orientationAngleL = 0;
+		double orientationAngleR = 0;
+		double orientationAngleM = 0;
 		
 		if (locType == LocalizationType.FALLING_EDGE) {
 			
@@ -62,33 +69,25 @@ public class USLocalizerV2 {
 			
 			// Hold this last angle which will be used to calculate the final
 			// orientation angle
-			angleA = odo.getAng();
+			angleAL = odo.getAng();
 			
 			// Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
 			// Rotate counter clockwise until no wall is seen (for the same reason
 			// as mentioned above)
-			int i = 0;
 			while(getFilteredData() < BANDWIDTH)
 			{
 				rotateCCW();
-				if(i==0)
-					try{Thread.sleep(1000);}catch(Exception e){}
-				i++;
 			}
 			
 			// Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
-			i=0;
 			// Rotate counter clockwise until a wall is seen
 			while (getFilteredData() >= BANDWIDTH)
 			{
 				rotateCCW();
-				if(i==0)
-					try{Thread.sleep(1000);}catch(Exception e){}
-				i++;
 			}
 			
 			// Stop the robot's motion
@@ -96,26 +95,21 @@ public class USLocalizerV2 {
 			
 			// Hold this last angle which will be used to calculate the final
 			// orientation angle
-			angleB = odo.getAng();
+			angleBL = odo.getAng();
 			
 			// Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
 			// Calculate the orientation angle for final positioning
-			orientationAngle = calculateFinalOrientationAngle(angleA,angleB)+odo.getAng();
+			orientationAngleL = calculateFinalOrientationAngle(angleAL,angleBL)+odo.getAng();
 			
 			// Update the odometer position
-			double[] finalOrientation = {0.0, 0.0, orientationAngle};
+			double[] finalOrientation = {0.0, 0.0, orientationAngleL};
 			boolean[] setAllPositions = {true,true,true};
 			odo.setPosition(finalOrientation, setAllPositions);
 			
 			// Rotate to angle 0
 			navigation.turnTo(0, true);
-			
-			// Stop the robot's motion
-			navigation.setSpeeds(0, 0);
-			
-			try{Thread.sleep(1000);}catch(Exception e){}
 			
 		} else {
 			/*
@@ -145,7 +139,7 @@ public class USLocalizerV2 {
 			
 			// Hold this last angle which will be used to calculate the final
 			// orientation angle
-			angleA = odo.getAng();
+			angleAL = odo.getAng();
 			
 			// Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
@@ -170,16 +164,16 @@ public class USLocalizerV2 {
 			
 			// Hold this last angle which will be used to calculate the final
 			// orientation angle
-			angleB = odo.getAng();
+			angleBL = odo.getAng();
 			
 			// Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
 			// Calculate the orientation angle for final positioning
-			orientationAngle = calculateFinalOrientationAngle(angleB,angleA)+odo.getAng();
+			orientationAngleL = calculateFinalOrientationAngle(angleBL,angleAL)+odo.getAng();
 			
 			// Update the odometer position
-			double[] finalOrientation = {0.0, 0.0, orientationAngle};
+			double[] finalOrientation = {0.0, 0.0, orientationAngleL};
 			boolean[] setAllPositions = {true,true,true};
 			odo.setPosition(finalOrientation, setAllPositions);
 			
@@ -192,8 +186,8 @@ public class USLocalizerV2 {
 	private float getFilteredData() 
 	{
 		
-		usSensor.fetchSample(usData, 0);
-		float distance = usData[0]*100;
+		usSensorL.fetchSample(usDataL, 0);
+		float distance = usDataL[0]*100;
 		
 		int filterValue = 50;
 		

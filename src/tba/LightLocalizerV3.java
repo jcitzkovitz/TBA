@@ -51,7 +51,8 @@ public class LightLocalizerV3 {
 				break;
 			}
 		}
-		
+		navi.setSpeeds(0, 0);
+		try{Thread.sleep(1000);}catch(Exception e){}
 		/*Travel traveledXPosition-initialXPosition backwards, turn 90 degrees and
 		 * travel in the y direction until a black line is detected and track that
 		 * distance traveled*/
@@ -64,6 +65,9 @@ public class LightLocalizerV3 {
 			this.navi.setSpeeds(-SPEED,-SPEED);
 		}
 
+		navi.setSpeeds(0, 0);
+		try{Thread.sleep(1000);}catch(Exception e){}
+		
 		// Turn to 90 degrees
 		this.navi.turnTo(90,true);
 		
@@ -78,6 +82,9 @@ public class LightLocalizerV3 {
 			}
 		}
 		
+		navi.setSpeeds(0, 0);
+		try{Thread.sleep(1000);}catch(Exception e){}
+		
 		/* Travel the lightSensorDistance in the y direction, turn to 0 degrees,
 		 * and travel traveledXDistance+lightSensorDistance in the x direction. 
 		 * After this step, localization will be achieved.*/
@@ -88,10 +95,16 @@ public class LightLocalizerV3 {
 		{
 			this.navi.setSpeeds(SPEED,SPEED);
 		}
-		
 		Sound.beep();
+		
+		navi.setSpeeds(0, 0);
+		try{Thread.sleep(1000);}catch(Exception e){}
+		
 		// Turn to 0 degrees
 		this.navi.turnTo(0,true);
+		
+		navi.setSpeeds(0, 0);
+		try{Thread.sleep(1000);}catch(Exception e){}
 		
 		// Travel traveledXDistance+lightSensorDistance in the x direction
 		while(this.odo.getX() < traveledXDistance+lightSensorDistance)
@@ -99,14 +112,15 @@ public class LightLocalizerV3 {
 			this.navi.setSpeeds(SPEED,SPEED);
 		}
 		
-		this.navi.setSpeeds(0,0);
+		navi.setSpeeds(0, 0);
+		try{Thread.sleep(1000);}catch(Exception e){}
 		
 		// Set the odometer fields to (0,0,0)
 		this.odo.setPosition((new double[] {0,0,0}), (new boolean[] {true,true,true}));
 		
 		Sound.beep();
 		
-		try{Thread.sleep(4000);}catch(Exception e){};
+		try{Thread.sleep(1000);}catch(Exception e){};
 		
 	}
 	

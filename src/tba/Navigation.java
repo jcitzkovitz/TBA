@@ -82,7 +82,6 @@ public class Navigation {
 	 * constantly updating it's heading
 	 */
 	public void travelTo(double x, double y) {
-		double minAng;
 		this.leftMotor.setAcceleration(ACCELERATION_SLOW);
 		this.rightMotor.setAcceleration(ACCELERATION_SLOW);
 		// The commented code below is the original navigation code given by the TAs
@@ -153,29 +152,29 @@ public class Navigation {
 	 */
 	public void turnTo(double angle, boolean stop) {
 		isTurning = true;
-//		double error = angle - this.odometer.getAng();
-//
-//		if (error < -180.0) {
-//			this.setSpeeds(-SLOW, SLOW);
-//		} else if (error < 0.0) {
-//			this.setSpeeds(SLOW, -SLOW);
-//		} else if (error > 180.0) {
-//			this.setSpeeds(SLOW, -SLOW);
-//		} else {
-//			this.setSpeeds(-SLOW, SLOW);
-//		}
-//		
-//		while (Math.abs(error) > DEG_ERR) {
-//
-//			error = angle - this.odometer.getAng();
-//
-//		}
-//
-//		if (stop) {
-//			this.setSpeeds(0, 0);
-//		}
-//		
-//		try{Thread.sleep(1000);}catch(Exception e){}
+		double error = angle - this.odometer.getAng();
+
+		if (error < -180.0) {
+			this.setSpeeds(-SLOW, SLOW);
+		} else if (error < 0.0) {
+			this.setSpeeds(SLOW, -SLOW);
+		} else if (error > 180.0) {
+			this.setSpeeds(SLOW, -SLOW);
+		} else {
+			this.setSpeeds(-SLOW, SLOW);
+		}
+		
+		while (Math.abs(error) > DEG_ERR) {
+
+			error = angle - this.odometer.getAng();
+
+		}
+
+		if (stop) {
+			this.setSpeeds(0, 0);
+		}
+		
+		try{Thread.sleep(1000);}catch(Exception e){}
 		
 //		leftMotor.setSpeed(100);
 //		rightMotor.setSpeed(100);
@@ -208,38 +207,37 @@ public class Navigation {
 //		}
 //		
 //		try{Thread.sleep(1000);}catch(Exception e){}
-		
-		double error = angle - this.odometer.getAng();
-		
-		if (error < -180.0) {
-			while(Math.abs(error) > DEG_ERR)
-			{
-				rotateCCW();
-				error = angle - this.odometer.getAng();
-			}
-		} else if (error < 0.0) {
-			while(Math.abs(error) > DEG_ERR)
-			{
-				rotateCW();
-				error = angle - this.odometer.getAng();
-			}
-		} else if (error > 180.0) {
-			while(Math.abs(error) > DEG_ERR)
-			{
-				rotateCW();
-				error = angle - this.odometer.getAng();
-			}
-		} else {
-			while(Math.abs(error) > DEG_ERR)
-			{
-				rotateCCW();
-				error = angle - this.odometer.getAng();
-			}
-		}
-		this.setSpeeds(0, 0);
-		try{Thread.sleep(1000);}catch(Exception e){}
-		this.leftMotor.setAcceleration(ACCELERATION);
-		this.rightMotor.setAcceleration(ACCELERATION);
+//		
+//		double error = angle - this.odometer.getAng();
+//		
+//		if (error < -180.0) {
+//			while(Math.abs(error) > DEG_ERR)
+//			{
+//				rotateCCW();
+//				error = angle - this.odometer.getAng();
+//			}
+//		} else if (error < 0.0) {
+//			while(Math.abs(error) > DEG_ERR)
+//			{
+//				rotateCW();
+//				error = angle - this.odometer.getAng();
+//			}
+//		} else if (error > 180.0) {
+//			while(Math.abs(error) > DEG_ERR)
+//			{
+//				rotateCW();
+//				error = angle - this.odometer.getAng();
+//			}
+//		} else {
+//			while(Math.abs(error) > DEG_ERR)
+//			{
+//				rotateCCW();
+//				error = angle - this.odometer.getAng();
+//			}
+//		}
+//		this.setSpeeds(0, 0);
+//		try{Thread.sleep(1000);}catch(Exception e){}
+
 		isTurning = false;
 	}
 	

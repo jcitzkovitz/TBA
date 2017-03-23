@@ -1,4 +1,4 @@
-package tests;
+package tba;
 
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
