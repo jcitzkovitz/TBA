@@ -103,7 +103,7 @@ public class BetaPlay {
 		// Do light localization
 		lightLoc.doLocalization();
 		
-		nav.travelTo(5*TILE_LENGTH, 3*TILE_LENGTH);
+		nav.travelTo(4*TILE_LENGTH, 2*TILE_LENGTH);
 		
 		// LAUNCH BALL
 		BallLauncher b = new BallLauncher(leftCatapultMotor,rightCatapultMotor);
