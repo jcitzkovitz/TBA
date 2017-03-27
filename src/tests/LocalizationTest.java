@@ -26,7 +26,7 @@ public class LocalizationTest {
 
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private static final Port lightPort = LocalEV3.get().getPort("S1");	
+	private static final Port lightPort = LocalEV3.get().getPort("S3");	
 	private static final Port usPort = LocalEV3.get().getPort("S2");
 
 	
@@ -57,6 +57,7 @@ public class LocalizationTest {
 				
 				odoDisplay.start();
 				
+				odometer.setBaseWidth(11.95);
 				USLocalizerV2 usLoc = new USLocalizerV2(odometer, usDistance, usData, navigate, USLocalizerV2.LocalizationType.FALLING_EDGE);
 				usLoc.doLocalization();
 				

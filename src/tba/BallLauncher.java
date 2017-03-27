@@ -6,10 +6,11 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class BallLauncher {
 	private EV3LargeRegulatedMotor leftCatapultMotor, rightCatapultMotor;
-	
-	public BallLauncher (EV3LargeRegulatedMotor leftCat, EV3LargeRegulatedMotor rightCat){
+	private float distanceConstant;
+	public BallLauncher (EV3LargeRegulatedMotor leftCat, EV3LargeRegulatedMotor rightCat, float distanceConstant){
 		this.leftCatapultMotor= leftCat;
 		this.rightCatapultMotor= rightCat;
+		this.distanceConstant = distanceConstant;
 	}
 	public void launch(){
 	//lift the ball
@@ -24,8 +25,8 @@ public class BallLauncher {
 
 	this.leftCatapultMotor.setAcceleration(2200);
 	this.rightCatapultMotor.setAcceleration(2200);
-	this.leftCatapultMotor.setSpeed(2500);
-	this.rightCatapultMotor.setSpeed(2500);
+	this.leftCatapultMotor.setSpeed(2500*this.distanceConstant);
+	this.rightCatapultMotor.setSpeed(2500*this.distanceConstant);
 	this.leftCatapultMotor.rotate(-100, true);
 	this.rightCatapultMotor.rotate(-100,false);
 	Sound.twoBeeps();

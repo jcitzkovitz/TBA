@@ -52,9 +52,9 @@ public class Odometer implements TimerListener {
 		this.rightMotor = rightMotor;
 		
 		// default values, modify for your robot
-		this.rightRadius = 2.09;
-		this.leftRadius = 2.09;
-		this.width = 12.1;
+		this.rightRadius = 2.07;
+		this.leftRadius = 2.07;
+		this.width = 12.8;
 		
 		this.x = 0.0;
 		this.y = 0.0;
@@ -182,7 +182,7 @@ public class Odometer implements TimerListener {
 	{
 		return this.width;
 	}
-	
+		
 	// accessors to motors
 	public EV3LargeRegulatedMotor [] getMotors() {
 		return new EV3LargeRegulatedMotor[] {this.leftMotor, this.rightMotor};
@@ -202,6 +202,11 @@ public class Odometer implements TimerListener {
 		return angle % 360.0;
 	}
 
+	public void setBaseWidth(double width)
+	{
+		this.width = width;
+	}
+	
 	public static double minimumAngleFromTo(double a, double b) {
 		double d = fixDegAngle(b - a);
 

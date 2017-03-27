@@ -12,6 +12,7 @@
  * Movement control class (turnTo, travelTo, flt, localize)
  */
 
+import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
@@ -20,11 +21,14 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
  * than 0 degrees, 90 degrees, 180 degrees and 270 degrees.*/
 
 public class Navigation {
-	final static int FAST = 200, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 3.0, CM_ERR = 1.0;
+	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private boolean isTurning = false;
+	private static boolean isTurning = false;
+	private static boolean rightFirst, correctHeading = false;
+	private static double xCorrectAng;
+	private static double yCorrectAng;
 
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -113,7 +117,29 @@ public class Navigation {
 		
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
-			this.setSpeeds(FAST,FAST);
+			if(!correctHeading)
+			{
+				this.setSpeeds(FAST,FAST);
+			}
+			else
+			{
+				this.setSpeeds(0,0);
+				try{Thread.sleep(500);}catch(Exception e){}
+				if(rightFirst)
+				{
+					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),true);
+					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),false);
+				}
+				else
+				{
+					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),true);
+					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),false);
+				}
+				Sound.beep();
+				OdometerCorrectionV2.doCorrection();
+				try{Thread.sleep(1000);}catch(Exception e){}
+				correctHeading = false;
+			}
 		}
 		
 		// Stop the robots motion
@@ -137,7 +163,29 @@ public class Navigation {
 		// Drive forward
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
-			this.setSpeeds(FAST,FAST);
+			if(!correctHeading)
+			{
+				this.setSpeeds(FAST,FAST);
+			}
+			else
+			{
+				
+				this.setSpeeds(0,0);
+				try{Thread.sleep(500);}catch(Exception e){}
+				if(rightFirst)
+				{
+					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),true);
+					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),false);
+				}
+				else
+				{
+					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),true);
+					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),false);
+				}
+				OdometerCorrectionV2.doCorrection();
+				try{Thread.sleep(1000);}catch(Exception e){}
+				correctHeading = false;
+			}
 		}
 		
 		// Stop the robots motion
@@ -269,7 +317,15 @@ public class Navigation {
 		this.setSpeeds(SLOW, -SLOW);
 	}
 	
-	public boolean isTurning(){
+	public static boolean isTurning(){
 		return isTurning;
+	}
+	
+	public static void correctHeading(boolean rightFirstTemp, double xAng, double yAng)
+	{
+		correctHeading = true;
+		rightFirst = rightFirstTemp;
+		xCorrectAng = xAng;
+		yCorrectAng = yAng;
 	}
 }
