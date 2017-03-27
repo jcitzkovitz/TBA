@@ -14,8 +14,10 @@ public class OdometerCorrection extends Thread {
 
 	private Odometer odo;
 	private Navigation navi;
-	private SampleProvider colorSensor;
-	private float[] colorData;
+	private SampleProvider colorSensorR;
+	private float[] colorDataR;
+	private SampleProvider colorSensorL;
+	private float[] colorDataL;
 	private boolean xDirection;
 	private boolean yDirection;
 	private double lastXLineCrossedPoint;
@@ -27,12 +29,14 @@ public class OdometerCorrection extends Thread {
 	private double correctYPoint = 0;
 
 
-	public OdometerCorrection(Odometer odo, Navigation navi,SampleProvider colorSensor, float[] colorData, double startingPosition)
+	public OdometerCorrection(Odometer odo, Navigation navi,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL, double startingPosition)
 	{
 		this.odo = odo;
 		this.navi = navi;
-		this.colorSensor = colorSensor;
-		this.colorData = colorData;
+		this.colorSensorR = colorSensorR;
+		this.colorDataR = colorDataR;
+		this.colorSensorL = colorSensorL;
+		this.colorDataL = colorDataL;
 		this.xDirection = false;
 		this.yDirection = false;
 		this.lastXLineCrossedPoint = 0;
@@ -47,9 +51,13 @@ public class OdometerCorrection extends Thread {
 		boolean firstYLineCrossed = false;
 		double currentAngle;
 		boolean posX, posY, negX, negY;
+		int count = 0;
 		while(true)
 		{
-			if(getLightStrength() < minLight&&!navi.isTurning())
+			if((getLightStrengthL()<minLight||getLightStrengthR()<minLight)&&navi.isTurning())
+				count++;
+			
+			if(count==2)
 			{
 				Delay.msDelay(1000);
 				currentAngle = this.odo.getAng();
@@ -58,7 +66,7 @@ public class OdometerCorrection extends Thread {
 				posY = (currentAngle > 85 && currentAngle < 95);
 				negX = (currentAngle > 175 && currentAngle < 185);
 				negY = (currentAngle > 265 && currentAngle < 275);
-				if(getLightStrength()<minLight){
+				if(getLightStrengthL()<minLight||getLightStrengthR()<minLight){
 					posX = false;
 					posY = false;
 					negX = false;
@@ -132,14 +140,22 @@ public class OdometerCorrection extends Thread {
 						previousYPositive = false;
 					}
 				}
+				
+				count=0;
 			}
 		}
 
 	}
 
-	private float getLightStrength(){
-		colorSensor.fetchSample(colorData, 0);
-		float lightStrength = colorData[0];
+	private float getLightStrengthR(){
+		colorSensorR.fetchSample(colorDataR, 0);
+		float lightStrength = colorDataR[0];
+		return lightStrength;
+	}
+	
+	private float getLightStrengthL(){
+		colorSensorL.fetchSample(colorDataL, 0);
+		float lightStrength = colorDataL[0];
 		return lightStrength;
 	}
 	

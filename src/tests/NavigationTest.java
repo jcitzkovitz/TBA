@@ -1,8 +1,10 @@
 package tests;
 
+import tba.CorrectHeading;
 import tba.LightLocalizerV3;
 import tba.Navigation;
 import tba.Odometer;
+import tba.OdometerCorrection;
 import tba.OdometerCorrectionV2;
 import tba.OdometryDisplay;
 import tba.USLocalizerV2;
@@ -49,9 +51,11 @@ public class NavigationTest {
 				SampleProvider colorValueL = colorSensorL.getMode("Red");			// colorValue provides samples from this instance
 				float[] colorDataL = new float[colorValueL.sampleSize()];			// colorData is the buffer in which data are returned
 				
-				OdometerCorrectionV2 odoCorrection = new OdometerCorrectionV2(odo, colorValueR, colorDataR, colorValueL, colorDataL);
-				odoCorrection.start();
+//				OdometerCorrection odoCorrection = new OdometerCorrection(odo, colorValueR, colorDataR, colorValueL, colorDataL);
+//				odoCorrection.start();
 				
+				CorrectHeading correctHeading = new CorrectHeading(odo,nav,colorValueR,colorDataR, colorValueL, colorDataL);
+				correctHeading.start();
 				// Create US and Light Localization objects
 				USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistance,usData,nav,LocalizationType.FALLING_EDGE);
 				LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValueR,colorDataR,nav);
@@ -61,7 +65,7 @@ public class NavigationTest {
 ////				
 //////				// Do light localization
 //				lightLoc.doLocalization();
-		odo.setBaseWidth(11.5);
+		odo.setBaseWidth(11.2);
 		nav.travelTo(30.48, 30.48);
 		nav.travelTo(60.96, 60.96);
 		nav.travelTo(0,30.48);

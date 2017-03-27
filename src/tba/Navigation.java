@@ -26,9 +26,8 @@ public class Navigation {
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private static boolean isTurning = false;
-	private static boolean rightFirst, correctHeading = false;
-	private static double xCorrectAng;
-	private static double yCorrectAng;
+	private boolean rightFirst, correctHeading = false;
+	private double correctionAngle;
 
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -127,15 +126,15 @@ public class Navigation {
 				try{Thread.sleep(500);}catch(Exception e){}
 				if(rightFirst)
 				{
-					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),true);
-					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),false);
+					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
 				}
 				else
 				{
-					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),true);
-					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),yCorrectAng),false);
+					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					Sound.beep();
 				}
-				Sound.beep();
 				OdometerCorrectionV2.doCorrection();
 				try{Thread.sleep(1000);}catch(Exception e){}
 				correctHeading = false;
@@ -174,13 +173,13 @@ public class Navigation {
 				try{Thread.sleep(500);}catch(Exception e){}
 				if(rightFirst)
 				{
-					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),true);
-					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),false);
+					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
 				}
 				else
 				{
-					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),true);
-					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),xCorrectAng),false);
+					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
 				}
 				OdometerCorrectionV2.doCorrection();
 				try{Thread.sleep(1000);}catch(Exception e){}
@@ -321,11 +320,10 @@ public class Navigation {
 		return isTurning;
 	}
 	
-	public static void correctHeading(boolean rightFirstTemp, double xAng, double yAng)
+	public void correctHeading(boolean rightFirstTemp, double correctionAng)
 	{
 		correctHeading = true;
 		rightFirst = rightFirstTemp;
-		xCorrectAng = xAng;
-		yCorrectAng = yAng;
+		correctionAngle = correctionAng;
 	}
 }

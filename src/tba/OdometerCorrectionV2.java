@@ -35,11 +35,11 @@ public class OdometerCorrectionV2 extends Thread {
 		
 		while (true) {
 			correctionStart = System.currentTimeMillis();
-			Sound.beep();
 			if(!Navigation.isTurning())
 			{
 				if(getLightStrengthR()<minLight)
 				{
+					Sound.beep();
 					rightHit=true;
 					if(!leftHit)
 					{
@@ -50,6 +50,8 @@ public class OdometerCorrectionV2 extends Thread {
 				}
 				if(getLightStrengthL()<minLight)
 				{
+					Sound.beep();
+					Sound.beep();
 					leftHit=true;
 					if(!rightHit)
 					{
@@ -61,17 +63,20 @@ public class OdometerCorrectionV2 extends Thread {
 
 				if(leftHit && rightHit)
 				{
+					Sound.beep();
+					Sound.beep();
+					Sound.beep();
 					double xDist = Math.abs(initialXPoint-this.odo.getX());
 					double yDist = Math.abs(initialYPoint-this.odo.getY());
 					double xAng = Math.asin(xDist/odo.getBaseWidth());
 					double yAng = Math.asin(yDist/odo.getBaseWidth());
 					if(rightFirst)
 					{
-						Navigation.correctHeading(true, xAng, yAng);
+						Navigation.correctHeading(true, xAng);
 					}
 					else
 					{	
-						Navigation.correctHeading(false, xAng, yAng);
+						Navigation.correctHeading(false, xAng);
 					}
 
 					leftHit=false;
@@ -80,7 +85,10 @@ public class OdometerCorrectionV2 extends Thread {
 					rightFirst=false;
 				}
 				if(doCorrection){
-
+					Sound.beep();
+					Sound.beep();
+					Sound.beep();
+					Sound.beep();
 					double theta=this.odo.getPosition()[2];
 					double sensorX=this.odo.getX()+lightSensorDistance*Math.cos(Math.toRadians(theta+lightSensorAngle));
 					double sensorY=this.odo.getY()+lightSensorDistance*Math.sin(Math.toRadians(theta+lightSensorAngle));
