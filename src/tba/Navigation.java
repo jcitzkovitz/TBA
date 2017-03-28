@@ -25,7 +25,7 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15.8, rightSensorToFront = 10.3;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15.8, rightSensorToFront = 11;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private static boolean isTurning = false;
@@ -123,8 +123,9 @@ public class Navigation {
 		
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
-			if(getFilteredDataF() < 30)
+			if(getFilteredDataF() < 20)
 			{
+				Sound.beep();
 				if(posY)
 				{
 					this.turnTo(180, true);
@@ -143,7 +144,7 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -160,7 +161,7 @@ public class Navigation {
 					this.turnTo(0, true);
 					if(this.odometer.getX() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -173,7 +174,7 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -187,6 +188,7 @@ public class Navigation {
 				}
 				
 				this.travelTo(x, y);
+				return;
 			}
 			else
 			{
@@ -249,19 +251,20 @@ public class Navigation {
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
 			
-			if(getFilteredDataF() < 30)
+			if(getFilteredDataF() < 20)
 			{
+				Sound.beep();
 				if(posX)
 				{
-					this.turnTo(270, true);
+					this.turnTo(90, true);
 					if(this.odometer.getY() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						double currentX = this.odometer.getY();
+						while(Math.abs(currentX-this.odometer.getY()) < rightSensorToFront)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -269,12 +272,12 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						double currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -283,15 +286,15 @@ public class Navigation {
 				}
 				else
 				{
-					this.turnTo(90, true);
+					this.turnTo(270, true);
 					if(this.odometer.getX() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						double currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -299,12 +302,12 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < 20)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						double currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -313,6 +316,7 @@ public class Navigation {
 				}
 				
 				this.travelTo(x, y);
+				return;
 			}
 			else
 			{
@@ -339,11 +343,11 @@ public class Navigation {
 					this.setSpeeds(0, 0);
 					if(posX)
 					{
-						this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
+						this.odometer.setPosition((new double[] {0,0,0}), (new boolean[] {false,false,true}));
 					}
 					else
 					{
-						this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
+						this.odometer.setPosition((new double[] {0,0,180}), (new boolean[] {false,false,true}));
 					}
 					try{Thread.sleep(1000);}catch(Exception e){}
 					correctHeading = false;
