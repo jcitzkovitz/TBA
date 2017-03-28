@@ -73,9 +73,9 @@ public class NavigationTest {
 ////				
 //////				// Do light localization
 //				lightLoc.doLocalization();
-		odo.setBaseWidth(11);
+		odo.setBaseWidth(10.4);
 		odo.setPosition((new double[] {0,0,0}), (new boolean[] {true,true,true}));
-		nav.travelTo(60.96*3,30.48*3);
+		nav.travelTo(30.48*5,30.48*4);
 	}
 	
 }

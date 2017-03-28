@@ -45,13 +45,14 @@ public class CorrectHeading extends Thread{
 					if(leftHit)
 					{
 						if(direction == 0){
-							correction = this.odo.getX()-firstHit;
+							correction = this.odo.getX()-firstHit+.5;
 						}
 						else if(direction == 1){
-							correction = this.odo.getY()-firstHit;
+							correction = this.odo.getY()-firstHit+.5;
 						}
 
 						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+						Sound.beep();
 						nav.correctHeading(false, correction);
 						leftHit=false;
 						rightHit=false;
@@ -74,14 +75,15 @@ public class CorrectHeading extends Thread{
 					if(rightHit)
 					{
 						if(direction == 0){
-							correction = this.odo.getX()-firstHit;
+							correction = this.odo.getX()-firstHit+.5;
 						}
 						else if(direction == 1){
-							correction = this.odo.getY()-firstHit;
+							correction = this.odo.getY()-firstHit+.5;
 						}
 
 						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-
+						
+						Sound.buzz();
 						nav.correctHeading(true, correction);
 						leftHit=false;
 						rightHit=false;

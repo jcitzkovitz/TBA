@@ -29,7 +29,7 @@ public class Navigation {
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private static boolean isTurning = false;
-	private boolean rightFirst, correctHeading = false;
+	private boolean rightFirst, firstHit, correctHeading = false;
 	private double correctionAngle = 0;
 	SampleProvider usSensorR; 
 	float[] usDataR;
@@ -120,9 +120,11 @@ public class Navigation {
 			posY=false;
 		}
 		
+		// Travel in the y direction
 		
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
+			
 			if(getFilteredDataF() < 20)
 			{
 				Sound.beep();
@@ -202,6 +204,7 @@ public class Navigation {
 					this.setSpeeds(0,0);
 					try{Thread.sleep(500);}catch(Exception e){}
 					this.setSpeeds(SLOW,SLOW);
+					Sound.twoBeeps();
 					if(rightFirst)
 					{
 						this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -261,57 +264,118 @@ public class Navigation {
 					{
 						while(getFilteredDataR() < 20)
 						{
-							this.setSpeeds(-SLOW,-SLOW);
+							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentX = this.odometer.getY();
-						while(Math.abs(currentX-this.odometer.getY()) < rightSensorToFront)
+						double currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront)
 						{
-							this.setSpeeds(-SLOW,-SLOW);
+							this.setSpeeds(SLOW,SLOW);
 						}
 						this.setSpeeds(0,0);
+						
+						this.turnTo(0,true);
+						while(getFilteredDataR() > 20)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						while(getFilteredDataR() < 20)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						
 					}
 					else
 					{
 						while(getFilteredDataR() < 20)
 						{
-							this.setSpeeds(SLOW,SLOW);
+							this.setSpeeds(-SLOW,-SLOW);
 						}
 						double currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack)
 						{
-							this.setSpeeds(SLOW,SLOW);
+							this.setSpeeds(-SLOW,-SLOW);
 						}
 						this.setSpeeds(0,0);
+						
+						this.turnTo(0,true);
+						while(getFilteredDataR() > 20)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						while(getFilteredDataR() < 20)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
 					}
 				}
 				else
 				{
 					this.turnTo(270, true);
-					if(this.odometer.getX() <= 6*TILE_LENGTH)
+					if(this.odometer.getY() <= 6*TILE_LENGTH)
 					{
 						while(getFilteredDataR() < 20)
 						{
-							this.setSpeeds(SLOW,SLOW);
+							this.setSpeeds(-SLOW,-SLOW);
 						}
 						double currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack)
 						{
-							this.setSpeeds(SLOW,SLOW);
+							this.setSpeeds(-SLOW,-SLOW);
 						}
 						this.setSpeeds(0,0);
+						
+						this.turnTo(0,true);
+						while(getFilteredDataR() > 20)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						while(getFilteredDataR() < 20)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
 					}
 					else
 					{
 						while(getFilteredDataR() < 20)
 						{
-							this.setSpeeds(-SLOW,-SLOW);
+							this.setSpeeds(SLOW,SLOW);
 						}
 						double currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront)
 						{
-							this.setSpeeds(-SLOW,-SLOW);
+							this.setSpeeds(SLOW,SLOW);
 						}
 						this.setSpeeds(0,0);
+						
+						this.turnTo(0,true);
+						while(getFilteredDataR() > 20)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						while(getFilteredDataR() < 20)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
 					}
 				}
 				
@@ -330,6 +394,7 @@ public class Navigation {
 					this.setSpeeds(0,0);
 					try{Thread.sleep(500);}catch(Exception e){}
 					this.setSpeeds(SLOW,SLOW);
+					Sound.twoBeeps();
 					if(rightFirst)
 					{
 						this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -391,67 +456,6 @@ public class Navigation {
 		
 		try{Thread.sleep(1000);}catch(Exception e){}
 		
-//		leftMotor.setSpeed(100);
-//		rightMotor.setSpeed(100);
-//		
-//		double error = angle - this.odometer.getAng();
-//		
-//		if(error < -180)
-//		{
-//			angle = 360-Math.abs(error);
-//			leftMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
-//			rightMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
-//		}
-//		else if(error > 180)
-//		{
-//			angle = 360-Math.abs(error);
-//			leftMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
-//			rightMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
-//		}
-//		else if(error < 0)
-//		{
-//			angle = Math.abs(error);
-//			leftMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
-//			rightMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
-//		}
-//		else
-//		{
-//			angle = Math.abs(error);
-//			leftMotor.rotate(-convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), true);
-//			rightMotor.rotate(convertAngle(this.odometer.getWheelRadius(), this.odometer.getBaseWidth(), angle), false);
-//		}
-//		
-//		try{Thread.sleep(1000);}catch(Exception e){}
-//		
-//		double error = angle - this.odometer.getAng();
-//		
-//		if (error < -180.0) {
-//			while(Math.abs(error) > DEG_ERR)
-//			{
-//				rotateCCW();
-//				error = angle - this.odometer.getAng();
-//			}
-//		} else if (error < 0.0) {
-//			while(Math.abs(error) > DEG_ERR)
-//			{
-//				rotateCW();
-//				error = angle - this.odometer.getAng();
-//			}
-//		} else if (error > 180.0) {
-//			while(Math.abs(error) > DEG_ERR)
-//			{
-//				rotateCW();
-//				error = angle - this.odometer.getAng();
-//			}
-//		} else {
-//			while(Math.abs(error) > DEG_ERR)
-//			{
-//				rotateCCW();
-//				error = angle - this.odometer.getAng();
-//			}
-//		}
-//		this.setSpeeds(0, 0);
-//		try{Thread.sleep(1000);}catch(Exception e){}
 
 		isTurning = false;
 	}
