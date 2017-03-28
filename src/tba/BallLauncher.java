@@ -4,6 +4,9 @@ import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/** The BaulLauncher class handles the catapult's motor's motion used to launch the ball.
+ * */
+
 public class BallLauncher {
 	private EV3LargeRegulatedMotor leftCatapultMotor, rightCatapultMotor;
 	private float distanceConstant;

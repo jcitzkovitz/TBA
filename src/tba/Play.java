@@ -2,7 +2,6 @@ package tba;
 
 import java.util.Map;
 
-
 import tba.USLocalizerV2.LocalizationType;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
@@ -23,8 +22,12 @@ public class Play {
 	/* Initialize all motor and sensor fields */
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private static final Port colorPort = LocalEV3.get().getPort("S1");	
-	private static final Port usPort = LocalEV3.get().getPort("S2");
+	private static EV3LargeRegulatedMotor leftCatapultMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));;
+	private static EV3LargeRegulatedMotor rightCatapultMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));;
+	private static final Port colorPortL = LocalEV3.get().getPort("S1");	
+	private static final Port usPortF = LocalEV3.get().getPort("S2");
+	private static final Port colorPortR = LocalEV3.get().getPort("S3");	
+	private static final Port usPortR = LocalEV3.get().getPort("S4");
 	
 	/* Instantiate Wifi related fields */
 	private static final String SERVER_IP = "192.168.2.5";
@@ -33,7 +36,7 @@ public class Play {
 	/* Set up navigation, odometer, odometer correction and 
 	 * odometry display objects*/
 	private static Odometer odo = new Odometer(leftMotor,rightMotor,30,true);
-	private static Navigation nav = new Navigation(odo);
+	private static Navigation nav;
 	
 	private static final double TILE_LENGTH = 30.48;
 	
@@ -98,19 +101,29 @@ public class Play {
 		// Instantiate us and light sensor required variables
 		
 		// Setup us sensor
-		SensorModes usSensor = new EV3UltrasonicSensor(usPort);		// usSensor is the instance
-		SampleProvider usDistance = usSensor.getMode("Distance");	// usDistance provides samples from this instance
-		float[] usData = new float[usDistance.sampleSize()];		// usData is the buffer in which data are returned
+		SensorModes usSensorF = new EV3UltrasonicSensor(usPortF);		// usSensor is the instance
+		SampleProvider usDistanceF = usSensorF.getMode("Distance");	// usDistance provides samples from this instance
+		float[] usDataF = new float[usDistanceF.sampleSize()];		// usData is the buffer in which data are returned
 
-		// Setup light sensor
+		SensorModes usSensorR = new EV3UltrasonicSensor(usPortR);		// usSensor is the instance
+		SampleProvider usDistanceR = usSensorR.getMode("Distance");	// usDistance provides samples from this instance
+		float[] usDataR = new float[usDistanceR.sampleSize()];		// usData is the buffer in which data are returned
+		
+//		// Setup light sensor
 		@SuppressWarnings("resource")
-		SensorModes colorSensor = new EV3ColorSensor(colorPort);
-		SampleProvider colorValue = colorSensor.getMode("Red");			// colorValue provides samples from this instance
-		float[] colorData = new float[colorValue.sampleSize()];			// colorData is the buffer in which data are returned
+		SensorModes colorSensorL = new EV3ColorSensor(colorPortL);
+		SampleProvider colorValueL = colorSensorL.getMode("Red");			// colorValue provides samples from this instance
+		float[] colorDataL = new float[colorValueL.sampleSize()];			// colorData is the buffer in which data are returned
+//		
+		SensorModes colorSensorR = new EV3ColorSensor(colorPortR);
+		SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
+		float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
+		
+		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF);
 		
 		// Create US and Light Localization objects
-		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistance,usData,nav,LocalizationType.FALLING_EDGE);
-		LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValue,colorData,nav);
+		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
+		LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValueR,colorDataR,nav);
 		
 		// Do us Localization
 		usLoc.doLocalization();

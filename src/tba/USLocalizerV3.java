@@ -16,10 +16,7 @@ public class USLocalizerV3 {
 	private Odometer odo;
 	private SampleProvider usSensorL;
 	private float[] usDataL;
-	private SampleProvider usSensorM;
-	private float[] usDataM;
-	private SampleProvider usSensorR;
-	private float[] usDataR;
+
 	private LocalizationType locType;
 	public Navigation navigation; 
 	

@@ -3,6 +3,12 @@ package tba;
 import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
+/** The CorrectHeading class corrects the heading of the robot through the use of two light sensors
+ * located in front of the robot - the left sensor by the left wheel and the right sensor by the right
+ * wheel. This correction is done based on which sensor senses a black line first, and performs
+ * calculations to rotate the robot in the proper direction to fix it's heading.
+ * */
+
 public class CorrectHeading extends Thread{
 
 	private Odometer odo;
