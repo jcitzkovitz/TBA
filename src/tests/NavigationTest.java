@@ -24,12 +24,12 @@ public class NavigationTest {
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final Port colorPortR = LocalEV3.get().getPort("S3");	
 	private static final Port colorPortL = LocalEV3.get().getPort("S1");
-	private static final Port usPort = LocalEV3.get().getPort("S2");
+	private static final Port usPortR = LocalEV3.get().getPort("S4");
+	private static final Port usPortF = LocalEV3.get().getPort("S2");
 	
 	public static void main(String[] args)
 	{
 		Odometer odo = new Odometer(leftMotor,rightMotor,30,true);
-		Navigation nav = new Navigation(odo);
 		
 		final TextLCD t = LocalEV3.get().getTextLCD();
 		
@@ -38,10 +38,16 @@ public class NavigationTest {
 		
 		// Setup us sensor
 				@SuppressWarnings("resource")
-				SensorModes usSensor = new EV3UltrasonicSensor(usPort);		// usSensor is the instance
-				SampleProvider usDistance = usSensor.getMode("Distance");	// usDistance provides samples from this instance
-				float[] usData = new float[usDistance.sampleSize()];		// usData is the buffer in which data are returned
+				SensorModes usSensorR = new EV3UltrasonicSensor(usPortR);		// usSensor is the instance
+				SampleProvider usDistanceR = usSensorR.getMode("Distance");	// usDistance provides samples from this instance
+				float[] usDataR = new float[usDistanceR.sampleSize()];		// usData is the buffer in which data are returned
 
+				@SuppressWarnings("resource")
+				SensorModes usSensorF = new EV3UltrasonicSensor(usPortF);		// usSensor is the instance
+				SampleProvider usDistanceF = usSensorF.getMode("Distance");	// usDistance provides samples from this instance
+				float[] usDataF = new float[usDistanceF.sampleSize()];		// usData is the buffer in which data are returned
+				
+				Navigation nav = new Navigation(odo,usSensorR,usDataR,usSensorF,usDataF);
 				// Setup light sensor Right and Left
 				@SuppressWarnings("resource")
 				SensorModes colorSensorR = new EV3ColorSensor(colorPortR);
@@ -59,7 +65,7 @@ public class NavigationTest {
 				CorrectHeading correctHeading = new CorrectHeading(odo,nav,colorValueR,colorDataR, colorValueL, colorDataL);
 				correctHeading.start();
 				// Create US and Light Localization objects
-				USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistance,usData,nav,LocalizationType.FALLING_EDGE);
+				USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
 				LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValueR,colorDataR,nav);
 				
 //				// Do us Localization

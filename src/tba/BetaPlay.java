@@ -103,7 +103,7 @@ public class BetaPlay {
 		// Create US and Light Localization objects
 		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistance,usData,nav,LocalizationType.FALLING_EDGE);
 		LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValue,colorData,nav);
-		OdometerCorrectionV2 odoCorrection = new OdometerCorrectionV2(odo, colorSensor, colorData);
+		//OdometerCorrectionV2 odoCorrection = new OdometerCorrectionV2(odo, colorSensor, colorData);
 		
 		// Set the base width to the functioning value for localization
 		odo.setBaseWidth(locWidth);
@@ -116,7 +116,7 @@ public class BetaPlay {
 		
 		// Set the base width to the functioning value for navigation
 		odo.setBaseWidth(navWidth);
-		odoCorrection.start();
+		//odoCorrection.start();
 		
 		nav.travelTo(5*TILE_LENGTH, 6*TILE_LENGTH-shootingDistance);
 		

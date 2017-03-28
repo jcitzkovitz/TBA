@@ -13,7 +13,10 @@
  */
 
 import lejos.hardware.Sound;
+import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.port.Port;
+import lejos.robotics.SampleProvider;
 
 /**
  * The navigation class controls how the robot will maneuver about the grid.
@@ -22,19 +25,27 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation {
 	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15.8, rightSensorToFront = 10.3;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private static boolean isTurning = false;
 	private boolean rightFirst, correctHeading = false;
 	private double correctionAngle = 0;
+	SampleProvider usSensorR; 
+	float[] usDataR;
+	SampleProvider usSensorF; 
+	float[] usDataF;
+	
 
-	public Navigation(Odometer odo) {
+	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF) {
 		this.odometer = odo;
-
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
 		this.rightMotor = motors[1];
+		this.usSensorR = usSensorR;
+		this.usDataR = usDataR;
+		this.usSensorF = usSensorF;
+		this.usDataF = usDataF;
 
 		// set acceleration
 		this.leftMotor.setAcceleration(ACCELERATION);
@@ -88,14 +99,7 @@ public class Navigation {
 		this.leftMotor.setAcceleration(ACCELERATION_SLOW);
 		this.rightMotor.setAcceleration(ACCELERATION_SLOW);
 		boolean posY,posX;
-		// The commented code below is the original navigation code given by the TAs
-		/*while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
-			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
-			if (minAng < 0)
-				minAng += 360.0;
-			this.turnTo(minAng, false);
-			this.setSpeeds(FAST, FAST);
-		}*/
+
 		
 		/* The navigation will work as follows: the robot will travel in the y direction followed by the
 		 * x direction. This is done in order to more easily correct odometry with the light sensor as 
@@ -119,36 +123,105 @@ public class Navigation {
 		
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
-			if(!correctHeading)
+			if(getFilteredDataF() < 30)
 			{
-				this.setSpeeds(FAST,FAST);
+				if(posY)
+				{
+					this.turnTo(180, true);
+					if(this.odometer.getX() <= 6*TILE_LENGTH)
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+					else
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+				}
+				else
+				{
+					this.turnTo(0, true);
+					if(this.odometer.getX() <= 6*TILE_LENGTH)
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+					else
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+				}
+				
+				this.travelTo(x, y);
 			}
 			else
 			{
-				this.setSpeeds(0,0);
-				try{Thread.sleep(500);}catch(Exception e){}
-				this.setSpeeds(SLOW,SLOW);
-				if(rightFirst)
+				
+				if(!correctHeading)
 				{
-					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
-					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					this.setSpeeds(FAST,FAST);
 				}
 				else
 				{
-					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
-					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					this.setSpeeds(0,0);
+					try{Thread.sleep(500);}catch(Exception e){}
+					this.setSpeeds(SLOW,SLOW);
+					if(rightFirst)
+					{
+						this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+						this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					}
+					else
+					{
+						this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+						this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					}
+					this.setSpeeds(0, 0);
+					if(posY)
+					{
+						this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
+					}
+					else
+					{
+						this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
+					}
+					try{Thread.sleep(1000);}catch(Exception e){}
+					correctHeading = false;
 				}
-				this.setSpeeds(0, 0);
-				if(posY)
-				{
-					this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
-				}
-				else
-				{
-					this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
-				}
-				try{Thread.sleep(1000);}catch(Exception e){}
-				correctHeading = false;
 			}
 		}
 		
@@ -175,37 +248,106 @@ public class Navigation {
 		// Drive forward
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
-			if(!correctHeading)
+			
+			if(getFilteredDataF() < 30)
 			{
-				this.setSpeeds(FAST,FAST);
+				if(posX)
+				{
+					this.turnTo(270, true);
+					if(this.odometer.getY() <= 6*TILE_LENGTH)
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+					else
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+				}
+				else
+				{
+					this.turnTo(90, true);
+					if(this.odometer.getX() <= 6*TILE_LENGTH)
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						{
+							this.setSpeeds(SLOW,SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+					else
+					{
+						while(getFilteredDataR() < 30)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						double currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						{
+							this.setSpeeds(-SLOW,-SLOW);
+						}
+						this.setSpeeds(0,0);
+					}
+				}
+				
+				this.travelTo(x, y);
 			}
 			else
 			{
-				
-				this.setSpeeds(0,0);
-				try{Thread.sleep(500);}catch(Exception e){}
-				this.setSpeeds(SLOW,SLOW);
-				if(rightFirst)
+				if(!correctHeading)
 				{
-					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
-					this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					this.setSpeeds(FAST,FAST);
 				}
 				else
 				{
-					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
-					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+
+					this.setSpeeds(0,0);
+					try{Thread.sleep(500);}catch(Exception e){}
+					this.setSpeeds(SLOW,SLOW);
+					if(rightFirst)
+					{
+						this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+						this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					}
+					else
+					{
+						this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+						this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+					}
+					this.setSpeeds(0, 0);
+					if(posX)
+					{
+						this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
+					}
+					else
+					{
+						this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
+					}
+					try{Thread.sleep(1000);}catch(Exception e){}
+					correctHeading = false;
 				}
-				this.setSpeeds(0, 0);
-				if(posX)
-				{
-					this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
-				}
-				else
-				{
-					this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
-				}
-				try{Thread.sleep(1000);}catch(Exception e){}
-				correctHeading = false;
 			}
 		}
 		
@@ -347,5 +489,34 @@ public class Navigation {
 		this.correctionAngle = correctionAng;
 		this.rightFirst = rightFirstTemp;
 		this.correctHeading = true;
+	}
+	
+	private float getFilteredDataR() 
+	{
+		
+		usSensorR.fetchSample(usDataR, 0);
+		float distance = usDataR[0]*100;
+		int filterValue = 50;
+		// If the usSensor reads anything greater then filterValue, set the distance
+		// to the filterValue
+		if (distance >= filterValue)
+		{
+			distance = filterValue;
+		}
+		return distance;
+	}
+	private float getFilteredDataF() 
+	{
+		
+		usSensorF.fetchSample(usDataF, 0);
+		float distance = usDataF[0]*100;
+		int filterValue = 50;
+		// If the usSensor reads anything greater then filterValue, set the distance
+		// to the filterValue
+		if (distance >= filterValue)
+		{
+			distance = filterValue;
+		}
+		return distance;
 	}
 }
