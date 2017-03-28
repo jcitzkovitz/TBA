@@ -20,18 +20,25 @@ public class BallLauncher {
 
 	this.leftCatapultMotor.setSpeed(20);
 	this.rightCatapultMotor.setSpeed(20);
-	this.leftCatapultMotor.rotate(-40,true);
-	this.rightCatapultMotor.rotate(-40, false);
+	this.leftCatapultMotor.rotate(-50,true);
+	this.rightCatapultMotor.rotate(-50, false);
 	Sound.beep();
 	
 	//launch the ball
 
 	this.leftCatapultMotor.setAcceleration(2200);
 	this.rightCatapultMotor.setAcceleration(2200);
+<<<<<<< Updated upstream
 	this.leftCatapultMotor.setSpeed(2500*this.distanceConstant);
 	this.rightCatapultMotor.setSpeed(2500*this.distanceConstant);
 	this.leftCatapultMotor.rotate(-100, true);
 	this.rightCatapultMotor.rotate(-100,false);
+=======
+	this.leftCatapultMotor.setSpeed(2000);
+	this.rightCatapultMotor.setSpeed(2000);
+	this.leftCatapultMotor.rotate(-90, true);
+	this.rightCatapultMotor.rotate(-90,false);
+>>>>>>> Stashed changes
 	Sound.twoBeeps();
 	//return to the initial position
 	this.leftCatapultMotor.setAcceleration(500);
