@@ -37,6 +37,7 @@ public class NavigationTest {
 		odoDisplay.start();
 		
 		// Setup us sensor
+				@SuppressWarnings("resource")
 				SensorModes usSensor = new EV3UltrasonicSensor(usPort);		// usSensor is the instance
 				SampleProvider usDistance = usSensor.getMode("Distance");	// usDistance provides samples from this instance
 				float[] usData = new float[usDistance.sampleSize()];		// usData is the buffer in which data are returned
@@ -47,6 +48,7 @@ public class NavigationTest {
 				SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
 				float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 				
+				@SuppressWarnings("resource")
 				SensorModes colorSensorL = new EV3ColorSensor(colorPortL);
 				SampleProvider colorValueL = colorSensorL.getMode("Red");			// colorValue provides samples from this instance
 				float[] colorDataL = new float[colorValueL.sampleSize()];			// colorData is the buffer in which data are returned
@@ -65,7 +67,7 @@ public class NavigationTest {
 ////				
 //////				// Do light localization
 //				lightLoc.doLocalization();
-		odo.setBaseWidth(11.2);
+		odo.setBaseWidth(11);
 		nav.travelTo(30.48, 30.48);
 		nav.travelTo(60.96, 60.96);
 		nav.travelTo(0,30.48);

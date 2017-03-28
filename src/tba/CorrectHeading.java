@@ -41,7 +41,7 @@ public class CorrectHeading extends Thread{
 				}
 				if(getLightStrengthR()<minLight)
 				{
-					Sound.beep();
+
 					if(leftHit)
 					{
 						if(direction == 0){
@@ -50,8 +50,9 @@ public class CorrectHeading extends Thread{
 						else if(direction == 1){
 							correction = this.odo.getY()-firstHit;
 						}
+
 						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-						nav.correctHeading(true, correction);
+						nav.correctHeading(false, correction);
 						leftHit=false;
 						rightHit=false;
 					}
@@ -69,7 +70,7 @@ public class CorrectHeading extends Thread{
 
 				if(getLightStrengthL()<minLight)
 				{
-					Sound.beep();
+					
 					if(rightHit)
 					{
 						if(direction == 0){
@@ -78,8 +79,10 @@ public class CorrectHeading extends Thread{
 						else if(direction == 1){
 							correction = this.odo.getY()-firstHit;
 						}
+
 						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-						nav.correctHeading(false, correction);
+
+						nav.correctHeading(true, correction);
 						leftHit=false;
 						rightHit=false;
 					}

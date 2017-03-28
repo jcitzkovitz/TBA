@@ -72,11 +72,11 @@ public class OdometerCorrectionV2 extends Thread {
 					double yAng = Math.asin(yDist/odo.getBaseWidth());
 					if(rightFirst)
 					{
-						Navigation.correctHeading(true, xAng);
+						
 					}
 					else
 					{	
-						Navigation.correctHeading(false, xAng);
+						
 					}
 
 					leftHit=false;

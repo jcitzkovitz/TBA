@@ -27,7 +27,7 @@ public class Navigation {
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private static boolean isTurning = false;
 	private boolean rightFirst, correctHeading = false;
-	private double correctionAngle;
+	private double correctionAngle = 0;
 
 	public Navigation(Odometer odo) {
 		this.odometer = odo;
@@ -87,6 +87,7 @@ public class Navigation {
 	public void travelTo(double x, double y) {
 		this.leftMotor.setAcceleration(ACCELERATION_SLOW);
 		this.rightMotor.setAcceleration(ACCELERATION_SLOW);
+		boolean posY,posX;
 		// The commented code below is the original navigation code given by the TAs
 		/*while (Math.abs(x - odometer.getX()) > CM_ERR || Math.abs(y - odometer.getY()) > CM_ERR) {
 			minAng = (Math.atan2(y - odometer.getY(), x - odometer.getX())) * (180.0 / Math.PI);
@@ -105,12 +106,14 @@ public class Navigation {
 		if(y - odometer.getY() >= 0)
 		{
 			this.turnTo(90, true);
+			posY=true;
 		}
 		
 		// Turn in the direction of the negative y axis (270 degrees)
 		else
 		{
 			this.turnTo(270, true);
+			posY=false;
 		}
 		
 		
@@ -124,6 +127,7 @@ public class Navigation {
 			{
 				this.setSpeeds(0,0);
 				try{Thread.sleep(500);}catch(Exception e){}
+				this.setSpeeds(SLOW,SLOW);
 				if(rightFirst)
 				{
 					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -133,9 +137,16 @@ public class Navigation {
 				{
 					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
 					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
-					Sound.beep();
 				}
-				OdometerCorrectionV2.doCorrection();
+				this.setSpeeds(0, 0);
+				if(posY)
+				{
+					this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
+				}
+				else
+				{
+					this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
+				}
 				try{Thread.sleep(1000);}catch(Exception e){}
 				correctHeading = false;
 			}
@@ -150,12 +161,14 @@ public class Navigation {
 		if(x - odometer.getX() >= 0)
 		{
 			this.turnTo(0, true);
+			posX=true;
 		}
 		
 		// Turn in the negative x direction (270 degrees)
 		else
 		{
 			this.turnTo(180, true);
+			posX=false;
 		}
 		
 		
@@ -171,6 +184,7 @@ public class Navigation {
 				
 				this.setSpeeds(0,0);
 				try{Thread.sleep(500);}catch(Exception e){}
+				this.setSpeeds(SLOW,SLOW);
 				if(rightFirst)
 				{
 					this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -181,7 +195,15 @@ public class Navigation {
 					this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
 					this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
 				}
-				OdometerCorrectionV2.doCorrection();
+				this.setSpeeds(0, 0);
+				if(posX)
+				{
+					this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
+				}
+				else
+				{
+					this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
+				}
 				try{Thread.sleep(1000);}catch(Exception e){}
 				correctHeading = false;
 			}
@@ -322,8 +344,8 @@ public class Navigation {
 	
 	public void correctHeading(boolean rightFirstTemp, double correctionAng)
 	{
-		correctHeading = true;
-		rightFirst = rightFirstTemp;
-		correctionAngle = correctionAng;
+		this.correctionAngle = correctionAng;
+		this.rightFirst = rightFirstTemp;
+		this.correctHeading = true;
 	}
 }
