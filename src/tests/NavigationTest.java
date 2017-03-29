@@ -65,9 +65,8 @@ public class NavigationTest {
 				odoCorrection.start();
 				
 				CorrectHeading correctHeading = new CorrectHeading(odo,nav,colorValueR,colorDataR, colorValueL, colorDataL);
-				correctHeading.start();
 				
-				odo.setBaseWidth(10.6);
+				odo.setBaseWidth(10.4);
 				
 				// Create US and Light Localization objects
 				USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
@@ -76,18 +75,20 @@ public class NavigationTest {
 				// Do us Localization
 				usLoc.doLocalization();
 //				
+				
 ////				// Do light localization
 				lightLoc.doLocalization();
 				
-				nav.travelTo(30.48*2,30.48*2);
-				nav.turnTo(180, true);
-				
-				double currentX = odo.getX();
-				while(Math.abs(currentX-odo.getX()) < 5)
-				{
-					nav.setSpeeds(-100, -100);
-				}
-				nav.setSpeeds(0,0);
+				correctHeading.start();
+				nav.travelTo(30.48*6-30.48/2,30.48*2-30.48/2);
+//				nav.turnTo(180, true);
+//				
+//				double currentX = odo.getX();
+//				while(Math.abs(currentX-odo.getX()) < 5)
+//				{
+//					nav.setSpeeds(-100, -100);
+//				}
+//				nav.setSpeeds(0,0);
 				
 	}
 	

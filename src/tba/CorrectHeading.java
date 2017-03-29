@@ -39,6 +39,7 @@ public class CorrectHeading extends Thread{
 		{
 			if(!nav.isTurning()&&!nav.isAvoiding())
 			{
+				
 				if(odo.getAng()<5||odo.getAng()>355||(odo.getAng()<185&&odo.getAng()>175)){
 					direction = 0;
 				}

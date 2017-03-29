@@ -2,7 +2,6 @@
 
 /*
  * File: Navigation.java
-
  * Written by: Sean Lawlor
  * ECSE 211 - Design Principles and Methods, Head TA
  * Fall 2011
@@ -25,12 +24,13 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15.8, rightSensorToFront = 11.3;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 20, rightSensorToFront = 15;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private boolean isTurning = false;
-	private boolean rightFirst, avoiding = false, correctHeading = false;
+	private boolean rightFirst, avoiding = false, correctHeading = false, stopAvoiding = false;
 	private double correctionAngle = 0;
+	private final int filterValue = 30;
 	SampleProvider usSensorR; 
 	float[] usDataR;
 	SampleProvider usSensorF; 
@@ -119,13 +119,16 @@ public class Navigation {
 			this.turnTo(270, true);
 			posY=false;
 		}
+
+		double currentX = 0;
+		double currentY = 0;
 		
 		// Travel in the y direction
 		
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
-			
-			if(getFilteredDataF() < 20 && !isTurning())
+			currentX = odometer.getX();
+			if(getFilteredDataF() < filterValue && !isTurning())
 			{
 				correctHeading = false;
 				avoiding = true;
@@ -135,16 +138,16 @@ public class Navigation {
 					this.turnTo(180, true);
 					if(this.odometer.getX() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(-SLOW, -SLOW);
+							stillFollowing(false,true,currentX);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -152,16 +155,16 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW, SLOW);
+							stillFollowing(true,true,currentX);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -173,16 +176,16 @@ public class Navigation {
 					this.turnTo(0, true);
 					if(this.odometer.getX() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW, SLOW);
+							stillFollowing(true,true,currentX);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -190,16 +193,16 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(-SLOW, -SLOW);
+							stillFollowing(false,true,currentX);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -207,6 +210,7 @@ public class Navigation {
 					}
 				}
 				avoiding = false;
+				stopAvoiding = false;
 				this.travelTo(x, y);
 				return;
 			}
@@ -272,7 +276,7 @@ public class Navigation {
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
 			
-			if(getFilteredDataF() < 20 && !isTurning())
+			if(getFilteredDataF() < filterValue && !isTurning())
 			{
 				correctHeading = false;
 				avoiding = true;
@@ -280,34 +284,36 @@ public class Navigation {
 				if(posX)
 				{
 					this.turnTo(90, true);
+					currentY = odometer.getY();
 					if(this.odometer.getY() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW, SLOW);
+							stillFollowing(true,false,currentY);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentY = this.odometer.getY();
-						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront)
+						currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 30)
+						currentX = odometer.getX();
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						{
+							stillFollowing(true,true,currentX);
+						}
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW, SLOW);
 						}
-						while(getFilteredDataR() < 30)
-						{
-							this.setSpeeds(SLOW, SLOW);
-						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -315,32 +321,33 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(-SLOW, -SLOW);
+							stillFollowing(false,false,currentY);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
-						double currentY = this.odometer.getY();
-						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack)
+						currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 30)
+						currentX = odometer.getX();
+						while(getFilteredDataR() > filterValue)
+						{
+							stillFollowing(false,true,currentX);
+						}
+						while(getFilteredDataR() < filterValue)
 						{
 							this.setSpeeds(-SLOW, -SLOW);
 						}
-						while(getFilteredDataR() < 30)
-						{
-							this.setSpeeds(-SLOW, -SLOW);
-						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -349,72 +356,76 @@ public class Navigation {
 				else
 				{
 					this.turnTo(270, true);
+					currentY = odometer.getY();
 					if(this.odometer.getY() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(-SLOW, -SLOW);
+							stillFollowing(false,false,currentY);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
-						double currentY = this.odometer.getY();
-						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack)
+						currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 30)
+						currentX = odometer.getX();
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						{
+							stillFollowing(false,true,currentX);
+						}
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW, -SLOW);
 						}
-						while(getFilteredDataR() < 30)
-						{
-							this.setSpeeds(-SLOW, -SLOW);
-						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
 					}
 					else
 					{
-						while(getFilteredDataR() > 30)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW, SLOW);
+							stillFollowing(true,false,currentY);
 						}
-						while(getFilteredDataR() < 30)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
-						double currentY = this.odometer.getY();
-						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront)
+						currentY = this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 30)
+						currentX = odometer.getX();
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						{
+							stillFollowing(true,true,currentX);
+						}
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW, SLOW);
 						}
-						while(getFilteredDataR() < 30)
-						{
-							this.setSpeeds(SLOW, SLOW);
-						}
-						double currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront)
+						currentX = this.odometer.getX();
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
 					}
 				}
 				avoiding = false;
+				stopAvoiding = false;
 				this.travelTo(x, y);
 				return;
 			}
@@ -538,6 +549,60 @@ public class Navigation {
 		this.correctionAngle = correctionAng;
 		this.rightFirst = rightFirstTemp;
 		this.correctHeading = true;
+	}
+	
+	private void stillFollowing(boolean forward, boolean xDirection, double point)
+	{
+		if(forward)
+		{
+			if(xDirection)
+			{
+				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*2)
+				{
+					stopAvoiding = true;
+				}
+				else
+				{
+					this.setSpeeds(SLOW, SLOW);
+				}
+			}
+			else
+			{
+				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*3/2)
+				{
+					stopAvoiding = true;
+				}
+				else
+				{
+					this.setSpeeds(SLOW, SLOW);
+				}
+			}
+		}
+		else
+		{
+			if(xDirection)
+			{
+				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*3/2)
+				{
+					stopAvoiding = true;
+				}
+				else
+				{
+					this.setSpeeds(-SLOW, -SLOW);
+				}
+			}
+			else
+			{
+				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*3/2)
+				{
+					stopAvoiding = true;
+				}
+				else
+				{
+					this.setSpeeds(-SLOW, -SLOW);
+				}
+			}
+		}
 	}
 	
 	private float getFilteredDataR() 
