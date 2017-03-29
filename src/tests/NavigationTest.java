@@ -2,6 +2,7 @@ package tests;
 
 import tba.CorrectHeading;
 import tba.LightLocalizerV3;
+import tba.LightLocalizerV4;
 import tba.Navigation;
 import tba.Odometer;
 import tba.OdometerCorrection;
@@ -48,6 +49,7 @@ public class NavigationTest {
 				float[] usDataF = new float[usDistanceF.sampleSize()];		// usData is the buffer in which data are returned
 				
 				Navigation nav = new Navigation(odo,usSensorR,usDataR,usSensorF,usDataF);
+				
 				// Setup light sensor Right and Left
 				@SuppressWarnings("resource")
 				SensorModes colorSensorR = new EV3ColorSensor(colorPortR);
@@ -59,23 +61,34 @@ public class NavigationTest {
 				SampleProvider colorValueL = colorSensorL.getMode("Red");			// colorValue provides samples from this instance
 				float[] colorDataL = new float[colorValueL.sampleSize()];			// colorData is the buffer in which data are returned
 				
-//				OdometerCorrection odoCorrection = new OdometerCorrection(odo, colorValueR, colorDataR, colorValueL, colorDataL);
-//				odoCorrection.start();
+				OdometerCorrection odoCorrection = new OdometerCorrection(odo,nav,colorValueR, colorDataR, colorValueL, colorDataL);
+				odoCorrection.start();
 				
 				CorrectHeading correctHeading = new CorrectHeading(odo,nav,colorValueR,colorDataR, colorValueL, colorDataL);
 				correctHeading.start();
+				
+				odo.setBaseWidth(10.6);
+				
 				// Create US and Light Localization objects
 				USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
-				LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValueR,colorDataR,nav);
+				LightLocalizerV4 lightLoc = new LightLocalizerV4(odo,colorValueR,colorDataR,colorValueL, colorDataL,nav);
 				
-//				// Do us Localization
-//				usLoc.doLocalization();
-////				
-//////				// Do light localization
-//				lightLoc.doLocalization();
-		odo.setBaseWidth(10.4);
-		odo.setPosition((new double[] {0,0,0}), (new boolean[] {true,true,true}));
-		nav.travelTo(30.48*5,30.48*4);
+				// Do us Localization
+				usLoc.doLocalization();
+//				
+////				// Do light localization
+				lightLoc.doLocalization();
+				
+				nav.travelTo(30.48*2,30.48*2);
+				nav.turnTo(180, true);
+				
+				double currentX = odo.getX();
+				while(Math.abs(currentX-odo.getX()) < 5)
+				{
+					nav.setSpeeds(-100, -100);
+				}
+				nav.setSpeeds(0,0);
+				
 	}
 	
 }

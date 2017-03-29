@@ -22,14 +22,13 @@ public class OdometerCorrection extends Thread {
 	private boolean yDirection;
 	private double lastXLineCrossedPoint;
 	private double lastYLineCrossedPoint;
-	private double startingPosition;
 	private boolean previousXPositive = true;
 	private boolean previousYPositive = true;
 	private double correctXPoint = 0;
 	private double correctYPoint = 0;
 
 
-	public OdometerCorrection(Odometer odo, Navigation navi,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL, double startingPosition)
+	public OdometerCorrection(Odometer odo, Navigation navi,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL)
 	{
 		this.odo = odo;
 		this.navi = navi;
@@ -41,7 +40,6 @@ public class OdometerCorrection extends Thread {
 		this.yDirection = false;
 		this.lastXLineCrossedPoint = 0;
 		this.lastYLineCrossedPoint = 0;
-		this.startingPosition = startingPosition;
 	}
 
 	public void run() {

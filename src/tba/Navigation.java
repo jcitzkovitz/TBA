@@ -25,11 +25,11 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15.8, rightSensorToFront = 11;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15.8, rightSensorToFront = 11.3;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private static boolean isTurning = false;
-	private boolean rightFirst, firstHit, correctHeading = false;
+	private boolean isTurning = false;
+	private boolean rightFirst, avoiding = false, correctHeading = false;
 	private double correctionAngle = 0;
 	SampleProvider usSensorR; 
 	float[] usDataR;
@@ -125,14 +125,20 @@ public class Navigation {
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
 			
-			if(getFilteredDataF() < 20)
+			if(getFilteredDataF() < 20 && !isTurning())
 			{
+				correctHeading = false;
+				avoiding = true;
 				Sound.beep();
 				if(posY)
 				{
 					this.turnTo(180, true);
 					if(this.odometer.getX() <= 6*TILE_LENGTH)
 					{
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
 						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
@@ -146,7 +152,11 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -163,7 +173,11 @@ public class Navigation {
 					this.turnTo(0, true);
 					if(this.odometer.getX() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -176,7 +190,11 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -188,7 +206,7 @@ public class Navigation {
 						this.setSpeeds(0,0);
 					}
 				}
-				
+				avoiding = false;
 				this.travelTo(x, y);
 				return;
 			}
@@ -254,15 +272,21 @@ public class Navigation {
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
 			
-			if(getFilteredDataF() < 20)
+			if(getFilteredDataF() < 20 && !isTurning())
 			{
+				correctHeading = false;
+				avoiding = true;
 				Sound.beep();
 				if(posX)
 				{
 					this.turnTo(90, true);
 					if(this.odometer.getY() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -274,11 +298,11 @@ public class Navigation {
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 20)
+						while(getFilteredDataR() > 30)
 						{
 							this.setSpeeds(SLOW, SLOW);
 						}
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(SLOW, SLOW);
 						}
@@ -291,7 +315,11 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -303,11 +331,11 @@ public class Navigation {
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 20)
+						while(getFilteredDataR() > 30)
 						{
 							this.setSpeeds(-SLOW, -SLOW);
 						}
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(-SLOW, -SLOW);
 						}
@@ -323,7 +351,11 @@ public class Navigation {
 					this.turnTo(270, true);
 					if(this.odometer.getY() <= 6*TILE_LENGTH)
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(-SLOW, -SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(-SLOW,-SLOW);
 						}
@@ -335,11 +367,11 @@ public class Navigation {
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 20)
+						while(getFilteredDataR() > 30)
 						{
 							this.setSpeeds(-SLOW, -SLOW);
 						}
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(-SLOW, -SLOW);
 						}
@@ -351,7 +383,11 @@ public class Navigation {
 					}
 					else
 					{
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() > 30)
+						{
+							this.setSpeeds(SLOW, SLOW);
+						}
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(SLOW,SLOW);
 						}
@@ -363,11 +399,11 @@ public class Navigation {
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
-						while(getFilteredDataR() > 20)
+						while(getFilteredDataR() > 30)
 						{
 							this.setSpeeds(SLOW, SLOW);
 						}
-						while(getFilteredDataR() < 20)
+						while(getFilteredDataR() < 30)
 						{
 							this.setSpeeds(SLOW, SLOW);
 						}
@@ -378,7 +414,7 @@ public class Navigation {
 						}
 					}
 				}
-				
+				avoiding = false;
 				this.travelTo(x, y);
 				return;
 			}
@@ -488,8 +524,13 @@ public class Navigation {
 		this.setSpeeds(SLOW, -SLOW);
 	}
 	
-	public static boolean isTurning(){
+	public boolean isTurning(){
 		return isTurning;
+	}
+	
+	public boolean isAvoiding()
+	{
+		return avoiding;
 	}
 	
 	public void correctHeading(boolean rightFirstTemp, double correctionAng)
