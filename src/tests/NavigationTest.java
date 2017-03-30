@@ -81,7 +81,7 @@ public class NavigationTest {
 				lightLoc.doLocalization();
 				
 				correctHeading.start();
-				nav.travelTo(30.48*6-30.48/2,30.48*2-30.48/2);
+				nav.travelTo(30.48*2-30.48/2,30.48*6-30.48/2);
 //				nav.turnTo(180, true);
 //				
 //				double currentX = odo.getX();
