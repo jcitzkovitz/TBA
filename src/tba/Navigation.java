@@ -24,7 +24,7 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 20, rightSensorToFront = 15;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 32, rightSensorToFront = 25;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private boolean isTurning = false;
@@ -35,6 +35,8 @@ public class Navigation {
 	float[] usDataR;
 	SampleProvider usSensorF; 
 	float[] usDataF;
+	private boolean forward = false;
+	private boolean defense = false;
 	
 
 	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF) {
@@ -95,7 +97,33 @@ public class Navigation {
 	 * TravelTo function which takes as arguments the x and y position in cm Will travel to designated position, while
 	 * constantly updating it's heading
 	 */
-	public void travelTo(double x, double y) {
+	public void travelTo(double x, double y){
+		if(forward){
+			if(y>6*TILE_LENGTH&&((x<3*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH)||(x>7*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH))){
+				this.realTravelTo(x, 5);
+				this.realTravelTo(x, y);
+			}
+			else if((y<10*TILE_LENGTH&&y>6*TILE_LENGTH)&&(x<7*TILE_LENGTH&&x>3*TILE_LENGTH)){
+				
+			}
+			else{
+				this.realTravelTo(x, y);
+			}
+		}
+		else if(defense){
+			if(y>10*TILE_LENGTH||y<6*TILE_LENGTH||x<3*TILE_LENGTH||x>7*TILE_LENGTH){
+				
+			}
+			else{
+				this.realTravelTo(x, y);
+			}
+		}
+		else{
+			this.realTravelTo(x, y);
+		}
+	}
+	
+	public void realTravelTo(double x, double y) {
 		this.leftMotor.setAcceleration(ACCELERATION_SLOW);
 		this.rightMotor.setAcceleration(ACCELERATION_SLOW);
 		boolean posY,posX;
@@ -130,7 +158,7 @@ public class Navigation {
 			currentX = odometer.getX();
 			if(getFilteredDataF() < filterValue && !isTurning())
 			{
-				correctHeading = false;
+				
 				avoiding = true;
 				Sound.beep();
 				if(posY)
@@ -140,16 +168,37 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(false,true,currentX);
-						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
-						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
+						
+						}
+						currentY=this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY())<TILE_LENGTH&&getFilteredDataR() < filterValue && !stopAvoiding)
+						{
+							
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						this.setSpeeds(0,0);
 					}
@@ -157,16 +206,35 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(true,true,currentX);
-						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
-						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
+						}
+						currentY=this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY())<TILE_LENGTH&&getFilteredDataR() < filterValue && !stopAvoiding)
+						{
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						this.setSpeeds(0,0);
 					}
@@ -178,16 +246,35 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(true,true,currentX);
-						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
-						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
+						}
+						currentY=this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY())<TILE_LENGTH&&getFilteredDataR() < filterValue && !stopAvoiding)
+						{
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						this.setSpeeds(0,0);
 					}
@@ -195,16 +282,35 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(false,true,currentX);
-						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
-						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
+						}
+						currentY=this.odometer.getY();
+						while(Math.abs(currentY-this.odometer.getY())<TILE_LENGTH&&getFilteredDataR() < filterValue && !stopAvoiding)
+						{
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						this.setSpeeds(0,0);
 					}
@@ -289,16 +395,34 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(true,false,currentY);
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						this.setSpeeds(0,0);
 						
@@ -306,16 +430,34 @@ public class Navigation {
 						currentX = odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(true,true,currentX);
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW, SLOW);
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						
 					}
@@ -323,33 +465,69 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(false,false,currentY);
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						this.setSpeeds(0,0);
 						
 						this.turnTo(0,true);
 						currentX = odometer.getX();
-						while(getFilteredDataR() > filterValue)
+						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(false,true,currentX);
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
-						while(getFilteredDataR() < filterValue)
+						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(-SLOW, -SLOW);
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 					}
 				}
@@ -361,16 +539,34 @@ public class Navigation {
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(false,false,currentY);
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						this.setSpeeds(0,0);
 						
@@ -378,32 +574,69 @@ public class Navigation {
 						currentX = odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(false,true,currentX);
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(-SLOW, -SLOW);
+							if(!correctHeading)
+							{
+							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(-SLOW,-SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, false);
+							}
 						}
 					}
 					else
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(true,false,currentY);
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW,SLOW);
+							if(!correctHeading)
+							{
+								
+								this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						this.setSpeeds(0,0);
 						
@@ -411,16 +644,34 @@ public class Navigation {
 						currentX = odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
-							stillFollowing(true,true,currentX);
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
-							this.setSpeeds(SLOW, SLOW);
+							if(!correctHeading)
+							{
+							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 						currentX = this.odometer.getX();
 						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
 						{
+							if(!correctHeading)
+							{
 							this.setSpeeds(SLOW,SLOW);
+							}
+							else{
+								doCorrectHeading(rightFirst, correctionAngle, true);
+							}
 						}
 					}
 				}
@@ -568,7 +819,7 @@ public class Navigation {
 			}
 			else
 			{
-				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*3/2)
+				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*2)
 				{
 					stopAvoiding = true;
 				}
@@ -582,7 +833,7 @@ public class Navigation {
 		{
 			if(xDirection)
 			{
-				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*3/2)
+				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*2)
 				{
 					stopAvoiding = true;
 				}
@@ -593,7 +844,7 @@ public class Navigation {
 			}
 			else
 			{
-				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*3/2)
+				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*2)
 				{
 					stopAvoiding = true;
 				}
@@ -632,5 +883,51 @@ public class Navigation {
 			distance = filterValue;
 		}
 		return distance;
+	}
+	
+	private void doCorrectHeading(boolean rightFirst, double correctionAngle, boolean posDirection)
+	{
+		this.setSpeeds(0,0);
+		try{Thread.sleep(500);}catch(Exception e){}
+		this.setSpeeds(SLOW, SLOW);
+		Sound.twoBeeps();
+		if(posDirection)
+		{
+		if(rightFirst)
+		{
+			this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+			this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+		}
+		else
+		{
+			this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+			this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+		}
+		}
+		else
+		{
+		if(rightFirst)
+		{
+			this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+			this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+		}
+		else
+		{
+			this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
+			this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
+		}	
+		}
+		this.setSpeeds(0, 0);
+		correctHeading = false;
+	}
+	
+	public void forwardTeam(){
+		this.forward = true;
+		this.defense = false;
+	}
+	
+	public void defenseTeam(){
+		this.defense = true;
+		this.forward = true;
 	}
 }

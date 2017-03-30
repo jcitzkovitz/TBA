@@ -140,7 +140,11 @@ public class LightLocalizerV4 {
 			
 			// Set correct angle and position to (0,0,0)
 			odo.setPosition((new double[] {0,0,0}), (new boolean[] {true, true, true}));
-			nav.travelTo(30.48/2,0);
+			currentX = odo.getX();
+			while(Math.abs(currentX-odo.getX())<30.48/2){
+				nav.setSpeeds(150, 150);
+			}
+			nav.setSpeeds(0, 0);
 			nav.turnTo(90, true);
 			try{Thread.sleep(500);}catch(Exception e){}
 	}

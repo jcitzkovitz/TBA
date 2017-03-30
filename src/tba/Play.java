@@ -97,7 +97,7 @@ public class Play {
 		/* With the information retrieved from wifi, localize,
 		 * set the start position to the corresponding corner,
 		 * notify robot of game position, and play accordingly */
-		
+	
 		// Instantiate us and light sensor required variables
 		
 		// Setup us sensor
@@ -123,8 +123,10 @@ public class Play {
 		
 		// Create US and Light Localization objects
 		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
-		LightLocalizerV3 lightLoc = new LightLocalizerV3(odo,colorValueR,colorDataR,nav);
+		LightLocalizerV4 lightLoc = new LightLocalizerV4(odo,colorValueR,colorDataR,colorValueL,colorDataL,nav);
 		
+		//Create launcher
+		BallLauncher launcher = new BallLauncher(leftMotor, rightMotor, (float)(10-shootingDistance/TILE_LENGTH));
 		// Do us Localization
 		usLoc.doLocalization();
 		
@@ -136,7 +138,7 @@ public class Play {
 		{
 			// Set the start position for the forward
 			setStartPosition(fwdStartCorner);
-			
+			nav.forwardTeam();
 			/* While still playing, continusously go to the 
 			 * dispenser, retrieve the ball, go to the 
 			 * shooting position and shoot*/
@@ -144,7 +146,22 @@ public class Play {
 			while(true)
 			{
 			// Travel to the ball dispenser
-			nav.travelTo(dispX, dispY);
+			if(despenserOrientation.equals("N")){
+				nav.travelTo(dispX, dispY+25);
+			}
+			else if(despenserOrientation.equals("E"))
+			{
+				nav.travelTo(dispX+25, dispY);
+			}
+			else if(despenserOrientation.equals("S"))
+			{
+				nav.travelTo(dispX, dispY-25);
+			}
+			else if(despenserOrientation.equals("W"))
+			{
+				nav.travelTo(dispX-25, dispY);
+			}
+			
 			
 			//Turn to proper orientation
 			if(despenserOrientation.equals("N"))
@@ -167,13 +184,15 @@ public class Play {
 			// Back up into dispenser to retrieve ball
 			
 			//TODO
+			nav.goForward(-7);
 			
 			// Travel to the center of the shooting line
 			nav.travelTo(6*TILE_LENGTH, shootingDistance);
 			
 			//Launch
-			
+			launcher.launch();
 			//TODO
+			
 			}
 
 		}
@@ -181,6 +200,9 @@ public class Play {
 		{
 			// Set the start position for the defense
 			setStartPosition(defStartCorner);
+			nav.defenseTeam();
+			nav.travelTo(5*TILE_LENGTH, 8*TILE_LENGTH);
+			
 		}
 		
 	}
