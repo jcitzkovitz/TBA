@@ -127,6 +127,8 @@ public class Play {
 		
 		//Create launcher
 		BallLauncher launcher = new BallLauncher(leftMotor, rightMotor, (float)(10-shootingDistance/TILE_LENGTH));
+		
+		odo.setBaseWidth(10.4);
 		// Do us Localization
 		usLoc.doLocalization();
 		

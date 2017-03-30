@@ -913,10 +913,10 @@ public class Navigation {
 		}
 		else
 		{
-			if(odometer.getAng() > 355 && odometer.getAng() < 5)
+			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 || odometer.getAng() < 185))
 			{
 				double currentX = odometer.getX();
-				while(Math.abs(currentX-odometer.getX()) < 3)
+				while(Math.abs(currentX-odometer.getX()) < 2)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
@@ -924,7 +924,7 @@ public class Navigation {
 			else
 			{
 				double currentY = odometer.getY();
-				while(Math.abs(currentY-odometer.getY()) < 3)
+				while(Math.abs(currentY-odometer.getY()) < 2)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}

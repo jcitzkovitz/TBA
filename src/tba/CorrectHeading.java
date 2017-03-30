@@ -35,6 +35,8 @@ public class CorrectHeading extends Thread{
 		double firstHit = 0;
 		double correction = 0;
 		int direction = 0;
+		int countR = 0;
+		int countL = 0;
 		while(true)
 		{
 			if(!nav.isTurning())
@@ -48,21 +50,26 @@ public class CorrectHeading extends Thread{
 				}
 				if(getLightStrengthR()<minLight)
 				{
-
+					countR++;
 					if(leftHit)
 					{
-						if(direction == 0){
-							correction = this.odo.getX()-firstHit+.5;
-						}
-						else if(direction == 1){
-							correction = this.odo.getY()-firstHit+.5;
-						}
+						if(countR < 5)
+						{
+							if(direction == 0){
+								correction = this.odo.getX()-firstHit+.5;
+							}
+							else if(direction == 1){
+								correction = this.odo.getY()-firstHit+.5;
+							}
 
-						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-						Sound.beep();
-						nav.correctHeading(false, correction);
-						leftHit=false;
-						rightHit=false;
+							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+							Sound.beep();
+							nav.correctHeading(false, correction);
+							leftHit=false;
+							rightHit=false;
+						}
+						countR = 0;
+						countL = 0;
 					}
 					else{
 						rightHit = true;
@@ -78,22 +85,27 @@ public class CorrectHeading extends Thread{
 
 				if(getLightStrengthL()<minLight)
 				{
-					
+					countL++;
 					if(rightHit)
 					{
-						if(direction == 0){
-							correction = this.odo.getX()-firstHit+.5;
-						}
-						else if(direction == 1){
-							correction = this.odo.getY()-firstHit+.5;
-						}
+						if(countL < 5)
+						{
+							if(direction == 0){
+								correction = this.odo.getX()-firstHit+.5;
+							}
+							else if(direction == 1){
+								correction = this.odo.getY()-firstHit+.5;
+							}
 
-						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-						
-						Sound.buzz();
-						nav.correctHeading(true, correction);
-						leftHit=false;
-						rightHit=false;
+							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+
+							Sound.buzz();
+							nav.correctHeading(true, correction);
+							leftHit=false;
+							rightHit=false;
+						}
+						countL = 0;
+						countR = 0;
 					}
 					else{
 						leftHit = true;
