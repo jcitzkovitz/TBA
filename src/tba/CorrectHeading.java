@@ -35,8 +35,6 @@ public class CorrectHeading extends Thread{
 		double firstHit = 0;
 		double correction = 0;
 		int direction = 0;
-		int countR = 0;
-		int countL = 0;
 		while(true)
 		{
 			if(!nav.isTurning())
@@ -50,26 +48,21 @@ public class CorrectHeading extends Thread{
 				}
 				if(getLightStrengthR()<minLight)
 				{
-					countR++;
+
 					if(leftHit)
 					{
-						if(countR < 5)
-						{
-							if(direction == 0){
-								correction = this.odo.getX()-firstHit+.5;
-							}
-							else if(direction == 1){
-								correction = this.odo.getY()-firstHit+.5;
-							}
-
-							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-							Sound.beep();
-							nav.correctHeading(false, correction);
-							leftHit=false;
-							rightHit=false;
+						if(direction == 0){
+							correction = this.odo.getX()-firstHit+.5;
 						}
-						countR = 0;
-						countL = 0;
+						else if(direction == 1){
+							correction = this.odo.getY()-firstHit+.5;
+						}
+
+						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+						Sound.beep();
+						nav.correctHeading(false, correction);
+						leftHit=false;
+						rightHit=false;
 					}
 					else{
 						rightHit = true;
@@ -85,27 +78,22 @@ public class CorrectHeading extends Thread{
 
 				if(getLightStrengthL()<minLight)
 				{
-					countL++;
+					
 					if(rightHit)
 					{
-						if(countL < 5)
-						{
-							if(direction == 0){
-								correction = this.odo.getX()-firstHit+.5;
-							}
-							else if(direction == 1){
-								correction = this.odo.getY()-firstHit+.5;
-							}
-
-							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-
-							Sound.buzz();
-							nav.correctHeading(true, correction);
-							leftHit=false;
-							rightHit=false;
+						if(direction == 0){
+							correction = this.odo.getX()-firstHit+.5;
 						}
-						countL = 0;
-						countR = 0;
+						else if(direction == 1){
+							correction = this.odo.getY()-firstHit+.5;
+						}
+
+						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+						
+						Sound.buzz();
+						nav.correctHeading(true, correction);
+						leftHit=false;
+						rightHit=false;
 					}
 					else{
 						leftHit = true;

@@ -14,7 +14,7 @@ public class LightLocalizerV4 {
 	private Navigation nav;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private float SPEED = 100;
-	private double lightSensorDistance = 2;
+	private double lightSensorDistance = 2.1;
 	
 	public LightLocalizerV4(Odometer odo, SampleProvider colorSensorR, float[] colorDataR, SampleProvider colorSensorL, float[] colorDataL, Navigation nav) {
 		this.odo = odo;
@@ -138,15 +138,6 @@ public class LightLocalizerV4 {
 			nav.setSpeeds(0,0);
 			try{Thread.sleep(500);}catch(Exception e){}
 			
-			// Set correct angle and position to (0,0,0)
-			odo.setPosition((new double[] {0,0,0}), (new boolean[] {true, true, true}));
-			currentX = odo.getX();
-			while(Math.abs(currentX-odo.getX())<30.48/2){
-				nav.setSpeeds(150, 150);
-			}
-			nav.setSpeeds(0, 0);
-			nav.turnTo(90, true);
-			try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
 	public float getColorDataR(){

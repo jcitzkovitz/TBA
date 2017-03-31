@@ -30,7 +30,7 @@ public class Play {
 	private static final Port usPortR = LocalEV3.get().getPort("S4");
 	
 	/* Instantiate Wifi related fields */
-	private static final String SERVER_IP = "192.168.2.5";
+	private static final String SERVER_IP = "192.168.2.30";
 	private static final int TEAM_NUMBER = 4;
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = true;
 	/* Set up navigation, odometer, odometer correction and 
@@ -39,6 +39,10 @@ public class Play {
 	private static Navigation nav;
 	
 	private static final double TILE_LENGTH = 30.48;
+	private static final int SLOW = 100;
+	private int startCorner;
+	private static double dispX = 0;
+	private static double dispY = 0;
 	
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
@@ -54,8 +58,6 @@ public class Play {
 		int fwdStartCorner = 0;
 		int defStartCorner = 0;
 		String despenserOrientation = "";
-		double dispX = 0;
-		double dispY = 0;
 		double shootingDistance = 0;
 		
 		try {
@@ -119,14 +121,16 @@ public class Play {
 		SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
 		float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 		
-		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF);
+		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF,6);
 		
 		// Create US and Light Localization objects
 		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
 		LightLocalizerV4 lightLoc = new LightLocalizerV4(odo,colorValueR,colorDataR,colorValueL,colorDataL,nav);
 		
 		//Create launcher
-		BallLauncher launcher = new BallLauncher(leftMotor, rightMotor, (float)(10-shootingDistance/TILE_LENGTH));
+		BallLauncher launcher = new BallLauncher(leftCatapultMotor, rightCatapultMotor, (float)(10-shootingDistance/TILE_LENGTH));
+		CorrectHeading correctHeading = new CorrectHeading(odo,nav,colorValueR,colorDataR,colorValueL,colorDataL);
+		OdometerCorrection odoCorrection = new OdometerCorrection(odo,nav,colorValueR,colorDataR,colorValueL,colorDataL);
 		
 		odo.setBaseWidth(10.4);
 		// Do us Localization
@@ -135,12 +139,17 @@ public class Play {
 		// Do light localization
 		lightLoc.doLocalization();
 		
+		odoCorrection.start();
 		
 		if(fwdTeam == 4)
 		{
-			// Set the start position for the forward
-			setStartPosition(fwdStartCorner);
 			nav.forwardTeam();
+			
+			// Set correct angle and position to correct position
+			setStartPosition(fwdStartCorner);
+	
+			correctHeading.start();
+			
 			/* While still playing, continusously go to the 
 			 * dispenser, retrieve the ball, go to the 
 			 * shooting position and shoot*/
@@ -149,51 +158,75 @@ public class Play {
 			{
 			// Travel to the ball dispenser
 			if(despenserOrientation.equals("N")){
-				nav.travelTo(dispX, dispY+25);
+				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
 			else if(despenserOrientation.equals("E"))
 			{
-				nav.travelTo(dispX+25, dispY);
+				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
 			else if(despenserOrientation.equals("S"))
 			{
-				nav.travelTo(dispX, dispY-25);
+				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
 			else if(despenserOrientation.equals("W"))
 			{
-				nav.travelTo(dispX-25, dispY);
+				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
+				
+			//Lower launcher motors
+			leftCatapultMotor.setSpeed(25);
+			rightCatapultMotor.setSpeed(25);
 			
+			leftCatapultMotor.rotate(70,true);
+			rightCatapultMotor.rotate(70,false);
+			
+			//Travel to proper coordinates
+			nav.travelTo(dispX,dispY);
 			
 			//Turn to proper orientation
+			boolean xAxis = true;
 			if(despenserOrientation.equals("N"))
 			{
-				nav.turnTo(90, true);
+				xAxis=false;
+				nav.turnTo(270, true);
 			}
 			else if(despenserOrientation.equals("E"))
 			{
-				nav.turnTo(0, true);
+				xAxis=true;
+				nav.turnTo(180, true);
 			}
 			else if(despenserOrientation.equals("S"))
 			{
-				nav.turnTo(270, true);
+				xAxis=false;
+				nav.turnTo(90, true);
 			}
 			else if(despenserOrientation.equals("W"))
 			{
-				nav.turnTo(180, true);
+				xAxis=true;
+				nav.turnTo(0, true);
 			}
 			
 			// Back up into dispenser to retrieve ball
+//			nav.drive(1,xAxis,SLOW,false);
 			
-			//TODO
-			nav.goForward(-7);
+			double currentY = odo.getY();
+			while(Math.abs(currentY-odo.getY()) < 5)
+			{
+				nav.setSpeeds(-100,-100);
+			}
+			
+			nav.setSpeeds(0,0);
+			
+			//Wait for ball to be dispensed
+			try{Thread.sleep(5000);}catch(Exception e){}
 			
 			// Travel to the center of the shooting line
-			nav.travelTo(6*TILE_LENGTH, shootingDistance);
+			nav.travelTo(3*TILE_LENGTH, 6*TILE_LENGTH-shootingDistance);
+			
 			
 			//Launch
+			nav.turnTo(90,true);
 			launcher.launch();
-			//TODO
 			
 			}
 
@@ -202,6 +235,10 @@ public class Play {
 		{
 			// Set the start position for the defense
 			setStartPosition(defStartCorner);
+			
+			correctHeading.start();
+			odoCorrection.start();
+			
 			nav.defenseTeam();
 			nav.travelTo(5*TILE_LENGTH, 8*TILE_LENGTH);
 			
@@ -216,27 +253,43 @@ public class Play {
 		 * will be set to a specific position, and from that 
 		 * position the robot will navigate to inside the zone
 		 * to start*/
-		
+		double turnAngle = 0;
 		if(corner == 1)
 		{
 			odo.setPosition((new double[] {0,0,0}), (new boolean[] {true,true,true}));
-			nav.travelTo(3*TILE_LENGTH, 0);
+			turnAngle = 90;
 		}
 		else if(corner == 2)
 		{
 			odo.setPosition((new double[] {10*TILE_LENGTH,0,90}), (new boolean[] {true,true,true}));
-			nav.travelTo(7*TILE_LENGTH, 0);
+			turnAngle = 90;
 		}
 		else if(corner == 3)
 		{
 			odo.setPosition((new double[] {10*TILE_LENGTH,10*TILE_LENGTH,180}), (new boolean[] {true,true,true}));
-			nav.travelTo(7*TILE_LENGTH,10*TILE_LENGTH);
+			turnAngle = 270;
 		}
 		else if(corner == 4)
 		{
 			odo.setPosition((new double[] {0,10*TILE_LENGTH,270}), (new boolean[] {true,true,true}));
-			nav.travelTo(0, 3*TILE_LENGTH);
+			turnAngle = 270;
 		}
+		
+		double currentX = odo.getX();
+		while(Math.abs(currentX-odo.getX())<TILE_LENGTH/2){
+				nav.setSpeeds(150, 150);
+		}
+		nav.setSpeeds(0, 0);
+		nav.turnTo(turnAngle, true);
+		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
+	public static boolean isInDispenserZone()
+	{
+		if((odo.getX() > dispX-TILE_LENGTH || odo.getX() < dispX+TILE_LENGTH) && (odo.getY() > dispY-TILE_LENGTH || odo.getY() < dispY+TILE_LENGTH))
+		{
+			return true;
+		}
+		return false;
+	}
 }

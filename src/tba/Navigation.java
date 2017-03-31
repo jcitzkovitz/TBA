@@ -23,12 +23,12 @@ import lejos.robotics.SampleProvider;
  * than 0 degrees, 90 degrees, 180 degrees and 270 degrees.*/
 
 public class Navigation {
-	final static int FAST = 150, SLOW = 100, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
+	final static int FAST = 200, SLOW = 150, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
 	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 32, rightSensorToFront = 25;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private boolean isTurning = false;
-	private boolean rightFirst, avoiding = false, correctHeading = false, stopAvoiding = false, navigatingForward = true;
+	private boolean rightFirst, avoiding = false, correctHeading = false, stopAvoiding = false;
 	private double correctionAngle = 0;
 	private final int filterValue = 30;
 	SampleProvider usSensorR; 
@@ -37,9 +37,10 @@ public class Navigation {
 	float[] usDataF;
 	private boolean forward = false;
 	private boolean defense = false;
+	private int boardDimensions;
 	
 
-	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF) {
+	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF, int boardDimensions) {
 		this.odometer = odo;
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
@@ -48,6 +49,7 @@ public class Navigation {
 		this.usDataR = usDataR;
 		this.usSensorF = usSensorF;
 		this.usDataF = usDataF;
+		this.boardDimensions = boardDimensions/2;
 
 		// set acceleration
 		this.leftMotor.setAcceleration(ACCELERATION);
@@ -156,7 +158,7 @@ public class Navigation {
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
 			currentX = odometer.getX();
-			if(getFilteredDataF() < filterValue && !isTurning())
+			if(getFilteredDataF() < filterValue && !isTurning() && !Play.isInDispenserZone())
 			{
 				avoiding = true;
 				Sound.beep();
@@ -164,9 +166,8 @@ public class Navigation {
 				{
 					this.turnTo(180, true);
 					currentX=this.odometer.getX();
-					if(this.odometer.getX() <= 6*TILE_LENGTH)
+					if(this.odometer.getX() <= boardDimensions*TILE_LENGTH)
 					{
-						navigatingForward=false;
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -204,7 +205,6 @@ public class Navigation {
 					}
 					else
 					{
-						navigatingForward=true;
 						currentX=this.odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
@@ -243,8 +243,7 @@ public class Navigation {
 				else
 				{
 					this.turnTo(0, true);
-					navigatingForward=true;
-					if(this.odometer.getX() <= 6*TILE_LENGTH)
+					if(this.odometer.getX() <= boardDimensions*TILE_LENGTH)
 					{
 						currentX=this.odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
@@ -283,7 +282,6 @@ public class Navigation {
 					else
 					{
 						currentX=this.odometer.getX();
-						navigatingForward=false;
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -385,7 +383,7 @@ public class Navigation {
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
 			
-			if(getFilteredDataF() < filterValue && !isTurning())
+			if(getFilteredDataF() < filterValue && !isTurning() && !Play.isInDispenserZone())
 			{
 				correctHeading = false;
 				avoiding = true;
@@ -394,9 +392,8 @@ public class Navigation {
 				{
 					this.turnTo(90, true);
 					currentY = odometer.getY();
-					if(this.odometer.getY() <= 6*TILE_LENGTH)
+					if(this.odometer.getY() <= boardDimensions*TILE_LENGTH)
 					{
-						navigatingForward=true;
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -467,7 +464,6 @@ public class Navigation {
 					}
 					else
 					{
-						navigatingForward=false;
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -540,8 +536,7 @@ public class Navigation {
 				{
 					this.turnTo(270, true);
 					currentY = odometer.getY();
-					navigatingForward=false;
-					if(this.odometer.getY() <= 6*TILE_LENGTH)
+					if(this.odometer.getY() <= boardDimensions*TILE_LENGTH)
 					{
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
@@ -612,7 +607,6 @@ public class Navigation {
 					}
 					else
 					{
-						navigatingForward=true;
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -776,10 +770,48 @@ public class Navigation {
 	/*
 	 * Go foward a set distance in cm
 	 */
-	public void goForward(double distance) {
-		this.travelTo(Math.cos(Math.toRadians(this.odometer.getAng())) * distance, Math.cos(Math.toRadians(this.odometer.getAng())) * distance);
-
-	}
+//	public void drive(double distance, boolean xDirection, int speed, boolean pos) {
+//		
+//		if(pos)
+//		{
+//			if(xDirection)
+//			{
+//				double currentX = odometer.getX();
+//				while(Math.abs(currentX-odometer.getX()) < distance)
+//				{
+//					this.setSpeeds(speed,speed);
+//				}
+//			}
+//			else
+//			{
+//				double currentY = odometer.getY();
+//				while(Math.abs(currentY-odometer.getY()) < distance)
+//				{
+//					this.setSpeeds(speed,speed);
+//				}
+//			}
+//		}
+//		else
+//		{
+//			if(xDirection)
+//			{
+//				double currentX = odometer.getX();
+//				while(Math.abs(currentX-odometer.getX()) < distance)
+//				{
+//					this.setSpeeds(-speed,-speed);
+//				}
+//			}
+//			else
+//			{
+//				double currentY = odometer.getY();
+//				while(Math.abs(currentY-odometer.getY()) < distance)
+//				{
+//					this.setSpeeds(-speed,-speed);
+//				}
+//			}
+//		}
+//		Sound.beep();
+//	}
 	
 	// Counter clockwise rotation
 	private  void rotateCCW()
@@ -916,7 +948,7 @@ public class Navigation {
 			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 || odometer.getAng() < 185))
 			{
 				double currentX = odometer.getX();
-				while(Math.abs(currentX-odometer.getX()) < 2)
+				while(Math.abs(currentX-odometer.getX()) < 3)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
@@ -924,7 +956,7 @@ public class Navigation {
 			else
 			{
 				double currentY = odometer.getY();
-				while(Math.abs(currentY-odometer.getY()) < 2)
+				while(Math.abs(currentY-odometer.getY()) < 3)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
@@ -957,8 +989,4 @@ public class Navigation {
 		this.forward = true;
 	}
 	
-	public boolean isNavigatingForward()
-	{
-		return navigatingForward;
-	}
 }

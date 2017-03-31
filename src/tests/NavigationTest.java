@@ -49,7 +49,7 @@ public class NavigationTest {
 				SampleProvider usDistanceF = usSensorF.getMode("Distance");	// usDistance provides samples from this instance
 				float[] usDataF = new float[usDistanceF.sampleSize()];		// usData is the buffer in which data are returned
 				
-				Navigation nav = new Navigation(odo,usSensorR,usDataR,usSensorF,usDataF);
+				Navigation nav = new Navigation(odo,usSensorR,usDataR,usSensorF,usDataF,5);
 				
 				// Setup light sensor Right and Left
 				@SuppressWarnings("resource")
