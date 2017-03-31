@@ -24,7 +24,7 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 150, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15, rightSensorToFront = 10;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 20, rightSensorToFront = 7;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private boolean isTurning = false;
@@ -42,6 +42,7 @@ public class Navigation {
 	private boolean forward = false;
 	private boolean defense = false;
 	private int boardDimensions;
+	private boolean collecting = false;
 	
 
 	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF, int boardDimensions,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL) {
@@ -495,6 +496,7 @@ public class Navigation {
 						currentY = this.odometer.getY();
 						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
 						{
+							Sound.beep();
 							if(!correctHeading)
 							{
 								this.setSpeeds(-SLOW,-SLOW);
@@ -1000,6 +1002,7 @@ public class Navigation {
 	
 	public void dispenserLocalization()
 	{
+		this.collecting = true;
 		double minLight =0.3;
 		
 		// Travel in the x direction until a black line is seen by both sensors
@@ -1106,6 +1109,7 @@ public class Navigation {
 				this.setSpeeds(SLOW,SLOW);
 			}
 			this.setSpeeds(0,0);
+			this.collecting = false;
 			try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
@@ -1165,5 +1169,10 @@ public class Navigation {
 		float lightStrength = colorDataL[0];
 		return lightStrength;
 	}
+	
+	public boolean isCollecting(){
+		return this.collecting;
+	}
+
 	
 }

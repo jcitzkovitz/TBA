@@ -39,7 +39,7 @@ public class CorrectHeading extends Thread{
 		int countL = 0;
 		while(true)
 		{
-			if(!nav.isTurning())
+			if((!nav.isTurning())&&(!nav.isCollecting()))
 			{
 				
 				if(odo.getAng()<10||odo.getAng()>350||(odo.getAng()<190&&odo.getAng()>170)){
