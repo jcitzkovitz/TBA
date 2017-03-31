@@ -14,7 +14,7 @@ public class LightLocalizerV4 {
 	private Navigation nav;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private float SPEED = 100;
-	private double lightSensorDistance = 2.1;
+	public static double lightSensorDistance = 2.1;
 	
 	public LightLocalizerV4(Odometer odo, SampleProvider colorSensorR, float[] colorDataR, SampleProvider colorSensorL, float[] colorDataL, Navigation nav) {
 		this.odo = odo;

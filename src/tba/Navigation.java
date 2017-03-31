@@ -35,12 +35,16 @@ public class Navigation {
 	float[] usDataR;
 	SampleProvider usSensorF; 
 	float[] usDataF;
+	SampleProvider colorSensorR; 
+	float[] colorDataR;
+	SampleProvider colorSensorL; 
+	float[] colorDataL;
 	private boolean forward = false;
 	private boolean defense = false;
 	private int boardDimensions;
 	
 
-	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF, int boardDimensions) {
+	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF, int boardDimensions,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL) {
 		this.odometer = odo;
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
@@ -49,6 +53,10 @@ public class Navigation {
 		this.usDataR = usDataR;
 		this.usSensorF = usSensorF;
 		this.usDataF = usDataF;
+		this.colorSensorR = colorSensorR;
+		this.colorDataR = colorDataR;
+		this.colorSensorL = colorSensorL;
+		this.colorDataL = colorDataL;
 		this.boardDimensions = boardDimensions/2;
 
 		// set acceleration
@@ -770,48 +778,49 @@ public class Navigation {
 	/*
 	 * Go foward a set distance in cm
 	 */
-//	public void drive(double distance, boolean xDirection, int speed, boolean pos) {
-//		
-//		if(pos)
-//		{
-//			if(xDirection)
-//			{
-//				double currentX = odometer.getX();
-//				while(Math.abs(currentX-odometer.getX()) < distance)
-//				{
-//					this.setSpeeds(speed,speed);
-//				}
-//			}
-//			else
-//			{
-//				double currentY = odometer.getY();
-//				while(Math.abs(currentY-odometer.getY()) < distance)
-//				{
-//					this.setSpeeds(speed,speed);
-//				}
-//			}
-//		}
-//		else
-//		{
-//			if(xDirection)
-//			{
-//				double currentX = odometer.getX();
-//				while(Math.abs(currentX-odometer.getX()) < distance)
-//				{
-//					this.setSpeeds(-speed,-speed);
-//				}
-//			}
-//			else
-//			{
-//				double currentY = odometer.getY();
-//				while(Math.abs(currentY-odometer.getY()) < distance)
-//				{
-//					this.setSpeeds(-speed,-speed);
-//				}
-//			}
-//		}
-//		Sound.beep();
-//	}
+	public void drive(double distance, boolean xDirection, int speed, boolean pos) {
+		
+		if(pos)
+		{
+			if(xDirection)
+			{
+				double currentX = odometer.getX();
+				while(Math.abs(currentX-odometer.getX()) < distance)
+				{
+					this.setSpeeds(speed,speed);
+				}
+			}
+			else
+			{
+				double currentY = odometer.getY();
+				while(Math.abs(currentY-odometer.getY()) < distance)
+				{
+					this.setSpeeds(speed,speed);
+				}
+			}
+		}
+		else
+		{
+			if(xDirection)
+			{
+				double currentX = odometer.getX();
+				while(Math.abs(currentX-odometer.getX()) < distance)
+				{
+					this.setSpeeds(-speed,-speed);
+				}
+			}
+			else
+			{
+				double currentY = odometer.getY();
+				while(Math.abs(currentY-odometer.getY()) < distance)
+				{
+					this.setSpeeds(-speed,-speed);
+				}
+			}
+		}
+		
+		this.setSpeeds(0,0);
+	}
 	
 	// Counter clockwise rotation
 	private  void rotateCCW()
@@ -987,6 +996,141 @@ public class Navigation {
 	public void defenseTeam(){
 		this.defense = true;
 		this.forward = true;
+	}
+	
+	public void dispenserLocalization()
+	{
+		double minLight =0.3;
+		
+		// Travel in the x direction until a black line is seen by both sensors
+		boolean rightHit = false,leftHit = false;
+		double firstHit = 0;
+		double correction = 0;
+
+		
+		// travel in the y direction until both light sensors sense a black line, and perform correction
+		while(true)
+		{
+			this.setSpeeds(SLOW,SLOW);
+			if(getColorDataR()<minLight)
+			{
+				if(leftHit)
+				{
+					correction = this.odometer.getX()-firstHit+.5;
+					correction = Math.toDegrees(Math.asin(correction/odometer.getBaseWidth()));
+					correctHeading(false, correction);
+					leftHit=false;
+					rightHit=false;
+					break;
+				}
+				else{
+					rightHit = true;
+					firstHit = this.odometer.getX();
+				}
+			}
+
+			if(getColorDataL()<minLight)
+			{
+
+				if(rightHit)
+				{
+					correction = this.odometer.getX()-firstHit+.5;
+					correction = Math.toDegrees(Math.asin(correction/odometer.getBaseWidth()));
+					correctHeading(true, correction);
+					leftHit=false;
+					rightHit=false;
+					break;
+				}
+				else{
+					leftHit = true;
+					firstHit = this.odometer.getX();
+				}
+			}
+		}
+		
+		double currentX = odometer.getX();
+		while(Math.abs(currentX-odometer.getX()) < LightLocalizerV4.lightSensorDistance)
+		{
+			this.setSpeeds(SLOW,SLOW);
+		}
+		
+		this.setSpeeds(0,0);
+		try{Thread.sleep(500);}catch(Exception e){}
+		
+		// Turn to appropriate y direction and travel until both sensors sense a black line and perform correction
+		 this.turnTo(90,true);
+			while(true)
+			{
+				this.setSpeeds(SLOW,SLOW);
+				if(getColorDataR()<minLight)
+				{
+					if(leftHit)
+					{
+						correction = this.odometer.getY()-firstHit+.5;
+						correction = Math.toDegrees(Math.asin(correction/odometer.getBaseWidth()));
+						doCorrectHeading(false,correction,true);
+						leftHit=false;
+						rightHit=false;
+						break;
+					}
+					else{
+						rightHit = true;
+						firstHit = this.odometer.getY();
+					}
+				}
+
+				if(getColorDataL()<minLight)
+				{
+
+					if(rightHit)
+					{
+						correction = this.odometer.getY()-firstHit+.5;
+						correction = Math.toDegrees(Math.asin(correction/odometer.getBaseWidth()));
+						doCorrectHeading(true,correction,true);
+						leftHit=false;
+						rightHit=false;
+						break;
+					}
+					else{
+						leftHit = true;
+						firstHit = this.odometer.getY();
+					}
+				}
+			}
+			
+			double currentY = odometer.getY();
+			while(Math.abs(currentY-odometer.getY()) < LightLocalizerV4.lightSensorDistance)
+			{
+				this.setSpeeds(SLOW,SLOW);
+			}
+			this.setSpeeds(0,0);
+			try{Thread.sleep(500);}catch(Exception e){}
+	}
+	
+	private void turn(boolean cw, double angle)
+	{
+		if(cw)
+		{
+			this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),true);
+			this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),false);
+		}
+		else
+		{
+			this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),true);
+			this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),false);
+		}
+	}
+	
+	public float getColorDataR(){
+		colorSensorR.fetchSample(colorDataR, 0);
+		float lightStrength = colorDataR[0];
+		return lightStrength;
+	}
+	
+	public float getColorDataL(){
+		colorSensorL.fetchSample(colorDataL, 0);
+		float lightStrength = colorDataL[0];
+		return lightStrength;
 	}
 	
 }

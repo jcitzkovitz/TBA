@@ -30,7 +30,7 @@ public class Play {
 	private static final Port usPortR = LocalEV3.get().getPort("S4");
 	
 	/* Instantiate Wifi related fields */
-	private static final String SERVER_IP = "192.168.2.30";
+	private static final String SERVER_IP = "192.168.2.10";
 	private static final int TEAM_NUMBER = 4;
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = true;
 	/* Set up navigation, odometer, odometer correction and 
@@ -41,8 +41,8 @@ public class Play {
 	private static final double TILE_LENGTH = 30.48;
 	private static final int SLOW = 100;
 	private int startCorner;
-	private static double dispX = 0;
-	private static double dispY = 0;
+	private static double dispX = 6*TILE_LENGTH;
+	private static double dispY = 6*TILE_LENGTH;
 	
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
@@ -51,51 +51,51 @@ public class Play {
 		/* Retrieve information from wifi */
 		WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
 
-		int fwdTeam = 0;
-		int defTeam = 0;
-		double defZoneSizeW1 = 0;
-		double defZoneSizeW2 = 0;
-		int fwdStartCorner = 0;
-		int defStartCorner = 0;
-		String despenserOrientation = "";
-		double shootingDistance = 0;
+		int fwdTeam = 4;
+		int defTeam = 1;
+		double defZoneSizeW1 = 2;
+		double defZoneSizeW2 = 2;
+		int fwdStartCorner = 1;
+		int defStartCorner = 2;
+		String despenserOrientation = "N";
+		double shootingDistance = 2*TILE_LENGTH;
 		
-		try {
-			/*
-			 * getData() will connect to the server and wait until the user/TA
-			 * presses the "Start" button in the GUI on their laptop with the
-			 * data filled in. Once it's waiting, you can kill it by
-			 * pressing the upper left hand corner button (back/escape) on the EV3.
-			 * getData() will throw exceptions if it can't connect to the server
-			 * (e.g. wrong IP address, server not running on laptop, not connected
-			 * to WiFi router, etc.). It will also throw an exception if it connects 
-			 * but receives corrupted data or a message from the server saying something 
-			 * went wrong. For example, if TEAM_NUMBER is set to 1 above but the server expects
-			 * teams 17 and 5, this robot will receive a message saying an invalid team number 
-			 * was specified and getData() will throw an exception letting you know.
-			 */
-			Map data = conn.getData();
-
-			fwdTeam = ((Long) data.get("FWD_TEAM")).intValue();
-			defTeam = ((Long) data.get("DEF_TEAM")).intValue();
-			defZoneSizeW1 = TILE_LENGTH*((Long) data.get("w1")).intValue();
-			defZoneSizeW2 = TILE_LENGTH*((Long) data.get("w2")).intValue();
-			fwdStartCorner = ((Long) data.get("FWD_CORNER")).intValue();
-			defStartCorner = ((Long) data.get("DEF_CORNER")).intValue();
-			despenserOrientation = (String) data.get("omega");
-			dispX = TILE_LENGTH*((Long) data.get("bx")).intValue();
-			dispY = TILE_LENGTH*((Long) data.get("by")).intValue();
-			shootingDistance = TILE_LENGTH*((Long) data.get("d1")).intValue();
-
-		} catch (Exception e) {
-			System.err.println("Error: " + e.getMessage());
-		}
+//		try {
+//			/*
+//			 * getData() will connect to the server and wait until the user/TA
+//			 * presses the "Start" button in the GUI on their laptop with the
+//			 * data filled in. Once it's waiting, you can kill it by
+//			 * pressing the upper left hand corner button (back/escape) on the EV3.
+//			 * getData() will throw exceptions if it can't connect to the server
+//			 * (e.g. wrong IP address, server not running on laptop, not connected
+//			 * to WiFi router, etc.). It will also throw an exception if it connects 
+//			 * but receives corrupted data or a message from the server saying something 
+//			 * went wrong. For example, if TEAM_NUMBER is set to 1 above but the server expects
+//			 * teams 17 and 5, this robot will receive a message saying an invalid team number 
+//			 * was specified and getData() will throw an exception letting you know.
+//			 */
+//			Map data = conn.getData();
+//
+//			fwdTeam = ((Long) data.get("FWD_TEAM")).intValue();
+//			defTeam = ((Long) data.get("DEF_TEAM")).intValue();
+//			defZoneSizeW1 = TILE_LENGTH*((Long) data.get("w1")).intValue();
+//			defZoneSizeW2 = TILE_LENGTH*((Long) data.get("w2")).intValue();
+//			fwdStartCorner = ((Long) data.get("FWD_CORNER")).intValue();
+//			defStartCorner = ((Long) data.get("DEF_CORNER")).intValue();
+//			despenserOrientation = (String) data.get("omega");
+//			dispX = TILE_LENGTH*((Long) data.get("bx")).intValue();
+//			dispY = TILE_LENGTH*((Long) data.get("by")).intValue();
+//			shootingDistance = TILE_LENGTH*((Long) data.get("d1")).intValue();
+//
+//		} catch (Exception e) {
+//			System.err.println("Error: " + e.getMessage());
+//		}
 		
 		/* Set up odometry display*/
 		final TextLCD t = LocalEV3.get().getTextLCD();
 		OdometryDisplay odoDisplay = new OdometryDisplay(odo,t);
 		odo.start();
-		
+		odoDisplay.start();
 		/* With the information retrieved from wifi, localize,
 		 * set the start position to the corresponding corner,
 		 * notify robot of game position, and play accordingly */
@@ -121,7 +121,7 @@ public class Play {
 		SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
 		float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 		
-		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF,6);
+		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF,6, colorValueR,colorDataR,colorValueL,colorDataL);
 		
 		// Create US and Light Localization objects
 		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
@@ -139,15 +139,13 @@ public class Play {
 		// Do light localization
 		lightLoc.doLocalization();
 		
-		odoCorrection.start();
-		
 		if(fwdTeam == 4)
 		{
 			nav.forwardTeam();
 			
 			// Set correct angle and position to correct position
 			setStartPosition(fwdStartCorner);
-	
+			odoCorrection.start();
 			correctHeading.start();
 			
 			/* While still playing, continusously go to the 
@@ -180,8 +178,8 @@ public class Play {
 			leftCatapultMotor.rotate(70,true);
 			rightCatapultMotor.rotate(70,false);
 			
-			//Travel to proper coordinates
-			nav.travelTo(dispX,dispY);
+			//Localize at ball dispenser line
+			nav.dispenserLocalization();
 			
 			//Turn to proper orientation
 			boolean xAxis = true;
@@ -206,19 +204,14 @@ public class Play {
 				nav.turnTo(0, true);
 			}
 			
-			// Back up into dispenser to retrieve ball
-//			nav.drive(1,xAxis,SLOW,false);
+			//Re set position on odmeter to position of ball dispenser coordinate
+			odo.setPosition((new double[] {dispX,dispY,0}), (new boolean[] {true,true,false}));
 			
-			double currentY = odo.getY();
-			while(Math.abs(currentY-odo.getY()) < 5)
-			{
-				nav.setSpeeds(-100,-100);
-			}
-			
-			nav.setSpeeds(0,0);
+			//Back up into dispenser to retrieve ball
+			nav.drive(5,xAxis,SLOW,false);
 			
 			//Wait for ball to be dispensed
-			try{Thread.sleep(5000);}catch(Exception e){}
+			try{Thread.sleep(7000);}catch(Exception e){}
 			
 			// Travel to the center of the shooting line
 			nav.travelTo(3*TILE_LENGTH, 6*TILE_LENGTH-shootingDistance);
@@ -275,10 +268,7 @@ public class Play {
 			turnAngle = 270;
 		}
 		
-		double currentX = odo.getX();
-		while(Math.abs(currentX-odo.getX())<TILE_LENGTH/2){
-				nav.setSpeeds(150, 150);
-		}
+		nav.drive(TILE_LENGTH/2,true,SLOW,true);
 		nav.setSpeeds(0, 0);
 		nav.turnTo(turnAngle, true);
 		try{Thread.sleep(500);}catch(Exception e){}

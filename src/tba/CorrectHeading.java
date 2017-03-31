@@ -35,75 +35,97 @@ public class CorrectHeading extends Thread{
 		double firstHit = 0;
 		double correction = 0;
 		int direction = 0;
+		int countR = 0;
+		int countL = 0;
 		while(true)
 		{
 			if(!nav.isTurning())
 			{
 				
-				if(odo.getAng()<5||odo.getAng()>355||(odo.getAng()<185&&odo.getAng()>175)){
+				if(odo.getAng()<10||odo.getAng()>350||(odo.getAng()<190&&odo.getAng()>170)){
 					direction = 0;
 				}
-				else if((odo.getAng()<95&&odo.getAng()>85)||(odo.getAng()<275&&odo.getAng()>265)){
+				else if((odo.getAng()<100&&odo.getAng()>80)||(odo.getAng()<280&&odo.getAng()>260)){
 					direction = 1;
 				}
 				if(getLightStrengthR()<minLight)
 				{
-
-					if(leftHit)
+					countR++;
+					if(countR < 8)
 					{
-						if(direction == 0){
-							correction = this.odo.getX()-firstHit+.5;
-						}
-						else if(direction == 1){
-							correction = this.odo.getY()-firstHit+.5;
-						}
+						if(leftHit)
+						{
+							if(direction == 0){
+								correction = this.odo.getX()-firstHit+.5;
+							}
+							else if(direction == 1){
+								correction = this.odo.getY()-firstHit+.5;
+							}
 
-						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-						Sound.beep();
-						nav.correctHeading(false, correction);
-						leftHit=false;
-						rightHit=false;
+							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+							Sound.beep();
+							nav.correctHeading(false, correction);
+							leftHit=false;
+							rightHit=false;
+							countR = 0;
+							countL = 0;
+						}
+						else{
+							rightHit = true;
+							if(direction == 0){
+								firstHit = this.odo.getX();
+							}
+							else if(direction == 1){
+								firstHit = this.odo.getY();
+							}
+
+						}
 					}
-					else{
-						rightHit = true;
-						if(direction == 0){
-							firstHit = this.odo.getX();
-						}
-						else if(direction == 1){
-							firstHit = this.odo.getY();
-						}
-						
+					else
+					{
+						countR = 0;
+						countL = 0;
 					}
 				}
 
 				if(getLightStrengthL()<minLight)
 				{
-					
-					if(rightHit)
+					countL++;
+					if(countL < 8)
 					{
-						if(direction == 0){
-							correction = this.odo.getX()-firstHit+.5;
-						}
-						else if(direction == 1){
-							correction = this.odo.getY()-firstHit+.5;
-						}
+						if(rightHit)
+						{
+							if(direction == 0){
+								correction = this.odo.getX()-firstHit+.5;
+							}
+							else if(direction == 1){
+								correction = this.odo.getY()-firstHit+.5;
+							}
 
-						correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
-						
-						Sound.buzz();
-						nav.correctHeading(true, correction);
-						leftHit=false;
-						rightHit=false;
+							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
+
+							Sound.buzz();
+							nav.correctHeading(true, correction);
+							leftHit=false;
+							rightHit=false;
+							countR = 0;
+							countL = 0;
+						}
+						else{
+							leftHit = true;
+							if(direction == 0){
+								firstHit = this.odo.getX();
+							}
+							else if(direction == 1){
+								firstHit = this.odo.getY();
+							}
+
+						}
 					}
-					else{
-						leftHit = true;
-						if(direction == 0){
-							firstHit = this.odo.getX();
-						}
-						else if(direction == 1){
-							firstHit = this.odo.getY();
-						}
-
+					else
+					{
+						countR = 0;
+						countL = 0;
 					}
 				}
 
