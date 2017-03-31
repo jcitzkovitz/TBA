@@ -24,7 +24,7 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 150, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 32, rightSensorToFront = 25;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 15, rightSensorToFront = 10;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private boolean isTurning = false;
@@ -166,7 +166,7 @@ public class Navigation {
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
 			currentX = odometer.getX();
-			if(getFilteredDataF() < filterValue && !isTurning() && !Play.isInDispenserZone())
+			if(getFilteredDataF() < filterValue && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
 				avoiding = true;
 				Sound.beep();
@@ -391,7 +391,7 @@ public class Navigation {
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
 			
-			if(getFilteredDataF() < filterValue && !isTurning() && !Play.isInDispenserZone())
+			if(getFilteredDataF() < filterValue && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
 				correctHeading = false;
 				avoiding = true;
@@ -458,7 +458,7 @@ public class Navigation {
 							}
 						}
 						currentX = this.odometer.getX();
-						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
+						while(Math.abs(currentX-this.odometer.getX()) < rightSensorToBack && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -468,7 +468,6 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						
 					}
 					else
 					{
@@ -484,20 +483,21 @@ public class Navigation {
 						}
 						while(getFilteredDataR() < filterValue && !stopAvoiding)
 						{
+							Sound.beep();
 							if(!correctHeading)
 							{
-							this.setSpeeds(-SLOW,-SLOW);
+								this.setSpeeds(-SLOW,-SLOW);
 							}
 							else{
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
 						currentY = this.odometer.getY();
-						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToBack && !stopAvoiding)
+						while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
-							this.setSpeeds(-SLOW,-SLOW);
+								this.setSpeeds(-SLOW,-SLOW);
 							}
 							else{
 								doCorrectHeading(rightFirst, correctionAngle, false);
@@ -505,7 +505,7 @@ public class Navigation {
 						}
 						this.setSpeeds(0,0);
 						
-						this.turnTo(0,true);
+						this.turnTo(180,true);
 						currentX = odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
@@ -649,7 +649,7 @@ public class Navigation {
 						}
 						this.setSpeeds(0,0);
 						
-						this.turnTo(0,true);
+						this.turnTo(180,true);
 						currentX = odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
@@ -856,22 +856,22 @@ public class Navigation {
 		{
 			if(xDirection)
 			{
-				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*2)
+				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*3/2)
 				{
 					stopAvoiding = true;
 				}
-				else
+				else if(!stopAvoiding)
 				{
 					this.setSpeeds(SLOW, SLOW);
 				}
 			}
 			else
 			{
-				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*2)
+				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*3/2)
 				{
 					stopAvoiding = true;
 				}
-				else
+				else if(!stopAvoiding)
 				{
 					this.setSpeeds(SLOW, SLOW);
 				}
@@ -881,22 +881,22 @@ public class Navigation {
 		{
 			if(xDirection)
 			{
-				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*2)
+				if(Math.abs(point-odometer.getX()) > TILE_LENGTH*3/2)
 				{
 					stopAvoiding = true;
 				}
-				else
+				else if(!stopAvoiding)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
 			}
 			else
 			{
-				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*2)
+				if(Math.abs(point-odometer.getY()) > TILE_LENGTH*3/2)
 				{
 					stopAvoiding = true;
 				}
-				else
+				else if(!stopAvoiding)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
@@ -957,7 +957,7 @@ public class Navigation {
 			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 || odometer.getAng() < 185))
 			{
 				double currentX = odometer.getX();
-				while(Math.abs(currentX-odometer.getX()) < 3)
+				while(Math.abs(currentX-odometer.getX()) < 5)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
@@ -965,7 +965,7 @@ public class Navigation {
 			else
 			{
 				double currentY = odometer.getY();
-				while(Math.abs(currentY-odometer.getY()) < 3)
+				while(Math.abs(currentY-odometer.getY()) < 5)
 				{
 					this.setSpeeds(-SLOW, -SLOW);
 				}
@@ -1047,6 +1047,8 @@ public class Navigation {
 				}
 			}
 		}
+		this.setSpeeds(0,0);
+		try{Thread.sleep(500);}catch(Exception e){}
 		
 		double currentX = odometer.getX();
 		while(Math.abs(currentX-odometer.getX()) < LightLocalizerV4.lightSensorDistance)
@@ -1119,6 +1121,37 @@ public class Navigation {
 			this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),true);
 			this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),false);
 		}
+	}
+	
+	private boolean isInDispenserZone()
+	{
+		if((odometer.getX() > Play.dispX-TILE_LENGTH && odometer.getX() < Play.dispX+TILE_LENGTH) && (odometer.getY() > Play.dispY-TILE_LENGTH && odometer.getY() < Play.dispY+TILE_LENGTH))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isDetectingBorder()
+	{
+		if(odometer.getX()<TILE_LENGTH/2 && (odometer.getAng() > 170 && odometer.getAng() < 190))
+		{
+			return true;
+		}
+		else if(odometer.getX()>boardDimensions*TILE_LENGTH-TILE_LENGTH/2 && (odometer.getAng() > 350 || odometer.getAng() < 10))
+		{
+			return true;
+		}
+		else if(odometer.getY()>boardDimensions*TILE_LENGTH-TILE_LENGTH/2 && (odometer.getAng() > 80 && odometer.getAng() < 100))
+		{
+			return true;
+		}
+		else if(odometer.getY()<TILE_LENGTH/2 && (odometer.getAng() > 260 && odometer.getAng() < 280))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public float getColorDataR(){

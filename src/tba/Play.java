@@ -41,8 +41,8 @@ public class Play {
 	private static final double TILE_LENGTH = 30.48;
 	private static final int SLOW = 100;
 	private int startCorner;
-	private static double dispX = 6*TILE_LENGTH;
-	private static double dispY = 6*TILE_LENGTH;
+	public static double dispX = 6*TILE_LENGTH;
+	public static double dispY = 6*TILE_LENGTH;
 	
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
@@ -58,8 +58,7 @@ public class Play {
 		int fwdStartCorner = 1;
 		int defStartCorner = 2;
 		String despenserOrientation = "N";
-		double shootingDistance = 2*TILE_LENGTH;
-		
+		double shootingDistance = 6*TILE_LENGTH;
 //		try {
 //			/*
 //			 * getData() will connect to the server and wait until the user/TA
@@ -274,12 +273,4 @@ public class Play {
 		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
-	public static boolean isInDispenserZone()
-	{
-		if((odo.getX() > dispX-TILE_LENGTH || odo.getX() < dispX+TILE_LENGTH) && (odo.getY() > dispY-TILE_LENGTH || odo.getY() < dispY+TILE_LENGTH))
-		{
-			return true;
-		}
-		return false;
-	}
 }

@@ -56,10 +56,10 @@ public class CorrectHeading extends Thread{
 						if(leftHit)
 						{
 							if(direction == 0){
-								correction = this.odo.getX()-firstHit+.5;
+								correction = Math.abs(this.odo.getX()-firstHit)+.5;
 							}
 							else if(direction == 1){
-								correction = this.odo.getY()-firstHit+.5;
+								correction = Math.abs(this.odo.getY()-firstHit)+.5;
 							}
 
 							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
@@ -96,10 +96,10 @@ public class CorrectHeading extends Thread{
 						if(rightHit)
 						{
 							if(direction == 0){
-								correction = this.odo.getX()-firstHit+.5;
+								correction = Math.abs(this.odo.getX()-firstHit)+.5;
 							}
 							else if(direction == 1){
-								correction = this.odo.getY()-firstHit+.5;
+								correction = Math.abs(this.odo.getY()-firstHit)+.5;
 							}
 
 							correction = Math.toDegrees(Math.asin(correction/odo.getBaseWidth()));
