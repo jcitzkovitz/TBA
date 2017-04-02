@@ -24,13 +24,13 @@ import lejos.robotics.SampleProvider;
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 150, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
-	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 20, rightSensorToFront = 7;
+	final static double DEG_ERR = 2.5, CM_ERR = 1.0, TILE_LENGTH = 30.48, rightSensorToBack = 23, rightSensorToFront = 15;
 	private Odometer odometer;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private boolean isTurning = false;
 	private boolean rightFirst, avoiding = false, correctHeading = false, stopAvoiding = false;
 	private double correctionAngle = 0;
-	private final int filterValue = 30;
+	private final int filterValue = 25;
 	SampleProvider usSensorR; 
 	float[] usDataR;
 	SampleProvider usSensorF; 
@@ -43,9 +43,11 @@ public class Navigation {
 	private boolean defense = false;
 	private int boardDimensions;
 	private boolean collecting = false;
-	
+	private double shootingDistance;
 
-	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF, float[] usDataF, int boardDimensions,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL) {
+	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF,
+					float[] usDataF, int boardDimensions,SampleProvider colorSensorR, float[] colorDataR,
+					SampleProvider colorSensorL, float[] colorDataL, double shootingDistance) {
 		this.odometer = odo;
 		EV3LargeRegulatedMotor[] motors = this.odometer.getMotors();
 		this.leftMotor = motors[0];
@@ -59,6 +61,7 @@ public class Navigation {
 		this.colorSensorL = colorSensorL;
 		this.colorDataL = colorDataL;
 		this.boardDimensions = boardDimensions/2;
+		this.shootingDistance = shootingDistance;
 
 		// set acceleration
 		this.leftMotor.setAcceleration(ACCELERATION);
@@ -110,6 +113,16 @@ public class Navigation {
 	 */
 	public void travelTo(double x, double y){
 		if(forward){
+			if((y > 2*boardDimensions*TILE_LENGTH-shootingDistance)&& ((x<TILE_LENGTH&&odometer.getX()<TILE_LENGTH)||
+					(x>(boardDimensions - 1)*TILE_LENGTH&&odometer.getX()<(boardDimensions - 1)*TILE_LENGTH)))
+			{
+				realTravelTo(x,shootingDistance-TILE_LENGTH/2);
+				realTravelTo(x,y);
+			}
+			else
+			{
+				realTravelTo(x,y);
+			}
 			if(y>6*TILE_LENGTH&&((x<3*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH)||(x>7*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH))){
 				this.realTravelTo(x, 5);
 				this.realTravelTo(x, y);
@@ -906,6 +919,9 @@ public class Navigation {
 		}
 	}
 	
+	
+	
+	
 	private float getFilteredDataR() 
 	{
 		
@@ -935,11 +951,13 @@ public class Navigation {
 		return distance;
 	}
 	
+	
+	
+	
 	private void doCorrectHeading(boolean rightFirst, double correctionAngle, boolean posDirection)
 	{
 		this.setSpeeds(0,0);
 		try{Thread.sleep(500);}catch(Exception e){}
-		this.setSpeeds(SLOW, SLOW);
 		Sound.twoBeeps();
 		if(posDirection)
 		{
@@ -956,7 +974,7 @@ public class Navigation {
 		}
 		else
 		{
-			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 || odometer.getAng() < 185))
+			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 && odometer.getAng() < 185))
 			{
 				double currentX = odometer.getX();
 				while(Math.abs(currentX-odometer.getX()) < 5)
@@ -990,6 +1008,8 @@ public class Navigation {
 		correctHeading = false;
 	}
 	
+	
+	
 	public void forwardTeam(){
 		this.forward = true;
 		this.defense = false;
@@ -1000,6 +1020,8 @@ public class Navigation {
 		this.forward = true;
 	}
 	
+	
+	
 	public void dispenserLocalization()
 	{
 		this.collecting = true;
@@ -1009,9 +1031,11 @@ public class Navigation {
 		boolean rightHit = false,leftHit = false;
 		double firstHit = 0;
 		double correction = 0;
-
 		
-		// travel in the y direction until both light sensors sense a black line, and perform correction
+		// travel in the x direction until both light sensors sense a black line, and perform correction
+		if(odometer.getX()<TILE_LENGTH){
+			this.turnTo(180, true);
+		}
 		while(true)
 		{
 			this.setSpeeds(SLOW,SLOW);
@@ -1021,7 +1045,7 @@ public class Navigation {
 				{
 					correction = this.odometer.getX()-firstHit+.5;
 					correction = Math.toDegrees(Math.asin(correction/odometer.getBaseWidth()));
-					correctHeading(false, correction);
+					doCorrectHeading(false, correction, true);
 					leftHit=false;
 					rightHit=false;
 					break;
@@ -1039,7 +1063,7 @@ public class Navigation {
 				{
 					correction = this.odometer.getX()-firstHit+.5;
 					correction = Math.toDegrees(Math.asin(correction/odometer.getBaseWidth()));
-					correctHeading(true, correction);
+					doCorrectHeading(true, correction, true);
 					leftHit=false;
 					rightHit=false;
 					break;
@@ -1063,7 +1087,12 @@ public class Navigation {
 		try{Thread.sleep(500);}catch(Exception e){}
 		
 		// Turn to appropriate y direction and travel until both sensors sense a black line and perform correction
-		 this.turnTo(90,true);
+		if(odometer.getY()<TILE_LENGTH){
+			this.turnTo(270,true);
+		}
+		else{
+			this.turnTo(90,true);
+		}
 			while(true)
 			{
 				this.setSpeeds(SLOW,SLOW);
@@ -1113,6 +1142,8 @@ public class Navigation {
 			try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
+	
+	
 	private void turn(boolean cw, double angle)
 	{
 		if(cw)
@@ -1127,6 +1158,8 @@ public class Navigation {
 		}
 	}
 	
+	
+	
 	private boolean isInDispenserZone()
 	{
 		if((odometer.getX() > Play.dispX-TILE_LENGTH && odometer.getX() < Play.dispX+TILE_LENGTH) && (odometer.getY() > Play.dispY-TILE_LENGTH && odometer.getY() < Play.dispY+TILE_LENGTH))
@@ -1135,6 +1168,8 @@ public class Navigation {
 		}
 		return false;
 	}
+	
+	
 	
 	private boolean isDetectingBorder()
 	{
@@ -1157,6 +1192,8 @@ public class Navigation {
 		
 		return false;
 	}
+	
+	
 	
 	public float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);

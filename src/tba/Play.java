@@ -42,7 +42,7 @@ public class Play {
 	private static final int SLOW = 100;
 	private int startCorner;
 	public static double dispX = 6*TILE_LENGTH;
-	public static double dispY = 6*TILE_LENGTH;
+	public static double dispY = 0*TILE_LENGTH;
 	
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
@@ -57,8 +57,8 @@ public class Play {
 		double defZoneSizeW2 = 2;
 		int fwdStartCorner = 1;
 		int defStartCorner = 2;
-		String despenserOrientation = "N";
-		double shootingDistance = 6*TILE_LENGTH;
+		String despenserOrientation = "S";
+		double shootingDistance = 4*TILE_LENGTH;
 //		try {
 //			/*
 //			 * getData() will connect to the server and wait until the user/TA
@@ -120,7 +120,7 @@ public class Play {
 		SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
 		float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 		
-		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF,6, colorValueR,colorDataR,colorValueL,colorDataL);
+		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF,6, colorValueR,colorDataR,colorValueL,colorDataL,shootingDistance);
 		
 		// Create US and Light Localization objects
 		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
@@ -163,20 +163,20 @@ public class Play {
 			}
 			else if(despenserOrientation.equals("S"))
 			{
-				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
+				nav.travelTo(dispX-TILE_LENGTH/2, dispY+TILE_LENGTH/2);
 			}
 			else if(despenserOrientation.equals("W"))
 			{
-				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
+				nav.travelTo(dispX+TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
 				
 			//Lower launcher motors
-			leftCatapultMotor.setSpeed(25);
-			rightCatapultMotor.setSpeed(25);
-			
-			leftCatapultMotor.rotate(70,true);
-			rightCatapultMotor.rotate(70,false);
-			
+//			leftCatapultMotor.setSpeed(25);
+//			rightCatapultMotor.setSpeed(25);
+//			
+//			leftCatapultMotor.rotate(70,true);
+//			rightCatapultMotor.rotate(70,false);
+//			
 			//Localize at ball dispenser line
 			nav.dispenserLocalization();
 			
@@ -208,7 +208,6 @@ public class Play {
 			
 			//Back up into dispenser to retrieve ball
 			nav.drive(5,xAxis,SLOW,false);
-			
 			//Wait for ball to be dispensed
 			try{Thread.sleep(7000);}catch(Exception e){}
 			
