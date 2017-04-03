@@ -1133,13 +1133,24 @@ public class Navigation {
 		return distance;
 	}
 	
-	
+	/**
+	 * Do the appropriate heading correction based on the calculate values passed from the correctHeading
+	 * thread
+	 * 
+	 * @param rightFirst States whether the right sensor hit the black line first or not
+	 * @param correctionAngle Angle for correction
+	 * @param posDirection States whether the correction will be done while driving forward or not
+	 * 
+	 * @return void
+	 * */
 	private void doCorrectHeading(boolean rightFirst, double correctionAngle, boolean posDirection)
 	{
 		rest(500);
 		Sound.twoBeeps();
+		
 		if(posDirection)
 		{
+			//If rightFirst rotate clockwise, else counterclockwise
 			if(rightFirst)
 			{
 				this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -1153,25 +1164,19 @@ public class Navigation {
 		}
 		else
 		{
+			//While traveling backwards and correcting, backup a set distance in order for the light sensors to not re-sense the past line
 			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 && odometer.getAng() < 185))
 			{
-				double currentX = odometer.getX();
-				while(Math.abs(currentX-odometer.getX()) < 5)
-				{
-					this.setSpeeds(-SLOW, -SLOW);
-				}
+				drive(5,true,SLOW,false);
 			}
 			else
 			{
-				double currentY = odometer.getY();
-				while(Math.abs(currentY-odometer.getY()) < 5)
-				{
-					this.setSpeeds(-SLOW, -SLOW);
-				}
+				drive(5,false,SLOW,false);
 			}
-			this.setSpeeds(0,0);
-			try{Thread.sleep(500);}catch(Exception e){}
+			
+			rest(500);
 
+			//If rightFirst rotate counterclockwise, else clockwise
 			if(rightFirst)
 			{
 				this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -1188,19 +1193,35 @@ public class Navigation {
 	}
 	
 	
-	
+	/**
+	 * States whether the robot is the forward team
+	 * 
+	 * @return void
+	 * */
 	public void forwardTeam(){
 		this.forward = true;
 		this.defense = false;
 	}
 	
+	/**
+	 * States whether the robot is the defensive team
+	 * 
+	 * @return void
+	 * */
 	public void defenseTeam(){
 		this.defense = true;
 		this.forward = true;
 	}
 	
-	
-	
+	/**
+	 * Light localization at the dispenser. The robot will always be facing the x direction once it reaches
+	 * its destination, thus we travel in the x until a line is crossed, correct the robots heading, and then
+	 * do the same in the y direction depending on the dispensers orientation. The way in which correction is done
+	 * in this method is very similar to LightLocalizerV4, however minor changes had to be made to suit this
+	 * exact situation.
+	 * 
+	 * @return void
+	 * */
 	public void dispenserLocalization()
 	{
 		this.collecting = true;
@@ -1253,17 +1274,12 @@ public class Navigation {
 				}
 			}
 		}
-		this.setSpeeds(0,0);
-		try{Thread.sleep(500);}catch(Exception e){}
 		
-		double currentX = odometer.getX();
-		while(Math.abs(currentX-odometer.getX()) < LightLocalizerV4.lightSensorDistance)
-		{
-			this.setSpeeds(SLOW,SLOW);
-		}
+		rest(500);
 		
-		this.setSpeeds(0,0);
-		try{Thread.sleep(500);}catch(Exception e){}
+		drive(LightLocalizerV4.lightSensorDistance,true,SLOW,true);
+		
+		rest(500);
 		
 		// Turn to appropriate y direction and travel until both sensors sense a black line and perform correction
 		if(odometer.getY()<TILE_LENGTH){
@@ -1272,6 +1288,7 @@ public class Navigation {
 		else{
 			this.turnTo(90,true);
 		}
+		
 			while(true)
 			{
 				this.setSpeeds(SLOW,SLOW);
@@ -1311,18 +1328,20 @@ public class Navigation {
 				}
 			}
 			
-			double currentY = odometer.getY();
-			while(Math.abs(currentY-odometer.getY()) < LightLocalizerV4.lightSensorDistance)
-			{
-				this.setSpeeds(SLOW,SLOW);
-			}
-			this.setSpeeds(0,0);
+			drive(LightLocalizerV4.lightSensorDistance,false,SLOW,true);
 			this.collecting = false;
-			try{Thread.sleep(500);}catch(Exception e){}
+			rest(500);
 	}
 	
 	
-	
+	/**
+	 * Turn a certain number of degrees
+	 * 
+	 * @param cw States whether the robot should turn clockwise or not
+	 * @param angle Set angle for turn
+	 * 
+	 * @return void
+	 * */
 	private void turn(boolean cw, double angle)
 	{
 		if(cw)
@@ -1337,8 +1356,11 @@ public class Navigation {
 		}
 	}
 	
-	
-	
+	/**
+	 * States whether the robot is in the ball dispenser zone or not
+	 * 
+	 * @return Boolean stating whether the robot is in the dispenser zone or not
+	 * */
 	private boolean isInDispenserZone()
 	{
 		if((odometer.getX() > Play.dispX-TILE_LENGTH && odometer.getX() < Play.dispX+TILE_LENGTH) && (odometer.getY() > Play.dispY-TILE_LENGTH && odometer.getY() < Play.dispY+TILE_LENGTH))
@@ -1348,8 +1370,11 @@ public class Navigation {
 		return false;
 	}
 	
-	
-	
+	/**
+	 * States whether the robot is detecting one of the boarder walls or not
+	 * 
+	 * @return Boolean whether the robot is detecting one of the boarder walls or not
+	 * */
 	private boolean isDetectingBorder()
 	{
 		if(odometer.getX()<TILE_LENGTH/2 && (odometer.getAng() > 170 && odometer.getAng() < 190))
@@ -1372,20 +1397,33 @@ public class Navigation {
 		return false;
 	}
 	
-	
-	
+	/**
+	 * Get the the light strength from the right color sensor
+	 * 
+	 * @return Right color sensor value
+	 * */
 	public float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);
 		float lightStrength = colorDataR[0];
 		return lightStrength;
 	}
 	
+	/**
+	 * Get the the light strength from the left color sensor
+	 * 
+	 * @return Left color sensor value
+	 * */
 	public float getColorDataL(){
 		colorSensorL.fetchSample(colorDataL, 0);
 		float lightStrength = colorDataL[0];
 		return lightStrength;
 	}
 	
+	/**
+	 * States whether the robot is collecting the ball or not
+	 * 
+	 * @return Boolean stating whether the robot is collecting the ball or not
+	 * */
 	public boolean isCollecting(){
 		return this.collecting;
 	}

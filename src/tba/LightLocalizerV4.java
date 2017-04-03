@@ -174,6 +174,7 @@ public class LightLocalizerV4 {
 	/**
 	 * Get the the light strength from the right color sensor
 	 * 
+	 * @return Right color sensor value
 	 * */
 	public float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);
@@ -184,6 +185,7 @@ public class LightLocalizerV4 {
 	/**
 	 * Get the the light strength from the left color sensor
 	 * 
+	 * @return Left color sensor value
 	 * */
 	public float getColorDataL(){
 		colorSensorL.fetchSample(colorDataL, 0);
