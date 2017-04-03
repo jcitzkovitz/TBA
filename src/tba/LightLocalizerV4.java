@@ -4,7 +4,8 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
 /**
- * @author Jordan Itzkovitz and William Wang
+ * @author Jordan Itzkovitz
+ * @author William Wang
  * 
  * The LightLocalizrV4 class performs light localization using two color sensors located on the right
  * and left sides at the front of the robot*/

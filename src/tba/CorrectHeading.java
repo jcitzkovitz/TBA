@@ -4,7 +4,8 @@ import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
 /** 
- * @author Jordan Itzkovitz and William Wang
+ * @author Jordan Itzkovitz
+ * @author William Wang
  * 
  * The CorrectHeading class corrects the heading of the robot through the use of two light sensors
  * located in front of the robot - the left sensor by the left wheel and the right sensor by the right

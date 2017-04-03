@@ -5,7 +5,8 @@ import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /** 
- * @author Bijan and Thomas
+ * @author Bijan Sharihari
+ * @author Thomas Phillipon
  * 
  * The BaulLauncher class handles the catapult's motor's motion used to launch the ball.
  * 

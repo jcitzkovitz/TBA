@@ -18,6 +18,9 @@ import lejos.hardware.port.Port;
 import lejos.robotics.SampleProvider;
 
 /**
+ * @author Jordan Itzkovitz
+ * @author William Wang
+ * 
  * The navigation class controls how the robot will maneuver about the grid.
  * The robot navigates along the x and y axes only, thus at no angles other
  * than 0 degrees, 90 degrees, 180 degrees and 270 degrees. Obstacle avoidance

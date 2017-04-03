@@ -13,7 +13,8 @@ import lejos.robotics.SampleProvider;
 import tba.USLocalizerV2.LocalizationType;
 
 /** 
- * @author Jordan Itzkovitz and William Wang
+ * @author Jordan Itzkovitz
+ * @author William Wang
  * 
  * The BetaPlay class is the main class of which the beta game will be played.
  * All other classes will be called upon in this class to perform the

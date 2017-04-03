@@ -5,6 +5,8 @@ import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
 /**
+ * @author William Wang
+ * 
  * The USLocalizerV2 class is the second version of USLocalization. It uses 
  * ultra-sonic sensors to locate the walls surrounding the robot, where this
  * information is used to locate the 0 degree angle.*/
@@ -14,21 +16,36 @@ public class USLocalizerV2 {
 	public static float ROTATION_SPEED = 150;
 	
 	private Odometer odo;
-	private SampleProvider usSensor;
-	private float[] usData;
+	private SampleProvider usSensorF;
+	private float[] usDataF;
 	private LocalizationType locType;
-	public Navigation navigation; 
+	public Navigation nav; 
 	
 	private static final int BANDWIDTH	= 30;
 	
-	public USLocalizerV2(Odometer odo,  SampleProvider usSensor, float[] usData, Navigation navigation, LocalizationType fallingEdge) {
+	/**
+	 * USLocalizerV2 constructor 
+	 * 
+	 * @param odo Odometer object
+	 * @param usSensorF Sample provider for the front usSensor
+	 * @param usDataF Array of float values used to hold us sensor data
+	 * @param locType type of localization that will be used
+	 * @param nav Navigation object
+	 * */
+	public USLocalizerV2(Odometer odo,  SampleProvider usSensorF, float[] usDataF, Navigation nav, LocalizationType fallingEdge) {
 		this.odo = odo;
-		this.usSensor = usSensor;
-		this.usData = usData;
+		this.usSensorF = usSensorF;
+		this.usDataF = usDataF;
 		this.locType = fallingEdge;
-		this.navigation = navigation;
+		this.nav = nav;
 	}
 	
+	/**
+	 * doLocalization() performs localization using us sensors. This method only works in corners and
+	 * turns to '0' degrees by the end
+	 * 
+	 * @return void
+	 * */
 	public void doLocalization() {
 		
 		// Angle variables
@@ -58,7 +75,7 @@ public class USLocalizerV2 {
 			}
 			
 			// Stop the robot's motion
-			navigation.setSpeeds(0, 0);
+			nav.setSpeeds(0, 0);
 			
 			// Hold this last angle which will be used to calculate the final
 			// orientation angle
@@ -92,7 +109,7 @@ public class USLocalizerV2 {
 			}
 			
 			// Stop the robot's motion
-			navigation.setSpeeds(0, 0);
+			nav.setSpeeds(0, 0);
 			
 			// Hold this last angle which will be used to calculate the final
 			// orientation angle
@@ -110,10 +127,10 @@ public class USLocalizerV2 {
 			odo.setPosition(finalOrientation, setAllPositions);
 			
 			// Rotate to angle 0
-			navigation.turnTo(0, true);
+			nav.turnTo(0, true);
 			
 			// Stop the robot's motion
-			navigation.setSpeeds(0, 0);
+			nav.setSpeeds(0, 0);
 			
 			try{Thread.sleep(1000);}catch(Exception e){}
 			
@@ -125,66 +142,66 @@ public class USLocalizerV2 {
 			 * will face toward the wall for most of it.
 			 */
 			
-			// Rotate the robot clockwise until it sees a wall
+			//Rotate the robot clockwise until it sees a wall
 			while(getFilteredData() > BANDWIDTH)
 			{
 				rotateCW();
 			}
 			
-			// Delay the process in order to avoid bad readings
+			//Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 						
-			// Rotate the robot clockwise until a wall is no longer seen
+			//Rotate the robot clockwise until a wall is no longer seen
 			while (getFilteredData() <= BANDWIDTH)
 			{
 				rotateCW();
 			}
 			
-			// Stop the robot's motion
-			navigation.setSpeeds(0, 0);
+			//Stop the robot's motion
+			nav.setSpeeds(0, 0);
 			
-			// Hold this last angle which will be used to calculate the final
-			// orientation angle
+			//Hold this last angle which will be used to calculate the final
+			//orientation angle
 			angleA = odo.getAng();
 			
-			// Delay the process in order to avoid bad readings
+			//Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
-			// Rotate counterclockwise until a wall is detected			
+			//Rotate counterclockwise until a wall is detected			
 			while(getFilteredData() > BANDWIDTH)
 			{
 				rotateCCW();
 			}
 			
-			// Delay the process in order to avoid bad readings
+			//Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
-			// Rotate counterclockwise until no wall is seen 
+			//Rotate counterclockwise until no wall is seen 
 			while (getFilteredData() <= BANDWIDTH)
 			{
 				rotateCCW();
 			}
 			
-			// Stop the robot's motion
-			navigation.setSpeeds(0, 0);
+			//Stop the robot's motion
+			nav.setSpeeds(0, 0);
 			
-			// Hold this last angle which will be used to calculate the final
-			// orientation angle
+			//Hold this last angle which will be used to calculate the final
+			//orientation angle
 			angleB = odo.getAng();
 			
-			// Delay the process in order to avoid bad readings
+			//Delay the process in order to avoid bad readings
 			Delay.msDelay(1000);
 			
-			// Calculate the orientation angle for final positioning
+			//Calculate the orientation angle for final positioning
 			orientationAngle = calculateFinalOrientationAngle(angleB,angleA)+odo.getAng();
 			
-			// Update the odometer position
+			//Update the odometer position
 			double[] finalOrientation = {0.0, 0.0, orientationAngle};
 			boolean[] setAllPositions = {true,true,true};
 			odo.setPosition(finalOrientation, setAllPositions);
 			
-			// Rotate to angle 0
-			navigation.turnTo(0, true);
+			//Rotate to angle 0
+			nav.turnTo(0, true);
 
 		}
 	}
@@ -192,13 +209,13 @@ public class USLocalizerV2 {
 	private float getFilteredData() 
 	{
 		
-		usSensor.fetchSample(usData, 0);
-		float distance = usData[0]*100;
+		usSensorF.fetchSample(usDataF, 0);
+		float distance = usDataF[0]*100;
 		
 		int filterValue = 50;
 		
-		// If the usSensor reads anything greater then filterValue, set the distance
-		// to the filterValue
+		//If the usSensor reads anything greater then filterValue, set the distance
+		//to the filterValue
 		if (distance >= filterValue)
 		{
 			distance = filterValue;
@@ -206,19 +223,20 @@ public class USLocalizerV2 {
 		return distance;
 	}
 	
-	// Counter clockwise rotation
+	//Counter clockwise rotation
 	private  void rotateCCW()
 	{
-		navigation.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
+		nav.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 	}
 
-	// Clockwise rotation
+	//Clockwise rotation
 	private  void rotateCW()
 	{
-		navigation.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
+		nav.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 	}
 	
-	private static double calculateFinalOrientationAngle(double angleA, double angleB){ // calculation of heading as shown in the tutorial
+	//Calculation of heading as shown in the tutorial
+	private static double calculateFinalOrientationAngle(double angleA, double angleB){ 
 		
 		double orientationAngle = 0;
 		

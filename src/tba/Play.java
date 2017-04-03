@@ -12,7 +12,11 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 
-/** The Play class is the main class of which the game will be played.
+/** 
+ * @author Jordan Itzkovitz
+ * @author William Wang
+ * 
+ * The Play class is the main class of which the game will be played.
  * All other classes will be called upon in this class to perform the
  * required tasks.
  * */
@@ -44,6 +48,9 @@ public class Play {
 	public static double dispX = 6*TILE_LENGTH;
 	public static double dispY = 0*TILE_LENGTH;
 	
+	/**
+	 * This is the main method for playing the game
+	 * */
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
 	{
