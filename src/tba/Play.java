@@ -45,9 +45,9 @@ public class Play {
 	private static final double TILE_LENGTH = 30.48;
 	private static final int SLOW = 100;
 	private static final int FAST = 200;
-	private int startCorner;
 	public static double dispX = 6*TILE_LENGTH;
 	public static double dispY = 6*TILE_LENGTH;
+	private static int boardDimension = 6;
 	
 	/**
 	 * This is the main method for playing the game
@@ -61,11 +61,11 @@ public class Play {
 		/* Retrieve information from wifi */
 		WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
 
-		int fwdTeam = 1;
+		int fwdTeam = 4;
 		int defTeam = 1;
 		double defZoneSizeW1 = 2;
 		double defZoneSizeW2 = 2;
-		int fwdStartCorner = 4;
+		int fwdStartCorner = 1;
 		int defStartCorner = 2;
 		String despenserOrientation = "E";
 		double shootingDistance = 4*TILE_LENGTH;
@@ -258,36 +258,31 @@ public class Play {
 		 * position the robot will navigate to inside the zone
 		 * to start*/
 		double turnAngleY = 0;
-		double turnAngleX = 0;
 		if(corner == 1)
 		{
 			odo.setPosition((new double[] {0,0,0}), (new boolean[] {true,true,true}));
 			turnAngleY = 90;
-			turnAngleX = 0;
 		}
 		else if(corner == 2)
 		{
-			odo.setPosition((new double[] {10*TILE_LENGTH,0,90}), (new boolean[] {true,true,true}));
+			odo.setPosition((new double[] {boardDimension*TILE_LENGTH,0,90}), (new boolean[] {true,true,true}));
 			turnAngleY = 90;
-			turnAngleX = 180;
+			nav.turnTo(180, true);
 		}
 		else if(corner == 3)
 		{
-			odo.setPosition((new double[] {10*TILE_LENGTH,10*TILE_LENGTH,180}), (new boolean[] {true,true,true}));
+			odo.setPosition((new double[] {boardDimension*TILE_LENGTH,boardDimension*TILE_LENGTH,180}), (new boolean[] {true,true,true}));
 			turnAngleY = 270;
-			turnAngleX = 180;
 		}
 		else if(corner == 4)
 		{
-			odo.setPosition((new double[] {0,10*TILE_LENGTH,270}), (new boolean[] {true,true,true}));
+			odo.setPosition((new double[] {0,boardDimension*TILE_LENGTH,270}), (new boolean[] {true,true,true}));
 			turnAngleY = 270;
-			turnAngleX = 0;
+			nav.turnTo(0, true);
 		}
-		nav.turnTo(turnAngleX, true);
 		nav.drive(TILE_LENGTH/2,true,FAST,true);
-		nav.setSpeeds(0, 0);
+		nav.rest(500);
 		nav.turnTo(turnAngleY, true);
-		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
 }

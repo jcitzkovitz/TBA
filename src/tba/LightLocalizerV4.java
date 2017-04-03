@@ -19,7 +19,7 @@ public class LightLocalizerV4 {
 	private Navigation nav;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private float SLOW = 100;
-	private float FAST = 200;
+	private float FAST = 150;
 	public static double lightSensorDistance = 2.1;
 	
 	/**

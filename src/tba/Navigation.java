@@ -237,18 +237,19 @@ public class Navigation {
 					 * */
 					if(this.odometer.getX() <= boardDimensions*TILE_LENGTH)
 					{
-						/*The following three while loops perform three important tasks.
-						 * The first waits until the obstacle is seen by the right us sensor.
-						 * The second waits until the obstacle is unseen by the right us sensor.
-						 * The third travels the remaining distance between the sensor and either
-						 * the front or back of the robot based on whether it is traveling backwards
-						 * or forward, respectively. This same function will be repeated throughout
-						 * this method so reference this as (*)*/
 						avoid(true,false,-SLOW);
+						
+						turnTo(270,true);
+						
+						avoid(false,false,-SLOW);
 					}
 					else
 					{
 						avoid(true,true,SLOW);
+						
+						turnTo(90,true);
+						
+						avoid(false,true,SLOW);
 					}
 				}
 				
@@ -263,10 +264,18 @@ public class Navigation {
 					if(this.odometer.getX() <= boardDimensions*TILE_LENGTH)
 					{
 						avoid(true,true,SLOW);
+						
+						turnTo(270,true);
+						
+						avoid(false,true,SLOW);
 					}
 					else
 					{
 						avoid(true,false,-SLOW);
+						
+						turnTo(90,true);
+						
+						avoid(false,false,-SLOW);
 					}
 				}
 				avoiding = false;
@@ -463,7 +472,6 @@ public class Navigation {
 		rest(1000);
 		}
 	
-
 	/**
 	 * Takes an angle and boolean as arguments and turns to a specific angle. 
 	 * The boolean controls whether or not to stop the motors when the turn is completed
@@ -506,8 +514,26 @@ public class Navigation {
 		isTurning = false;
 	}
 	
+	/**
+	 * Avoid obstacles based on where the robot is located on the board
+	 * 
+	 * @param	xDirection	States whether the robot is moving in the x direction or not
+	 * @param	pos	States whether robot is moving forward or not
+	 * @param	speed	Speed that the robot should avoid at
+	 * 
+	 * @return		void
+	 * */
 	private void avoid(boolean xDirection, boolean pos, int speed)
 	{
+		/*The following three while loops perform three important tasks.
+		 * The first waits until the obstacle is seen by the right us sensor.
+		 * The second waits until the obstacle is unseen by the right us sensor.
+		 * The third travels the remaining distance between the sensor and either
+		 * the front or back of the robot based on whether it is traveling backwards
+		 * or forward, respectively. This same function will be repeated throughout
+		 * this method so reference this as
+		 * */
+		
 		if(xDirection)
 		{
 			double currentX = odometer.getX();
@@ -1112,7 +1138,7 @@ public class Navigation {
 	 * 
 	 * @return		void
 	 * */
-	private void rest(int millis)
+	public void rest(int millis)
 	{
 		this.setSpeeds(0,0);
 		try{Thread.sleep(millis);}catch(Exception e){}
