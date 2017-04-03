@@ -44,6 +44,7 @@ public class Play {
 	
 	private static final double TILE_LENGTH = 30.48;
 	private static final int SLOW = 100;
+	private static final int FAST = 200;
 	private int startCorner;
 	public static double dispX = 6*TILE_LENGTH;
 	public static double dispY = 6*TILE_LENGTH;
@@ -60,11 +61,11 @@ public class Play {
 		/* Retrieve information from wifi */
 		WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
 
-		int fwdTeam = 4;
+		int fwdTeam = 1;
 		int defTeam = 1;
 		double defZoneSizeW1 = 2;
 		double defZoneSizeW2 = 2;
-		int fwdStartCorner = 1;
+		int fwdStartCorner = 4;
 		int defStartCorner = 2;
 		String despenserOrientation = "E";
 		double shootingDistance = 4*TILE_LENGTH;
@@ -256,31 +257,36 @@ public class Play {
 		 * will be set to a specific position, and from that 
 		 * position the robot will navigate to inside the zone
 		 * to start*/
-		double turnAngle = 0;
+		double turnAngleY = 0;
+		double turnAngleX = 0;
 		if(corner == 1)
 		{
 			odo.setPosition((new double[] {0,0,0}), (new boolean[] {true,true,true}));
-			turnAngle = 90;
+			turnAngleY = 90;
+			turnAngleX = 0;
 		}
 		else if(corner == 2)
 		{
 			odo.setPosition((new double[] {10*TILE_LENGTH,0,90}), (new boolean[] {true,true,true}));
-			turnAngle = 90;
+			turnAngleY = 90;
+			turnAngleX = 180;
 		}
 		else if(corner == 3)
 		{
 			odo.setPosition((new double[] {10*TILE_LENGTH,10*TILE_LENGTH,180}), (new boolean[] {true,true,true}));
-			turnAngle = 270;
+			turnAngleY = 270;
+			turnAngleX = 180;
 		}
 		else if(corner == 4)
 		{
 			odo.setPosition((new double[] {0,10*TILE_LENGTH,270}), (new boolean[] {true,true,true}));
-			turnAngle = 270;
+			turnAngleY = 270;
+			turnAngleX = 0;
 		}
-		
-		nav.drive(TILE_LENGTH/2,true,SLOW,true);
+		nav.turnTo(turnAngleX, true);
+		nav.drive(TILE_LENGTH/2,true,FAST,true);
 		nav.setSpeeds(0, 0);
-		nav.turnTo(turnAngle, true);
+		nav.turnTo(turnAngleY, true);
 		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	

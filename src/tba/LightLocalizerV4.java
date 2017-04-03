@@ -18,7 +18,8 @@ public class LightLocalizerV4 {
 	private float[] colorDataL;	
 	private Navigation nav;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private float SPEED = 100;
+	private float SLOW = 100;
+	private float FAST = 200;
 	public static double lightSensorDistance = 2.1;
 	
 	/**
@@ -73,7 +74,7 @@ public class LightLocalizerV4 {
 		// travel in the y direction until both light sensors sense a black line, and perform correction
 		while(true)
 		{
-			nav.setSpeeds(SPEED,SPEED);
+			nav.setSpeeds(SLOW,SLOW);
 			if(getColorDataR()<minLight)
 			{
 				if(leftHit)
@@ -114,7 +115,7 @@ public class LightLocalizerV4 {
 		double currentY = odo.getY();
 		while(Math.abs(currentY-odo.getY()) < lightSensorDistance)
 		{
-			nav.setSpeeds(SPEED,SPEED);
+			nav.setSpeeds(FAST,FAST);
 		}
 		
 		nav.setSpeeds(0,0);
@@ -124,7 +125,7 @@ public class LightLocalizerV4 {
 		 nav.turnTo(0, true);
 			while(true)
 			{
-				nav.setSpeeds(SPEED,SPEED);
+				nav.setSpeeds(SLOW,SLOW);
 				if(getColorDataR()<minLight)
 				{
 					if(leftHit)
@@ -165,10 +166,10 @@ public class LightLocalizerV4 {
 			double currentX = odo.getX();
 			while(Math.abs(currentX-odo.getX()) < lightSensorDistance)
 			{
-				nav.setSpeeds(SPEED,SPEED);
+				nav.setSpeeds(FAST,FAST);
 			}
-			nav.setSpeeds(0,0);
-			try{Thread.sleep(500);}catch(Exception e){}
+			
+			rest(500);
 			
 	}
 	
@@ -207,7 +208,7 @@ public class LightLocalizerV4 {
 	{
 		rest(500);
 		
-		nav.setSpeeds(SPEED,SPEED);
+		nav.setSpeeds(SLOW,SLOW);
 		Sound.twoBeeps();
 		
 		//If rightFirst is true, turn clockwise, else turn counterclockwise
