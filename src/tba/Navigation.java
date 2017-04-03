@@ -49,6 +49,10 @@ public class Navigation {
 	private int boardDimensions;
 	private boolean collecting = false;
 	private double shootingDistance;
+	private boolean twoPoints = false;
+	private boolean atPoint = false;
+	private double targetX = 0;
+	private double targetY = 0;
 
 	/**
 	 * Navigation constructor class
@@ -157,11 +161,17 @@ public class Navigation {
 		if(forward)
 		{
 			double avoidZone = 2*boardDimensions*TILE_LENGTH-shootingDistance;
+			targetX = x;
+			targetY = y;
+			
 			if((y > avoidZone)&& !((x<TILE_LENGTH&&odometer.getX()<TILE_LENGTH)||
-					(x>(boardDimensions - 1)*TILE_LENGTH&&odometer.getX()<(boardDimensions - 1)*TILE_LENGTH)))
+					(x>(boardDimensions - 1)*TILE_LENGTH&&odometer.getX()>(boardDimensions - 1)*TILE_LENGTH)))
 			{
+				twoPoints = true;
 				realTravelTo(x,avoidZone-TILE_LENGTH/2);
+				twoPoints = false;
 				realTravelTo(x,y);
+			
 			}
 			else
 			{
@@ -282,7 +292,16 @@ public class Navigation {
 				stopAvoiding = false;
 				
 				//Recall travel to from the new x and y positions
-				this.travelTo(x, y);
+				atPoint = false;
+				if(twoPoints)
+				{
+					twoPoints = false;
+					this.travelTo(targetX, targetY);
+				}
+				else
+				{
+					this.travelTo(x, y);
+				}
 				return;
 			}
 			else
@@ -420,7 +439,18 @@ public class Navigation {
 					}
 					avoiding = false;
 					stopAvoiding = false;
-					this.travelTo(x, y);
+					
+					if(twoPoints && atPoint)
+					{
+						atPoint = false;
+						twoPoints = false;
+						this.travelTo(targetX, targetY);
+					}
+					else
+					{
+						atPoint = false;
+						this.travelTo(x, y);
+					}
 					return;
 				}
 			}
@@ -537,74 +567,120 @@ public class Navigation {
 		if(xDirection)
 		{
 			double currentX = odometer.getX();
-			while(getFilteredDataR() > filterValueR && !stopAvoiding)
+			while(getFilteredDataR() > filterValueR && !stopAvoiding && !atPoint)
 			{
-				if(!correctHeading)
+				if(Math.abs(targetX - odometer.getX()) < 1)
 				{
-					stillFollowing(pos,xDirection,currentX);
+					atPoint = true;
+					return;
 				}
-				else{
-					doCorrectHeading(rightFirst, correctionAngle, pos);
+				else
+				{
+					if(!correctHeading)
+					{
+						stillFollowing(pos,xDirection,currentX);
+					}
+					else{
+						doCorrectHeading(rightFirst, correctionAngle, pos);
+					}
 				}
 
 			}
-			while(getFilteredDataR() < filterValueR && !stopAvoiding)
+			while(getFilteredDataR() < filterValueR && !stopAvoiding && !atPoint)
 			{
-
-				if(!correctHeading)
+				if(Math.abs(targetX - odometer.getX()) < 1)
 				{
-					this.setSpeeds(speed,speed);
+					atPoint = true;
+					return;
 				}
-				else{
-					doCorrectHeading(rightFirst, correctionAngle, pos);
+				else
+				{
+					if(!correctHeading)
+					{
+						this.setSpeeds(speed,speed);
+					}
+					else{
+						doCorrectHeading(rightFirst, correctionAngle, pos);
+					}
 				}
 			}
 			currentX = this.odometer.getX();
-			while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding)
+			while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding && !atPoint)
 			{
-				if(!correctHeading)
+				if(Math.abs(targetX - odometer.getX()) < 1)
 				{
-					this.setSpeeds(speed,speed);
+					atPoint = true;
+					return;
 				}
-				else{
-					doCorrectHeading(rightFirst, correctionAngle, pos);
+				else
+				{
+					if(!correctHeading)
+					{
+						this.setSpeeds(speed,speed);
+					}
+					else{
+						doCorrectHeading(rightFirst, correctionAngle, pos);
+					}
 				}
 			}
 		}
 		else
 		{
 			double currentY = odometer.getY();
-			while(getFilteredDataR() > filterValueR && !stopAvoiding)
+			while(getFilteredDataR() > filterValueR && !stopAvoiding && !atPoint)
 			{
-				if(!correctHeading)
+				if(Math.abs(targetY - odometer.getY()) < 1)
 				{
-					stillFollowing(pos,xDirection,currentY);
+					atPoint = true;
+					return;
 				}
-				else{
-					doCorrectHeading(rightFirst, correctionAngle, pos);
+				else
+				{
+					if(!correctHeading)
+					{
+						stillFollowing(pos,xDirection,currentY);
+					}
+					else{
+						doCorrectHeading(rightFirst, correctionAngle, pos);
+					}
 				}
 
 			}
-			while(getFilteredDataR() < filterValueR && !stopAvoiding)
+			while(getFilteredDataR() < filterValueR && !stopAvoiding && !atPoint)
 			{
-
-				if(!correctHeading)
+				if(Math.abs(targetY - odometer.getY()) < 1)
 				{
-					this.setSpeeds(speed,speed);
+					atPoint = true;
+					return;
 				}
-				else{
-					doCorrectHeading(rightFirst, correctionAngle, pos);
+				else
+				{
+					if(!correctHeading)
+					{
+						this.setSpeeds(speed,speed);
+					}
+					else{
+						doCorrectHeading(rightFirst, correctionAngle, pos);
+					}
 				}
 			}
 			currentY = this.odometer.getY();
-			while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding)
+			while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding && !atPoint)
 			{
-				if(!correctHeading)
+				if(Math.abs(targetY - odometer.getY()) < 1)
 				{
-					this.setSpeeds(speed,speed);
+					atPoint = true;
+					return;
 				}
-				else{
-					doCorrectHeading(rightFirst, correctionAngle, pos);
+				else
+				{
+					if(!correctHeading)
+					{
+						this.setSpeeds(speed,speed);
+					}
+					else{
+						doCorrectHeading(rightFirst, correctionAngle, pos);
+					}
 				}
 			}
 		}
