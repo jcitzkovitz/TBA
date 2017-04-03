@@ -46,7 +46,7 @@ public class Play {
 	private static final int SLOW = 100;
 	private int startCorner;
 	public static double dispX = 6*TILE_LENGTH;
-	public static double dispY = 0*TILE_LENGTH;
+	public static double dispY = 6*TILE_LENGTH;
 	
 	/**
 	 * This is the main method for playing the game
@@ -66,7 +66,7 @@ public class Play {
 		double defZoneSizeW2 = 2;
 		int fwdStartCorner = 1;
 		int defStartCorner = 2;
-		String despenserOrientation = "S";
+		String despenserOrientation = "E";
 		double shootingDistance = 4*TILE_LENGTH;
 //		try {
 //			/*
@@ -180,12 +180,12 @@ public class Play {
 			}
 				
 			//Lower launcher motors
-//			leftCatapultMotor.setSpeed(25);
-//			rightCatapultMotor.setSpeed(25);
-//			
-//			leftCatapultMotor.rotate(70,true);
-//			rightCatapultMotor.rotate(70,false);
-//			
+			leftCatapultMotor.setSpeed(25);
+			rightCatapultMotor.setSpeed(25);
+			
+			leftCatapultMotor.rotate(70,true);
+			rightCatapultMotor.rotate(70,false);
+			
 			//Localize at ball dispenser line
 			nav.dispenserLocalization();
 			
@@ -227,6 +227,9 @@ public class Play {
 			//Launch
 			nav.turnTo(90,true);
 			launcher.launch();
+			
+			leftCatapultMotor.rotate(-70,true);
+			rightCatapultMotor.rotate(-70,false);
 			
 			}
 

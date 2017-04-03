@@ -34,7 +34,8 @@ public class Navigation {
 	private boolean isTurning = false;
 	private boolean rightFirst, avoiding = false, correctHeading = false, stopAvoiding = false;
 	private double correctionAngle = 0;
-	private final int filterValue = 25;
+	private final int filterValueR = 45;
+	private final int filterValueF = 25;
 	SampleProvider usSensorR; 
 	float[] usDataR;
 	SampleProvider usSensorF; 
@@ -153,38 +154,49 @@ public class Navigation {
 	 * @return 		void
 	 * */
 	public void travelTo(double x, double y){
-		if(forward){
-			if((y > 2*boardDimensions*TILE_LENGTH-shootingDistance)&& ((x<TILE_LENGTH&&odometer.getX()<TILE_LENGTH)||
-					(x>(boardDimensions - 1)*TILE_LENGTH&&odometer.getX()<(boardDimensions - 1)*TILE_LENGTH)))
-			{
-				realTravelTo(x,shootingDistance-TILE_LENGTH/2);
-				realTravelTo(x,y);
-			}
-			else
-			{
-				realTravelTo(x,y);
-			}
-			if(y>6*TILE_LENGTH&&((x<3*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH)||(x>7*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH))){
-				this.realTravelTo(x, 5);
-				this.realTravelTo(x, y);
-			}
-			else if((y<10*TILE_LENGTH&&y>6*TILE_LENGTH)&&(x<7*TILE_LENGTH&&x>3*TILE_LENGTH)){
-				
-			}
-			else{
-				this.realTravelTo(x, y);
-			}
+//		if(forward){
+//			if((y > 2*boardDimensions*TILE_LENGTH-shootingDistance)&& ((x<TILE_LENGTH&&odometer.getX()<TILE_LENGTH)||
+//					(x>(boardDimensions - 1)*TILE_LENGTH&&odometer.getX()<(boardDimensions - 1)*TILE_LENGTH)))
+//			{
+//				realTravelTo(x,shootingDistance-TILE_LENGTH/2);
+//				realTravelTo(x,y);
+//			}
+//			else
+//			{
+//				realTravelTo(x,y);
+//			}
+//			if(y>6*TILE_LENGTH&&((x<3*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH)||(x>7*TILE_LENGTH&&odometer.getX()<3*TILE_LENGTH))){
+//				this.realTravelTo(x, 5);
+//				this.realTravelTo(x, y);
+//			}
+//			else if((y<10*TILE_LENGTH&&y>6*TILE_LENGTH)&&(x<7*TILE_LENGTH&&x>3*TILE_LENGTH)){
+//				
+//			}
+//			else{
+//				this.realTravelTo(x, y);
+//			}
+//		}
+//		else if(defense){
+//			if(y>10*TILE_LENGTH||y<6*TILE_LENGTH||x<3*TILE_LENGTH||x>7*TILE_LENGTH){
+//				
+//			}
+//			else{
+//				this.realTravelTo(x, y);
+//			}
+//		}
+//		else{
+//			this.realTravelTo(x, y);
+//		}
+		
+		double avoidLine = boardDimensions*2*TILE_LENGTH-shootingDistance;
+		if(y >= avoidLine)
+		{
+			realTravelTo(x,avoidLine-TILE_LENGTH/2);
+			realTravelTo(x,y);
 		}
-		else if(defense){
-			if(y>10*TILE_LENGTH||y<6*TILE_LENGTH||x<3*TILE_LENGTH||x>7*TILE_LENGTH){
-				
-			}
-			else{
-				this.realTravelTo(x, y);
-			}
-		}
-		else{
-			this.realTravelTo(x, y);
+		else
+		{
+			realTravelTo(x,y);
 		}
 	}
 	
@@ -237,7 +249,7 @@ public class Navigation {
 			/*If the front us sensor sees an obstacle, is not turning, is not in the dispenser zone and is not
 			 * detecting the boarders, then perform obstacle avoidance. Otherwise, keep on traveling to the given y point
 			 * */
-			if(getFilteredDataF() < filterValue && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
+			if(getFilteredDataF() < filterValueF && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
 				avoiding = true;
 				Sound.beep();
@@ -262,7 +274,7 @@ public class Navigation {
 						 * the front or back of the robot based on whether it is traveling backwards
 						 * or forward, respectively. This same function will be repeated throughout
 						 * this method so reference this as (*)*/
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -273,7 +285,7 @@ public class Navigation {
 							}
 						
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							
 							if(!correctHeading)
@@ -301,7 +313,7 @@ public class Navigation {
 					{
 						// (*)
 						currentX=this.odometer.getX();
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -311,7 +323,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -348,7 +360,7 @@ public class Navigation {
 					{
 						// (*)
 						currentX=this.odometer.getX();
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -358,7 +370,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -385,7 +397,7 @@ public class Navigation {
 					{
 						// (*)
 						currentX=this.odometer.getX();
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -395,7 +407,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -423,7 +435,7 @@ public class Navigation {
 				stopAvoiding = false;
 				
 				//Recall travel to from the new x and y positions
-				this.travelTo(x, y);
+				this.realTravelTo(x, y);
 				return;
 			}
 			else
@@ -492,7 +504,7 @@ public class Navigation {
 			/*If the front us sensor sees an obstacle, is not turning, is not in the dispenser zone and is not
 			 * detecting the boarders, then perform obstacle avoidance. Otherwise, keep on traveling to the given y point
 			 * */
-			if(getFilteredDataF() < filterValue && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
+			if(getFilteredDataF() < filterValueF && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
 				correctHeading = false;
 				avoiding = true;
@@ -512,7 +524,7 @@ public class Navigation {
 					if(this.odometer.getY() <= boardDimensions*TILE_LENGTH)
 					{
 						// (*)
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -522,7 +534,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -556,7 +568,7 @@ public class Navigation {
 						
 						this.turnTo(0,true);
 						currentX = odometer.getX();
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -566,7 +578,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -591,7 +603,7 @@ public class Navigation {
 					else
 					{
 						// (*)
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -601,7 +613,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							Sound.beep();
 							if(!correctHeading)
@@ -630,7 +642,7 @@ public class Navigation {
 						// (**)
 						this.turnTo(180,true);
 						currentX = odometer.getX();
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -640,7 +652,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -676,7 +688,7 @@ public class Navigation {
 					if(this.odometer.getY() <= boardDimensions*TILE_LENGTH)
 					{
 						// (*)
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -686,7 +698,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -714,7 +726,7 @@ public class Navigation {
 						currentX = odometer.getX();
 						
 						// (**)
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -724,7 +736,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -749,7 +761,7 @@ public class Navigation {
 					else
 					{
 						// (*)
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -759,7 +771,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -788,7 +800,7 @@ public class Navigation {
 						currentX = odometer.getX();
 						
 						// (**)
-						while(getFilteredDataR() > filterValue && !stopAvoiding)
+						while(getFilteredDataR() > filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -798,7 +810,7 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						while(getFilteredDataR() < filterValue && !stopAvoiding)
+						while(getFilteredDataR() < filterValueR && !stopAvoiding)
 						{
 							if(!correctHeading)
 							{
@@ -823,7 +835,7 @@ public class Navigation {
 				}
 				avoiding = false;
 				stopAvoiding = false;
-				this.travelTo(x, y);
+				this.realTravelTo(x, y);
 				return;
 			}
 			else
@@ -1333,6 +1345,7 @@ public class Navigation {
 				}
 			}
 			
+			rest(500);
 			drive(LightLocalizerV4.lightSensorDistance,false,SLOW,true);
 			this.collecting = false;
 			rest(500);
