@@ -434,10 +434,12 @@ public class Navigation {
 				}
 				else
 				{
-					this.setSpeeds(0,0);
-					try{Thread.sleep(500);}catch(Exception e){}
+					rest(500);
+					
 					this.setSpeeds(SLOW,SLOW);
 					Sound.twoBeeps();
+					
+					//If the right sensor hits a black line first turn clockwise, and otherwise turn counterclockwise
 					if(rightFirst)
 					{
 						this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -448,7 +450,8 @@ public class Navigation {
 						this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
 						this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
 					}
-					this.setSpeeds(0, 0);
+	
+					//Reset the odometers heading angle based on whether the robot is traveling in positive Y or not
 					if(posY)
 					{
 						this.odometer.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
@@ -457,25 +460,22 @@ public class Navigation {
 					{
 						this.odometer.setPosition((new double[] {0,0,270}), (new boolean[] {false,false,true}));
 					}
-					try{Thread.sleep(1000);}catch(Exception e){}
+					rest(1000);
 					correctHeading = false;
 				}
 			}
 		}
 		
-		// Stop the robots motion
-		this.setSpeeds(0, 0);
-		try{Thread.sleep(1000);}catch(Exception e){}
+		rest(1000);
 		
-		
-		// Turn in the positive x direction (0 degrees)
+		//Turn in the positive x direction (0 degrees)
 		if(x - odometer.getX() >= 0)
 		{
 			this.turnTo(0, true);
 			posX=true;
 		}
 		
-		// Turn in the negative x direction (270 degrees)
+		//Turn in the negative x direction (270 degrees)
 		else
 		{
 			this.turnTo(180, true);
@@ -483,21 +483,32 @@ public class Navigation {
 		}
 		
 		
-		// Drive forward
+		//Travel in the x direction
 		while(Math.abs(x - odometer.getX()) > CM_ERR)
 		{
-			
+			/*If the front us sensor sees an obstacle, is not turning, is not in the dispenser zone and is not
+			 * detecting the boarders, then perform obstacle avoidance. Otherwise, keep on traveling to the given y point
+			 * */
 			if(getFilteredDataF() < filterValue && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
 				correctHeading = false;
 				avoiding = true;
 				Sound.beep();
+				
+				/*If travling in the positive x direction, turn to 90 degrees so that the right us sensor
+				 * is facing the obstacle. Otherwise, turn to 270 degrees
+				 * */
 				if(posX)
 				{
 					this.turnTo(90, true);
 					currentY = odometer.getY();
+					
+					/*If the robot is in the bottom half of the board, avoid the obstacle by going up the board,
+					 *and otherwise avoid by going down the board.
+					 * */
 					if(this.odometer.getY() <= boardDimensions*TILE_LENGTH)
 					{
+						// (*)
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -529,7 +540,16 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						this.setSpeeds(0,0);
+						
+						rest(100);
+						
+						/*Avoiding an obstacle works differently then traveling in the x direction due to the fact that realTravelTo()
+						 * always travels in the y direction first. After avoiding the obstacle by traveling in the y direction
+						 * the robot must also avoid the obstacle in the x direction, because otherwise recalling travelTo()
+						 * will send the robot back to the y position that it just moved away from, and this will continuously occur.
+						 * Thus, avoiding in the y direction followed by the x direction must be done. This works the same
+						 * as (*), and this is used in throughout the rest of the method, so call this block (**).
+						 * */
 						
 						this.turnTo(0,true);
 						currentX = odometer.getX();
@@ -567,6 +587,7 @@ public class Navigation {
 					}
 					else
 					{
+						// (*)
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -600,8 +621,10 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						this.setSpeeds(0,0);
 						
+						rest(100);
+						
+						// (**)
 						this.turnTo(180,true);
 						currentX = odometer.getX();
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
@@ -637,12 +660,19 @@ public class Navigation {
 						}
 					}
 				}
+				
+				//Negative x direction
 				else
 				{
 					this.turnTo(270, true);
 					currentY = odometer.getY();
+					
+					/*If the robot is in the bottom half of the board, avoid the obstacle by going up the board,
+					 *and otherwise avoid by going down the board.
+					 * */
 					if(this.odometer.getY() <= boardDimensions*TILE_LENGTH)
 					{
+						// (*)
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -674,10 +704,13 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, false);
 							}
 						}
-						this.setSpeeds(0,0);
+						
+						rest(100);
 						
 						this.turnTo(0,true);
 						currentX = odometer.getX();
+						
+						// (**)
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -712,6 +745,7 @@ public class Navigation {
 					}
 					else
 					{
+						// (*)
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -744,10 +778,13 @@ public class Navigation {
 								doCorrectHeading(rightFirst, correctionAngle, true);
 							}
 						}
-						this.setSpeeds(0,0);
+						
+						rest(100);
 						
 						this.turnTo(180,true);
 						currentX = odometer.getX();
+						
+						// (**)
 						while(getFilteredDataR() > filterValue && !stopAvoiding)
 						{
 							if(!correctHeading)
@@ -788,6 +825,10 @@ public class Navigation {
 			}
 			else
 			{
+				
+				/*If the correctHeading thread has not detected a line (hence has not set correctHeading
+				 * to true), continue the robots motion. Otherwise, correct the heading accordingly.
+				 */
 				if(!correctHeading)
 				{
 					this.setSpeeds(FAST,FAST);
@@ -795,10 +836,12 @@ public class Navigation {
 				else
 				{
 
-					this.setSpeeds(0,0);
-					try{Thread.sleep(500);}catch(Exception e){}
+					rest(500);
+					
 					this.setSpeeds(SLOW,SLOW);
 					Sound.twoBeeps();
+					
+					//If the right sensor hits a black line first turn clockwise, and otherwise turn counterclockwise
 					if(rightFirst)
 					{
 						this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -809,7 +852,8 @@ public class Navigation {
 						this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
 						this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
 					}
-					this.setSpeeds(0, 0);
+					
+					//Reset the odometers heading angle based on whether the robot is traveling in the positive x direction or not
 					if(posX)
 					{
 						this.odometer.setPosition((new double[] {0,0,0}), (new boolean[] {false,false,true}));
@@ -818,24 +862,28 @@ public class Navigation {
 					{
 						this.odometer.setPosition((new double[] {0,0,180}), (new boolean[] {false,false,true}));
 					}
-					try{Thread.sleep(1000);}catch(Exception e){}
+					rest(1000);
 					correctHeading = false;
 				}
 			}
 		}
-		
-		// Stop the robots motion
-		this.setSpeeds(0, 0);
-		try{Thread.sleep(1000);}catch(Exception e){}
+
+		rest(1000);
 		}
 	
 
-	/*
-	 * TurnTo function which takes an angle and boolean as arguments The boolean controls whether or not to stop the
-	 * motors when the turn is completed
-	 */
+	/**
+	 * Takes an angle and boolean as arguments and turns to a specific angle. 
+	 * The boolean controls whether or not to stop the motors when the turn is completed
+	 * 
+	 * @param angle Angle to turn to
+	 * @param stop Boolean to rest motors
+	 * */
 	public void turnTo(double angle, boolean stop) {
+		
+		//Set isTurning to true so that correct heading and obstacle avoidance know that the robot is turning
 		isTurning = true;
+		
 		double error = angle - this.odometer.getAng();
 
 		if (error < -180.0) {
@@ -860,21 +908,44 @@ public class Navigation {
 		
 		try{Thread.sleep(1000);}catch(Exception e){}
 		
-
+		//Set isTurning to false
 		isTurning = false;
 	}
 	
+	/**
+	 * Convert distance to degrees
+	 * 
+	 * @param radius Radius of the robot
+	 * @param distance Distance of rotation in radians
+	 * 
+	 * @return Converted distance in cm to degrees
+	 * */
 	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
 
+	/**
+	 * Convert Angle to degrees
+	 * 
+	 * @param radius Radius of the robot
+	 * @param distance Distance of rotation in radians
+	 * 
+	 * @return Distance for wheels to turn in degrees
+	 * */
 	private static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 	
-	/*
-	 * Go foward a set distance in cm
-	 */
+	/**
+	 * Drive the robot a set distance and direction
+	 * 
+	 * @param distance Distance to travel
+	 * @param xDirection Boolean to state whether the robot is traveling in the x direction or not
+	 * @param speed Speed for travel
+	 * @param pos Boolean to state whether to travel forward or backward
+	 * 
+	 * @return void
+	 * */
 	public void drive(double distance, boolean xDirection, int speed, boolean pos) {
 		
 		if(pos)
@@ -918,28 +989,34 @@ public class Navigation {
 		
 		this.setSpeeds(0,0);
 	}
-	
-	// Counter clockwise rotation
-	private  void rotateCCW()
-	{
-		this.setSpeeds(-SLOW, SLOW);
-	}
 
-	// Clockwise rotation
-	private  void rotateCW()
-	{
-		this.setSpeeds(SLOW, -SLOW);
-	}
-	
+	/**
+	 * Checks if the robot is turning
+	 * 
+	 * @return isTurning boolean
+	 * */
 	public boolean isTurning(){
 		return isTurning;
 	}
 	
+	/**
+	 * Checks if the robot is avoiding
+	 * 
+	 * @return avoiding boolean
+	 * */
 	public boolean isAvoiding()
 	{
 		return avoiding;
 	}
 	
+	/**
+	 * Sets the appropriate booleans and global variables in order for the robot to correct its heading
+	 * 
+	 * @param rightFirstTemp States whether the right color sensor hit the line first or not
+	 * @param correctionAng Angle for correction
+	 * 
+	 * @return void
+	 * */
 	public void correctHeading(boolean rightFirstTemp, double correctionAng)
 	{
 		this.correctionAngle = correctionAng;
@@ -947,6 +1024,20 @@ public class Navigation {
 		this.correctHeading = true;
 	}
 	
+	/**
+	 * This method essentially checks if the robot is avoiding "nothing". For example, if the robot senses
+	 * an obstacle and turns to the side of the right sensor but the right sensor is already
+	 * passed the obstacle, the robot will drive a maximum of 1.5 tiles before stopping
+	 * avoidance. If this check is not done, the robot will continue to travel until an obstacle is seen,
+	 * which may be never and thus will crash. This method also handles the driving up until the maximum
+	 * distance is reached.
+	 * 
+	 * @param forward States whether the robot should travel forward or not
+	 * @param xDirection States whether the robot is traveling in the x direction or not
+	 * @param point The starting point of travel to mark how much the robot has traveled since the avoidance began
+	 * 
+	 * @return void
+	 * */
 	private void stillFollowing(boolean forward, boolean xDirection, double point)
 	{
 		if(forward)
@@ -1001,15 +1092,17 @@ public class Navigation {
 		}
 	}
 	
-	
-	
-	
+	/**
+	 * Get the the us Sensor distance value from the right us sensor
+	 * 
+	 * @return Right us sensor value
+	 * */
 	private float getFilteredDataR() 
 	{
-		
 		usSensorR.fetchSample(usDataR, 0);
 		float distance = usDataR[0]*100;
 		int filterValue = 50;
+		
 		// If the usSensor reads anything greater then filterValue, set the distance
 		// to the filterValue
 		if (distance >= filterValue)
@@ -1018,12 +1111,19 @@ public class Navigation {
 		}
 		return distance;
 	}
+	
+	/**
+	 * Get the the us Sensor distance value from the front us sensor
+	 * 
+	 * @return Front us sensor value
+	 * */
 	private float getFilteredDataF() 
 	{
 		
 		usSensorF.fetchSample(usDataF, 0);
 		float distance = usDataF[0]*100;
 		int filterValue = 50;
+		
 		// If the usSensor reads anything greater then filterValue, set the distance
 		// to the filterValue
 		if (distance >= filterValue)
@@ -1034,12 +1134,9 @@ public class Navigation {
 	}
 	
 	
-	
-	
 	private void doCorrectHeading(boolean rightFirst, double correctionAngle, boolean posDirection)
 	{
-		this.setSpeeds(0,0);
-		try{Thread.sleep(500);}catch(Exception e){}
+		rest(500);
 		Sound.twoBeeps();
 		if(posDirection)
 		{
