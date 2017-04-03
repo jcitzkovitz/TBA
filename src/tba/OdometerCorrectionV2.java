@@ -35,8 +35,7 @@ public class OdometerCorrectionV2 extends Thread {
 		
 		while (true) {
 			correctionStart = System.currentTimeMillis();
-			if(!Navigation.isTurning())
-			{
+			
 				if(getLightStrengthR()<minLight)
 				{
 					Sound.beep();
@@ -126,7 +125,7 @@ public class OdometerCorrectionV2 extends Thread {
 				}
 			}
 		}
-	}
+	
 	
 	private float getLightStrengthR(){
 		colorSensorR.fetchSample(colorDataR, 0);

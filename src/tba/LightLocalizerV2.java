@@ -35,40 +35,40 @@ public class LightLocalizerV2 {
 	
 	public void doLocalization() {
 		
-		double minLight =0.3;
-		navi.turnTo(0, true);
-		while(getColorData()<minLight){
-			this.leftMotor.setSpeed(150);
-			this.leftMotor.setSpeed(150);
-			this.leftMotor.forward();
-			this.rightMotor.forward();
-		}
-		odo.setPosition(new double[]{0, odo.getY(), odo.getAng()}, new boolean[] {true, true, true});
-		this.navi.goForward(-5);
-		navi.turnTo(90, true);
-		while(getColorData()<minLight){
-			this.leftMotor.setSpeed(150);
-			this.leftMotor.setSpeed(150);
-			this.leftMotor.forward();
-			this.rightMotor.forward();
-		}
-		odo.setPosition(new double[]{odo.getX(), 0, odo.getAng()}, new boolean[] {true, true, true});
-		
-		if(corner==2){
-			this.odo.setPosition(new double[]{304.8-odo.getY(),odo.getX(),90+odo.getAng()}, new boolean [] {true, true, true});
-		}
-		if(corner==3){
-			this.odo.setPosition(new double[]{304.8-odo.getX(),304.8-odo.getX(),180+odo.getAng()}, new boolean [] {true, true, true});
-		}
-		if(corner==4){
-			if((odo.getAng()+270)<360){
-				this.odo.setPosition(new double[]{odo.getY(),304.8-odo.getX(),270+odo.getAng()}, new boolean [] {true, true, true});
-			}
-			else{
-				this.odo.setPosition(new double[]{odo.getY(),304.8-odo.getX(),odo.getAng()-90}, new boolean [] {true, true, true});
-			}
-		}
-		
+//		double minLight =0.3;
+//		navi.turnTo(0, true);
+//		while(getColorData()<minLight){
+//			this.leftMotor.setSpeed(150);
+//			this.leftMotor.setSpeed(150);
+//			this.leftMotor.forward();
+//			this.rightMotor.forward();
+//		}
+//		odo.setPosition(new double[]{0, odo.getY(), odo.getAng()}, new boolean[] {true, true, true});
+//		this.navi.drive(-5);
+//		navi.turnTo(90, true);
+//		while(getColorData()<minLight){
+//			this.leftMotor.setSpeed(150);
+//			this.leftMotor.setSpeed(150);
+//			this.leftMotor.forward();
+//			this.rightMotor.forward();
+//		}
+//		odo.setPosition(new double[]{odo.getX(), 0, odo.getAng()}, new boolean[] {true, true, true});
+//		
+//		if(corner==2){
+//			this.odo.setPosition(new double[]{304.8-odo.getY(),odo.getX(),90+odo.getAng()}, new boolean [] {true, true, true});
+//		}
+//		if(corner==3){
+//			this.odo.setPosition(new double[]{304.8-odo.getX(),304.8-odo.getX(),180+odo.getAng()}, new boolean [] {true, true, true});
+//		}
+//		if(corner==4){
+//			if((odo.getAng()+270)<360){
+//				this.odo.setPosition(new double[]{odo.getY(),304.8-odo.getX(),270+odo.getAng()}, new boolean [] {true, true, true});
+//			}
+//			else{
+//				this.odo.setPosition(new double[]{odo.getY(),304.8-odo.getX(),odo.getAng()-90}, new boolean [] {true, true, true});
+//			}
+//		}
+//		
 		/*
 		// Move the robot forward by a 30 degree rotation
 		this.leftMotor.setSpeed(SPEED);

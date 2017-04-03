@@ -48,10 +48,10 @@ public class Odometer implements TimerListener {
 	/**
 	 * Odometer constructer
 	 * 
-	 * @param leftMotor Left wheel motor
-	 * @param rightMotor Right wheel motor
-	 * @param INTERVAL Interval of time between polling
-	 * @param autoStart States whether to start thread automatically or not
+	 * @param 	leftMotor 	Left wheel motor
+	 * @param 	rightMotor 	Right wheel motor
+	 * @param 	INTERVAL 	Interval of time between polling
+	 * @param 	autoStart 	States whether to start thread automatically or not
 	 * 
 	 * */
 	public Odometer (EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, int INTERVAL, boolean autostart) {
@@ -81,7 +81,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Functions to stop the timerlistener
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	public void stop() {
 		if (this.timer != null)
@@ -91,7 +91,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Functions to start the timerlistener
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	public void start() {
 		if (this.timer != null)
@@ -101,9 +101,9 @@ public class Odometer implements TimerListener {
 	/**
 	 * Calculates displacement and heading as title suggests
 	 * 
-	 * @param data Holds data values from tachometers
+	 * @param 	data 	Holds data values from tachometers
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	private void getDisplacementAndHeading(double[] data) {
 		int leftTacho, rightTacho;
@@ -117,7 +117,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Recompute the odometer values using the displacement and heading changes
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	public void timedOut() {
 		this.getDisplacementAndHeading(dDH);
@@ -140,7 +140,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Return x value
 	 * 
-	 * @return x value
+	 * @return 		x value
 	 * */
 	public double getX() {
 		synchronized (this) {
@@ -151,7 +151,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Return y value
 	 * 
-	 * @return y value
+	 * @return 		y value
 	 * */
 	public double getY() {
 		synchronized (this) {
@@ -162,7 +162,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Return theta value
 	 * 
-	 * @return theta value
+	 * @return 		theta value
 	 * */
 	public double getAng() {
 		synchronized (this) {
@@ -173,10 +173,10 @@ public class Odometer implements TimerListener {
 	/**
 	 * Set x, y and theta values
 	 * 
-	 * @param position Array of doubles holding x, y, and theta values
-	 * @param update States whether the values should be updated in the odometer
+	 * @param 	position 	Array of doubles holding x, y, and theta values
+	 * @param 	update	States whether the values should be updated in the odometer
 	 * 
-	 * @return void
+	 * @return		void
 	 * */
 	public void setPosition(double[] position, boolean[] update) {
 		synchronized (this) {
@@ -192,9 +192,9 @@ public class Odometer implements TimerListener {
 	/**
 	 * Set x value
 	 * 
-	 * @param x X value
+	 * @param x 	X value
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	public void setX(double x) {
 		synchronized (this) {
@@ -205,9 +205,9 @@ public class Odometer implements TimerListener {
 	/**
 	 * Set y value
 	 * 
-	 * @param y Y value
+	 * @param 	y 	Y value
 	 * 
-	 * @return void
+	 * @return		void
 	 * */
 	public void setY(double y) {
 		synchronized (this) {
@@ -218,9 +218,9 @@ public class Odometer implements TimerListener {
 	/**
 	 * Gets the robot's position
 	 * 
-	 * @param position Array of doubles containing the robot's x, y, and theta values
+	 * @param 	position 	Array of doubles containing the robot's x, y, and theta values
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	public void getPosition(double[] position) {
 		synchronized (this) {
@@ -233,7 +233,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Returns the robot's position
 	 * 
-	 * @return Array containing the robot's x, y, and theta values
+	 * @return 		Array containing the robot's x, y, and theta values
 	 * */
 	public double[] getPosition() {
 		synchronized (this) {
@@ -244,7 +244,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Return the robot's wheel radius
 	 * 
-	 * @return The wheel radius
+	 * @return 		The wheel radius
 	 * */
 	public double getWheelRadius()
 	{
@@ -254,7 +254,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Return the robot's base width
 	 * 
-	 * @return The robot's base width
+	 * @return 		The robot's base width
 	 * */
 	public double getBaseWidth()
 	{
@@ -264,7 +264,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Access both the left and right motors
 	 * 
-	 * @return Array containing both motors
+	 * @return 		Array containing both motors
 	 * */
 	public EV3LargeRegulatedMotor [] getMotors() {
 		return new EV3LargeRegulatedMotor[] {this.leftMotor, this.rightMotor};
@@ -273,7 +273,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Access the left motor
 	 * 
-	 * @return The left motor
+	 * @return 		The left motor
 	 * */
 	public EV3LargeRegulatedMotor getLeftMotor() {
 		return this.leftMotor;
@@ -282,7 +282,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Access the right motor
 	 * 
-	 * @return The right motor
+	 * @return 		The right motor
 	 * */
 	public EV3LargeRegulatedMotor getRightMotor() {
 		return this.rightMotor;
@@ -291,7 +291,7 @@ public class Odometer implements TimerListener {
 	/**
 	 * Fix the degree angle to wrap around to 0
 	 * 
-	 * @return The orientation angle from 0-360 degrees
+	 * @return 		The orientation angle from 0-360 degrees
 	 * */
 	public static double fixDegAngle(double angle) {
 		if (angle < 0.0)
@@ -303,9 +303,9 @@ public class Odometer implements TimerListener {
 	/**
 	 * Set the robot's base width for different scenarios
 	 * 
-	 * @param width Wanted base width value
+	 * @param 	width 	Wanted base width value
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	public void setBaseWidth(double width)
 	{
@@ -315,10 +315,10 @@ public class Odometer implements TimerListener {
 	/**
 	 * Minimum angle calculation
 	 * 
-	 * @param a Point a
-	 * @param b Point b
+	 * @param 	a 	Point a
+	 * @param 	b 	Point b
 	 * 
-	 * @return The minimum angle
+	 * @return 		The minimum angle
 	 * */
 	public static double minimumAngleFromTo(double a, double b) {
 		double d = fixDegAngle(b - a);

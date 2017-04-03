@@ -32,12 +32,12 @@ public class OdometerCorrection extends Thread {
 
 	/**
 	 * OdometerCorrection constructor class
-	 * @param odo Odometer object in charge of providing Odometer class methods
-	 * @param nav Navigation object in charge of providing Navigation class methods
-	 * @param colorSensorR Sample provider variable for the right color sensor
-	 * @param colorSensorL Sample provider variable for the left color sensor
-	 * @param colorDataR Float array to hold right color sensor data
-	 * @param colorDataL Float array to hold left color sensor data
+	 * @param 	odo 	Odometer object in charge of providing Odometer class methods
+	 * @param 	nav 	Navigation object in charge of providing Navigation class methods
+	 * @param 	colorSensorR 	Sample provider variable for the right color sensor
+	 * @param 	colorSensorL 	Sample provider variable for the left color sensor
+	 * @param 	colorDataR 	Float array to hold right color sensor data
+	 * @param 	colorDataL 	Float array to hold left color sensor data
 	 * */
 	
 	public OdometerCorrection(Odometer odo, Navigation nav,SampleProvider colorSensorR, float[] colorDataR,SampleProvider colorSensorL, float[] colorDataL)
@@ -166,7 +166,7 @@ public class OdometerCorrection extends Thread {
 	/**
 	 * Get the the light strength from the right color sensor
 	 * 
-	 * @return Right color sensor value
+	 * @return 		Right color sensor value
 	 * */
 	private float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);
@@ -177,7 +177,7 @@ public class OdometerCorrection extends Thread {
 	/**
 	 * Get the the light strength from the left color sensor
 	 * 
-	 * @return Left color sensor value
+	 * @return 		Left color sensor value
 	 * */
 	private float getColorDataL(){
 		colorSensorL.fetchSample(colorDataL, 0);
@@ -188,8 +188,10 @@ public class OdometerCorrection extends Thread {
 	/**
 	 * Set the x and y values in the odometer accordingly
 	 * 
-	 * @param value New value to set
-	 * @param XorY States whether the correction must be done in the x or y values
+	 * @param 	value 	New value to set
+	 * @param 	XorY 	States whether the correction must be done in the x or y values
+	 * 
+	 * @return		void
 	 * */
 	private void setPosition(double value, int XorY){
 		if(XorY==0){

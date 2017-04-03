@@ -26,11 +26,11 @@ public class USLocalizerV2 {
 	/**
 	 * USLocalizerV2 constructor 
 	 * 
-	 * @param odo Odometer object
-	 * @param usSensorF Sample provider for the front usSensor
-	 * @param usDataF Array of float values used to hold us sensor data
-	 * @param locType type of localization that will be used
-	 * @param nav Navigation object
+	 * @param 	odo 	Odometer object
+	 * @param 	usSensorF 	Sample provider for the front usSensor
+	 * @param 	usDataF 	Array of float values used to hold us sensor data
+	 * @param 	fallingEdge 	Type of localization that will be used
+	 * @param 	nav 	Navigation object
 	 * */
 	public USLocalizerV2(Odometer odo,  SampleProvider usSensorF, float[] usDataF, Navigation nav, LocalizationType fallingEdge) {
 		this.odo = odo;
@@ -44,7 +44,7 @@ public class USLocalizerV2 {
 	 * doLocalization() performs localization using us sensors. This method only works in corners and
 	 * turns to '0' degrees by the end
 	 * 
-	 * @return void
+	 * @return		void
 	 * */
 	public void doLocalization() {
 		
@@ -60,7 +60,7 @@ public class USLocalizerV2 {
 			// This is done in the case that the robot begins looking
 			// at a wall. We want the robot to begin its readings while
 			// it's not facing a wall.
-			while(getFilteredData() < BANDWIDTH)
+			while(getFilteredDataF() < BANDWIDTH)
 			{
 				rotateCW();
 			}
@@ -69,7 +69,7 @@ public class USLocalizerV2 {
 			Delay.msDelay(1000);
 			
 			// Rotate the robot clockwise until a wall is detected
-			while (getFilteredData() >= BANDWIDTH)
+			while (getFilteredDataF() >= BANDWIDTH)
 			{	
 				rotateCW();
 			}
@@ -87,7 +87,7 @@ public class USLocalizerV2 {
 			// Rotate counter clockwise until no wall is seen (for the same reason
 			// as mentioned above)
 			int i = 0;
-			while(getFilteredData() < BANDWIDTH)
+			while(getFilteredDataF() < BANDWIDTH)
 			{
 				rotateCCW();
 				if(i==0)
@@ -100,7 +100,7 @@ public class USLocalizerV2 {
 			
 			i=0;
 			// Rotate counter clockwise until a wall is seen
-			while (getFilteredData() >= BANDWIDTH)
+			while (getFilteredDataF() >= BANDWIDTH)
 			{
 				rotateCCW();
 				if(i==0)
@@ -143,7 +143,7 @@ public class USLocalizerV2 {
 			 */
 			
 			//Rotate the robot clockwise until it sees a wall
-			while(getFilteredData() > BANDWIDTH)
+			while(getFilteredDataF() > BANDWIDTH)
 			{
 				rotateCW();
 			}
@@ -152,7 +152,7 @@ public class USLocalizerV2 {
 			Delay.msDelay(1000);
 						
 			//Rotate the robot clockwise until a wall is no longer seen
-			while (getFilteredData() <= BANDWIDTH)
+			while (getFilteredDataF() <= BANDWIDTH)
 			{
 				rotateCW();
 			}
@@ -168,7 +168,7 @@ public class USLocalizerV2 {
 			Delay.msDelay(1000);
 			
 			//Rotate counterclockwise until a wall is detected			
-			while(getFilteredData() > BANDWIDTH)
+			while(getFilteredDataF() > BANDWIDTH)
 			{
 				rotateCCW();
 			}
@@ -177,7 +177,7 @@ public class USLocalizerV2 {
 			Delay.msDelay(1000);
 			
 			//Rotate counterclockwise until no wall is seen 
-			while (getFilteredData() <= BANDWIDTH)
+			while (getFilteredDataF() <= BANDWIDTH)
 			{
 				rotateCCW();
 			}
@@ -206,7 +206,12 @@ public class USLocalizerV2 {
 		}
 	}
 	
-	private float getFilteredData() 
+	/**
+	 * Get the the us Sensor distance value from the front us sensor
+	 * 
+	 * @return		Front us sensor value
+	 * */
+	private float getFilteredDataF() 
 	{
 		
 		usSensorF.fetchSample(usDataF, 0);
@@ -223,19 +228,31 @@ public class USLocalizerV2 {
 		return distance;
 	}
 	
-	//Counter clockwise rotation
+	/**
+	 * Rotate counterclockwise
+	 * 
+	 * @return		void
+	 * */
 	private  void rotateCCW()
 	{
 		nav.setSpeeds(-ROTATION_SPEED, ROTATION_SPEED);
 	}
 
-	//Clockwise rotation
+	/**
+	 * Rotate clockwise
+	 * 
+	 * @return		void
+	 * */
 	private  void rotateCW()
 	{
 		nav.setSpeeds(ROTATION_SPEED, -ROTATION_SPEED);
 	}
 	
-	//Calculation of heading as shown in the tutorial
+	/**
+	 * Calculation of heading as shown in the tutorial
+	 * 
+	 * @return		Final angle of which the robot needs to rotate to face '0' degrees
+	 * */
 	private static double calculateFinalOrientationAngle(double angleA, double angleB){ 
 		
 		double orientationAngle = 0;

@@ -4,8 +4,8 @@ import lejos.hardware.Sound;
 import lejos.robotics.SampleProvider;
 
 /** 
- * @author Jordan Itzkovitz
- * @author William Wang
+ * @author	Jordan Itzkovitz
+ * @author	William Wang
  * 
  * The CorrectHeading class corrects the heading of the robot through the use of two light sensors
  * located in front of the robot - the left sensor by the left wheel and the right sensor by the right
@@ -25,12 +25,12 @@ public class CorrectHeading extends Thread{
 	
 	/**
 	 * CorrectHeading constructor class
-	 * @param odo Odometer object in charge of providing Odometer class methods
-	 * @param nav Navigation object in charge of providing Navigation class methods
-	 * @param colorSensorR Sample provider variable for the right color sensor
-	 * @param colorSensorL Sample provider variable for the left color sensor
-	 * @param colorDataR Float array to hold right color sensor data
-	 * @param colorDataL Float array to hold left color sensor data
+	 * @param 	odo 	Odometer object in charge of providing Odometer class methods
+	 * @param 	nav 	Navigation object in charge of providing Navigation class methods
+	 * @param 	colorSensorR 	Sample provider variable for the right color sensor
+	 * @param 	colorSensorL 	Sample provider variable for the left color sensor
+	 * @param 	colorDataR 	Float array to hold right color sensor data
+	 * @param 	colorDataL 	Float array to hold left color sensor data
 	 * */
 	public CorrectHeading(Odometer odo, Navigation nav, SampleProvider colorSensorR, float[] colorDataR, SampleProvider colorSensorL, float[] colorDataL)
 	{
@@ -44,6 +44,8 @@ public class CorrectHeading extends Thread{
 	
 	/**
 	 * Method which runs CorrectHeading thread
+	 * 
+	 * @return		void
 	 * */
 	public void run() {
 		

@@ -4,8 +4,8 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
 /**
- * @author Jordan Itzkovitz
- * @author William Wang
+ * @author	Jordan Itzkovitz
+ * @author	William Wang
  * 
  * The LightLocalizrV4 class performs light localization using two color sensors located on the right
  * and left sides at the front of the robot*/
@@ -23,12 +23,12 @@ public class LightLocalizerV4 {
 	
 	/**
 	 * LightLocalizerV4 constructor class
-	 * @param odo Odometer object in charge of providing Odometer class methods
-	 * @param nav Navigation object in charge of providing Navigation class methods
-	 * @param colorSensorR Sample provider variable for the right color sensor
-	 * @param colorSensorL Sample provider variable for the left color sensor
-	 * @param colorDataR Float array to hold right color sensor data
-	 * @param colorDataL Float array to hold left color sensor data
+	 * @param	odo 	Odometer object in charge of providing Odometer class methods
+	 * @param 	nav 	Navigation object in charge of providing Navigation class methods
+	 * @param 	colorSensorR 	Sample provider variable for the right color sensor
+	 * @param 	colorSensorL 	Sample provider variable for the left color sensor
+	 * @param 	colorDataR 	Float array to hold right color sensor data
+	 * @param 	colorDataL 	Float array to hold left color sensor data
 	 * */
 	
 	public LightLocalizerV4(Odometer odo, SampleProvider colorSensorR, float[] colorDataR, SampleProvider colorSensorL, float[] colorDataL, Navigation nav) {
@@ -50,7 +50,7 @@ public class LightLocalizerV4 {
 	 * performs CorrectHeading. It then tells the robot to turn to 0 degrees and perform the same motion
 	 * as done in the y direction. 
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	
 	public void doLocalization() {
@@ -175,7 +175,7 @@ public class LightLocalizerV4 {
 	/**
 	 * Get the the light strength from the right color sensor
 	 * 
-	 * @return Right color sensor value
+	 * @return		Right color sensor value
 	 * */
 	public float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);
@@ -186,7 +186,7 @@ public class LightLocalizerV4 {
 	/**
 	 * Get the the light strength from the left color sensor
 	 * 
-	 * @return Left color sensor value
+	 * @return		Left color sensor value
 	 * */
 	public float getColorDataL(){
 		colorSensorL.fetchSample(colorDataL, 0);
@@ -198,10 +198,10 @@ public class LightLocalizerV4 {
 	 * Correct the heading of the robot by using the correctionAngle calculated in the doLocalization()
 	 * method
 	 * 
-	 * @param rightFirst Boolean which states which light sensor hit a black line first
-	 * @param correctionAngle Angle that the heading must correct with
+	 * @param 	rightFirst 	Boolean which states which light sensor hit a black line first
+	 * @param 	correctionAngle 	Angle that the heading must correct with
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	private void correctHeading(boolean rightFirst, double correctionAngle)
 	{
@@ -228,10 +228,10 @@ public class LightLocalizerV4 {
 	/**
 	 * Convert distance to degrees
 	 * 
-	 * @param radius Radius of the robot
-	 * @param distance Distance of rotation in radians
+	 * @param 	radius 	Radius of the robot
+	 * @param 	distance 	Distance of rotation in radians
 	 * 
-	 * @return Converted distance in cm to degrees
+	 * @return 		Converted distance in cm to degrees
 	 * */
 	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
@@ -240,10 +240,10 @@ public class LightLocalizerV4 {
 	/**
 	 * Convert Angle to degrees
 	 * 
-	 * @param radius Radius of the robot
-	 * @param distance Distance of rotation in radians
+	 * @param 	radius 	Radius of the robot
+	 * @param 	distance 	Distance of rotation in radians
 	 * 
-	 * @return Distance for wheels to turn in degrees
+	 * @return 		Distance for wheels to turn in degrees
 	 * */
 	private static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
@@ -252,9 +252,9 @@ public class LightLocalizerV4 {
 	/**
 	 * Let the robot rest for millis milliseconds by stopping the motors and sleeping the thread
 	 * 
-	 * @param millis Milliseconds wanted for rest period
+	 * @param 	millis Milliseconds wanted for rest period
 	 * 
-	 * @return void
+	 * @return 		void
 	 * */
 	private void rest(int millis)
 	{

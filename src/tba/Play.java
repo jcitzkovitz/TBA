@@ -50,6 +50,8 @@ public class Play {
 	
 	/**
 	 * This is the main method for playing the game
+	 * 
+	 * @return		void
 	 * */
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
