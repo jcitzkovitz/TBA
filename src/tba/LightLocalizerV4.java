@@ -3,7 +3,11 @@ import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
-
+/**
+ * @author Jordan Itzkovitz and William Wang
+ * 
+ * The LightLocalizrV4 class performs light localization using two color sensors located on the right
+ * and left sides at the front of the robot*/
 public class LightLocalizerV4 {
 
 	private Odometer odo;
@@ -15,6 +19,16 @@ public class LightLocalizerV4 {
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 	private float SPEED = 100;
 	public static double lightSensorDistance = 2.1;
+	
+	/**
+	 * LightLocalizerV4 constructor class
+	 * @param odo Odometer object in charge of providing Odometer class methods
+	 * @param nav Navigation object in charge of providing Navigation class methods
+	 * @param colorSensorR Sample provider variable for the right color sensor
+	 * @param colorSensorL Sample provider variable for the left color sensor
+	 * @param colorDataR Float array to hold right color sensor data
+	 * @param colorDataL Float array to hold left color sensor data
+	 * */
 	
 	public LightLocalizerV4(Odometer odo, SampleProvider colorSensorR, float[] colorDataR, SampleProvider colorSensorL, float[] colorDataL, Navigation nav) {
 		this.odo = odo;
@@ -28,13 +42,28 @@ public class LightLocalizerV4 {
 		this.rightMotor = motors[1];
 	}
 	
+	/**
+	 * doLocalization() performs localization using the knowledge of usSensorV2 localization which
+	 * tells the robot where the '0' degree angle is facing. From there, it turns 90 degrees to face the y
+	 * direction, travels forward until it sees a black line with both the left and right color sensors and
+	 * performs CorrectHeading. It then tells the robot to turn to 0 degrees and perform the same motion
+	 * as done in the y direction. 
+	 * 
+	 * @return void
+	 * */
+	
 	public void doLocalization() {
 		
+		//Minimum light value used to track black lines
 		double minLight =0.3;
 		
-		// Travel in the x direction until a black line is seen by both sensors
+		//Booleans which tells the program which sensor hit the black line first
 		boolean rightHit = false,leftHit = false;
+		
+		//Hold the first hit value
 		double firstHit = 0;
+		
+		//Overall correction needed
 		double correction = 0;
 
 		// Turn to positive y position
@@ -80,6 +109,7 @@ public class LightLocalizerV4 {
 			}
 		}
 		
+		//Drive the distance between the light sensor and the wheels to get the wheels on the black line
 		double currentY = odo.getY();
 		while(Math.abs(currentY-odo.getY()) < lightSensorDistance)
 		{
@@ -89,7 +119,7 @@ public class LightLocalizerV4 {
 		nav.setSpeeds(0,0);
 		try{Thread.sleep(500);}catch(Exception e){}
 		
-		// Turn to positive x direction and travel until both sensors sense a black line and perform correction
+		 //Turn to positive x direction and travel until both sensors sense a black line and perform correction
 		 nav.turnTo(0, true);
 			while(true)
 			{
@@ -130,6 +160,7 @@ public class LightLocalizerV4 {
 				}
 			}
 			
+			//Drive the distance between the light sensor and the wheels to get the wheels on the black line
 			double currentX = odo.getX();
 			while(Math.abs(currentX-odo.getX()) < lightSensorDistance)
 			{
@@ -140,24 +171,43 @@ public class LightLocalizerV4 {
 			
 	}
 	
+	/**
+	 * Get the the light strength from the right color sensor
+	 * 
+	 * */
 	public float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);
 		float lightStrength = colorDataR[0];
 		return lightStrength;
 	}
 	
+	/**
+	 * Get the the light strength from the left color sensor
+	 * 
+	 * */
 	public float getColorDataL(){
 		colorSensorL.fetchSample(colorDataL, 0);
 		float lightStrength = colorDataL[0];
 		return lightStrength;
 	}
 	
+	/**
+	 * Correct the heading of the robot by using the correctionAngle calculated in the doLocalization()
+	 * method
+	 * 
+	 * @param rightFirst Boolean which states which light sensor hit a black line first
+	 * @param correctionAngle Angle that the heading must correct with
+	 * 
+	 * @return void
+	 * */
 	private void correctHeading(boolean rightFirst, double correctionAngle)
 	{
-		nav.setSpeeds(0,0);
-		try{Thread.sleep(500);}catch(Exception e){}
+		rest(500);
+		
 		nav.setSpeeds(SPEED,SPEED);
 		Sound.twoBeeps();
+		
+		//If rightFirst is true, turn clockwise, else turn counterclockwise
 		if(rightFirst)
 		{
 			this.leftMotor.rotate(convertAngle(odo.getWheelRadius(),odo.getBaseWidth(),correctionAngle),true);
@@ -168,16 +218,45 @@ public class LightLocalizerV4 {
 			this.leftMotor.rotate(-convertAngle(odo.getWheelRadius(),odo.getBaseWidth(),correctionAngle),true);
 			this.rightMotor.rotate(convertAngle(odo.getWheelRadius(),odo.getBaseWidth(),correctionAngle),false);
 		}
-		nav.setSpeeds(0, 0);
-		try{Thread.sleep(1000);}catch(Exception e){}
+
+		rest(1000);
 	}
 	
+	/**
+	 * Convert distance to degrees
+	 * 
+	 * @param radius Radius of the robot
+	 * @param distance Distance of rotation in radians
+	 * 
+	 * @return Converted distance in cm to degrees
+	 * */
 	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
 
+	/**
+	 * Convert Angle to degrees
+	 * 
+	 * @param radius Radius of the robot
+	 * @param distance Distance of rotation in radians
+	 * 
+	 * @return Distance for wheels to turn in degrees
+	 * */
 	private static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
+	}
+	
+	/**
+	 * Let the robot rest for millis milliseconds by stopping the motors and sleeping the thread
+	 * 
+	 * @param millis Milliseconds wanted for rest period
+	 * 
+	 * @return void
+	 * */
+	private void rest(int millis)
+	{
+		nav.setSpeeds(0,0);
+		try{Thread.sleep(millis);}catch(Exception e){}
 	}
 	
 }

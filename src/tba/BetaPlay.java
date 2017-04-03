@@ -12,9 +12,22 @@ import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.SampleProvider;
 import tba.USLocalizerV2.LocalizationType;
 
-/** The BetaPlay class is the main class of which the beta game will be played.
+/** 
+ * @author Jordan Itzkovitz and William Wang
+ * 
+ * The BetaPlay class is the main class of which the beta game will be played.
  * All other classes will be called upon in this class to perform the
  * required tasks.
+ * 
+ * @param leftMotor Left wheel motor
+ * @param rightMotor Right wheel motor
+ * @param leftCatapultMotor The left catapult motor variable
+ * @param rightCatapultMotor The right catapult motor variable
+ * @param colorPortL Port for the color sensor located by the left wheel
+ * @param colorPortR Port for the color sensor located by the right wheel
+ * @param usPortF Port for the us sensor located at the front of the robot
+ * @param usPosrtR Port for the us sensor located on the right side of the robot
+ * 
  * */
 
 public class BetaPlay {
@@ -33,6 +46,7 @@ public class BetaPlay {
 	private static final String SERVER_IP = "192.168.2.3";
 	private static final int TEAM_NUMBER = 4;
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = true;
+	
 	/* Set up navigation, odometer, odometer correction and 
 	 * odometry display objects*/
 	private static Odometer odo = new Odometer(leftMotor,rightMotor,30,true);
@@ -43,6 +57,10 @@ public class BetaPlay {
 	
 	private static double locWidth = 11.85;
 	private static double navWidth = 13.5;
+	
+	/**
+	 * Main method for running BetaPlay
+	 * */
 	
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
