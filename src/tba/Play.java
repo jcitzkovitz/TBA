@@ -67,8 +67,8 @@ public class Play {
 		double defZoneSizeW2 = 2;
 		int fwdStartCorner = 1;
 		int defStartCorner = 2;
-		String despenserOrientation = "E";
-		double shootingDistance = 4*TILE_LENGTH;
+		String despenserOrientation = "N";
+		double shootingDistance = 5*TILE_LENGTH;
 //		try {
 //			/*
 //			 * getData() will connect to the server and wait until the user/TA
@@ -181,8 +181,8 @@ public class Play {
 			}
 				
 			//Lower launcher motors
-			leftCatapultMotor.setSpeed(25);
-			rightCatapultMotor.setSpeed(25);
+			leftCatapultMotor.setSpeed(15);
+			rightCatapultMotor.setSpeed(15);
 			
 			leftCatapultMotor.rotate(70,true);
 			rightCatapultMotor.rotate(70,false);
@@ -212,9 +212,6 @@ public class Play {
 				xAxis=true;
 				nav.turnTo(0, true);
 			}
-			
-			//Re set position on odmeter to position of ball dispenser coordinate
-			odo.setPosition((new double[] {dispX,dispY,0}), (new boolean[] {true,true,false}));
 			
 			//Back up into dispenser to retrieve ball
 			nav.drive(5,xAxis,SLOW,false);
@@ -282,7 +279,6 @@ public class Play {
 		}
 		nav.drive(TILE_LENGTH/2,true,FAST,true);
 		nav.rest(500);
-		nav.turnTo(turnAngleY, true);
 	}
 	
 }

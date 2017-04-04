@@ -69,7 +69,7 @@ public class CorrectHeading extends Thread{
 		while(true)
 		{
 			//If the robot is not turning or collectin the ball, check if correction is needed
-			if((!nav.isTurning())&&(!nav.isCollecting()))
+			if((!nav.isTurning())&&(!nav.isCollecting())&&(!nav.isAvoiding()))
 			{
 				//If the robot is traveling in the x direction, set direction to 0, else set it to 1
 				if(odo.getAng()<10||odo.getAng()>350||(odo.getAng()<190&&odo.getAng()>170)){

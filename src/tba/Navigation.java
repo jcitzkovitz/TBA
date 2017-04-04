@@ -167,6 +167,7 @@ public class Navigation {
 			if((y > avoidZone)&& !((x<TILE_LENGTH&&odometer.getX()<TILE_LENGTH)||
 					(x>(boardDimensions - 1)*TILE_LENGTH&&odometer.getX()>(boardDimensions - 1)*TILE_LENGTH)))
 			{
+				Sound.twoBeeps();
 				twoPoints = true;
 				realTravelTo(x,avoidZone-TILE_LENGTH/2);
 				twoPoints = false;
@@ -200,9 +201,6 @@ public class Navigation {
 		//Hold information of whether the robot is traveling in the y or x directions
 		boolean posY,posX;
 
-		//x and y values which will be used throughout this method
-		double currentX = 0;
-		double currentY = 0;
 		
 		/* The navigation will work as follows: the robot will travel in the y direction followed by the
 		 * x direction. This is done in order to more easily correct odometry with the light sensor as 
@@ -226,14 +224,12 @@ public class Navigation {
 		// Travel in the y direction
 		while(Math.abs(y - odometer.getY()) > CM_ERR)
 		{
-			currentX = odometer.getX();
 			
 			/*If the front us sensor sees an obstacle, is not turning, is not in the dispenser zone and is not
 			 * detecting the boarders, then perform obstacle avoidance. Otherwise, keep on traveling to the given y point
 			 * */
 			if(getFilteredDataF() < filterValueF && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
-				avoiding = true;
 				Sound.beep();
 				
 				/*If travling in the positive y direction, turn to 180 degrees so that the right us sensor
@@ -288,7 +284,6 @@ public class Navigation {
 						avoid(false,false,-SLOW);
 					}
 				}
-				avoiding = false;
 				stopAvoiding = false;
 				
 				//Recall travel to from the new x and y positions
@@ -345,6 +340,8 @@ public class Navigation {
 					correctHeading = false;
 				}
 			}
+			
+			
 		}
 		
 		rest(1000);
@@ -373,7 +370,6 @@ public class Navigation {
 			if(getFilteredDataF() < filterValueF && !isTurning() && !isInDispenserZone() && !isDetectingBorder())
 			{
 				correctHeading = false;
-				avoiding = true;
 				Sound.beep();
 				
 				/*If travling in the positive x direction, turn to 90 degrees so that the right us sensor
@@ -437,7 +433,6 @@ public class Navigation {
 						
 						avoid(true,true,SLOW);
 					}
-					avoiding = false;
 					stopAvoiding = false;
 					
 					if(twoPoints && atPoint)
@@ -563,13 +558,14 @@ public class Navigation {
 		 * or forward, respectively. This same function will be repeated throughout
 		 * this method so reference this as
 		 * */
-		
+		avoiding = true;
+		try{Thread.sleep(500);}catch(Exception e){}
 		if(xDirection)
 		{
 			double currentX = odometer.getX();
 			while(getFilteredDataR() > filterValueR && !stopAvoiding && !atPoint)
 			{
-				if(Math.abs(targetX - odometer.getX()) < 1)
+				if(Math.abs(targetX - odometer.getX()) < 1 && Math.abs(targetY - odometer.getY()) < 1)
 				{
 					atPoint = true;
 					return;
@@ -588,7 +584,7 @@ public class Navigation {
 			}
 			while(getFilteredDataR() < filterValueR && !stopAvoiding && !atPoint)
 			{
-				if(Math.abs(targetX - odometer.getX()) < 1)
+				if(Math.abs(targetX - odometer.getX()) < 1 && Math.abs(targetY - odometer.getY()) < 1)
 				{
 					atPoint = true;
 					return;
@@ -607,7 +603,7 @@ public class Navigation {
 			currentX = this.odometer.getX();
 			while(Math.abs(currentX-this.odometer.getX()) < rightSensorToFront && !stopAvoiding && !atPoint)
 			{
-				if(Math.abs(targetX - odometer.getX()) < 1)
+				if(Math.abs(targetX - odometer.getX()) < 1 && Math.abs(targetY - odometer.getY()) < 1)
 				{
 					atPoint = true;
 					return;
@@ -629,7 +625,7 @@ public class Navigation {
 			double currentY = odometer.getY();
 			while(getFilteredDataR() > filterValueR && !stopAvoiding && !atPoint)
 			{
-				if(Math.abs(targetY - odometer.getY()) < 1)
+				if(Math.abs(targetY - odometer.getY()) < 1 && Math.abs(targetX - odometer.getX()) < 1)
 				{
 					atPoint = true;
 					return;
@@ -648,7 +644,7 @@ public class Navigation {
 			}
 			while(getFilteredDataR() < filterValueR && !stopAvoiding && !atPoint)
 			{
-				if(Math.abs(targetY - odometer.getY()) < 1)
+				if(Math.abs(targetY - odometer.getY()) < 1 && Math.abs(targetX - odometer.getX()) < 1)
 				{
 					atPoint = true;
 					return;
@@ -667,7 +663,7 @@ public class Navigation {
 			currentY = this.odometer.getY();
 			while(Math.abs(currentY-this.odometer.getY()) < rightSensorToFront && !stopAvoiding && !atPoint)
 			{
-				if(Math.abs(targetY - odometer.getY()) < 1)
+				if(Math.abs(targetY - odometer.getY()) < 1 && Math.abs(targetX - odometer.getX()) < 1)
 				{
 					atPoint = true;
 					return;
@@ -684,8 +680,8 @@ public class Navigation {
 				}
 			}
 		}
-		
-		rest(500);
+		avoiding = false;
+		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
 	/**
@@ -722,7 +718,7 @@ public class Navigation {
 	 * 
 	 * @return 		void
 	 * */
-	public void drive(double distance, boolean xDirection, int speed, boolean pos) {
+public void drive(double distance, boolean xDirection, int speed, boolean pos) {
 		
 		if(pos)
 		{
@@ -921,12 +917,12 @@ public class Navigation {
 	 * */
 	private void doCorrectHeading(boolean rightFirst, double correctionAngle, boolean posDirection)
 	{
-		rest(500);
+		this.setSpeeds(0,0);
+		try{Thread.sleep(500);}catch(Exception e){}
 		Sound.twoBeeps();
-		
 		if(posDirection)
 		{
-			//If rightFirst rotate clockwise, else counterclockwise
+			this.setSpeeds(SLOW,SLOW);
 			if(rightFirst)
 			{
 				this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
@@ -940,30 +936,35 @@ public class Navigation {
 		}
 		else
 		{
-			//While traveling backwards and correcting, backup a set distance in order for the light sensors to not re-sense the past line
 			if((odometer.getAng() > 355 || odometer.getAng() < 5) || (odometer.getAng() > 175 && odometer.getAng() < 185))
 			{
-				drive(5,true,SLOW,false);
+				double currentX = odometer.getX();
+				while(Math.abs(currentX-odometer.getX()) < 5)
+				{
+					this.setSpeeds(-SLOW, -SLOW);
+				}
 			}
 			else
 			{
-				drive(5,false,SLOW,false);
+				double currentY = odometer.getY();
+				while(Math.abs(currentY-odometer.getY()) < 5)
+				{
+					this.setSpeeds(-SLOW, -SLOW);
+				}
 			}
+			this.setSpeeds(0,0);
+			try{Thread.sleep(500);}catch(Exception e){}
 			
-			rest(500);
-
-			//If rightFirst rotate counterclockwise, else clockwise
+			this.setSpeeds(-SLOW,-SLOW);
 			if(rightFirst)
 			{
 				this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
 				this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
-				Sound.buzz();
 			}
 			else
 			{
 				this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),true);
 				this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),correctionAngle),false);
-				Sound.buzz();
 			}	
 		}
 		this.setSpeeds(0, 0);
@@ -1052,12 +1053,17 @@ public class Navigation {
 				}
 			}
 		}
+		this.setSpeeds(0,0);
+		try{Thread.sleep(500);}catch(Exception e){}
 		
-		rest(500);
+		double currentX = odometer.getX();
+		while(Math.abs(currentX-odometer.getX()) < LightLocalizerV4.lightSensorDistance)
+		{
+			this.setSpeeds(SLOW,SLOW);
+		}
 		
-		drive(LightLocalizerV4.lightSensorDistance,true,SLOW,true);
-		
-		rest(500);
+		this.setSpeeds(0,0);
+		try{Thread.sleep(500);}catch(Exception e){}
 		
 		// Turn to appropriate y direction and travel until both sensors sense a black line and perform correction
 		if(odometer.getY()<TILE_LENGTH){
@@ -1066,7 +1072,6 @@ public class Navigation {
 		else{
 			this.turnTo(90,true);
 		}
-		
 			while(true)
 			{
 				this.setSpeeds(SLOW,SLOW);
@@ -1106,10 +1111,14 @@ public class Navigation {
 				}
 			}
 			
-			rest(500);
-			drive(LightLocalizerV4.lightSensorDistance,false,SLOW,true);
+			double currentY = odometer.getY();
+			while(Math.abs(currentY-odometer.getY()) < LightLocalizerV4.lightSensorDistance)
+			{
+				this.setSpeeds(SLOW,SLOW);
+			}
+			this.setSpeeds(0,0);
 			this.collecting = false;
-			rest(500);
+			try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
 	
