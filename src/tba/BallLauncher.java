@@ -49,7 +49,7 @@ public class BallLauncher {
 	this.leftCatapultMotor.rotate(-100, true);
 	this.rightCatapultMotor.rotate(-100,false);*/
 	
-	this.leftCatapultMotor.setSpeed(3000);
+	this.leftCatapultMotor.setSpeed(3000*distanceConstant);
 	this.rightCatapultMotor.setSpeed(3000);
 	this.leftCatapultMotor.rotate(-95, true);
 	this.rightCatapultMotor.rotate(-95,false);

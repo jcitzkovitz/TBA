@@ -34,7 +34,7 @@ public class Play {
 	private static final Port usPortR = LocalEV3.get().getPort("S4");
 	
 	/* Instantiate Wifi related fields */
-	private static final String SERVER_IP = "192.168.2.10";
+	private static final String SERVER_IP = "192.168.2.6";
 	private static final int TEAM_NUMBER = 4;
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = true;
 	/* Set up navigation, odometer, odometer correction and 
@@ -45,9 +45,9 @@ public class Play {
 	private static final double TILE_LENGTH = 30.48;
 	private static final int SLOW = 100;
 	private static final int FAST = 200;
-	public static double dispX = 6*TILE_LENGTH;
-	public static double dispY = 6*TILE_LENGTH;
-	private static int boardDimension = 6;
+	public static double dispX = 0;
+	public static double dispY = 0;
+	private static int boardDimension = 10;
 	
 	/**
 	 * This is the main method for playing the game
@@ -61,44 +61,44 @@ public class Play {
 		/* Retrieve information from wifi */
 		WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
 
-		int fwdTeam = 4;
-		int defTeam = 1;
-		double defZoneSizeW1 = 2;
-		double defZoneSizeW2 = 2;
-		int fwdStartCorner = 1;
-		int defStartCorner = 2;
-		String despenserOrientation = "N";
-		double shootingDistance = 5*TILE_LENGTH;
-//		try {
-//			/*
-//			 * getData() will connect to the server and wait until the user/TA
-//			 * presses the "Start" button in the GUI on their laptop with the
-//			 * data filled in. Once it's waiting, you can kill it by
-//			 * pressing the upper left hand corner button (back/escape) on the EV3.
-//			 * getData() will throw exceptions if it can't connect to the server
-//			 * (e.g. wrong IP address, server not running on laptop, not connected
-//			 * to WiFi router, etc.). It will also throw an exception if it connects 
-//			 * but receives corrupted data or a message from the server saying something 
-//			 * went wrong. For example, if TEAM_NUMBER is set to 1 above but the server expects
-//			 * teams 17 and 5, this robot will receive a message saying an invalid team number 
-//			 * was specified and getData() will throw an exception letting you know.
-//			 */
-//			Map data = conn.getData();
-//
-//			fwdTeam = ((Long) data.get("FWD_TEAM")).intValue();
-//			defTeam = ((Long) data.get("DEF_TEAM")).intValue();
-//			defZoneSizeW1 = TILE_LENGTH*((Long) data.get("w1")).intValue();
-//			defZoneSizeW2 = TILE_LENGTH*((Long) data.get("w2")).intValue();
-//			fwdStartCorner = ((Long) data.get("FWD_CORNER")).intValue();
-//			defStartCorner = ((Long) data.get("DEF_CORNER")).intValue();
-//			despenserOrientation = (String) data.get("omega");
-//			dispX = TILE_LENGTH*((Long) data.get("bx")).intValue();
-//			dispY = TILE_LENGTH*((Long) data.get("by")).intValue();
-//			shootingDistance = TILE_LENGTH*((Long) data.get("d1")).intValue();
-//
-//		} catch (Exception e) {
-//			System.err.println("Error: " + e.getMessage());
-//		}
+		int fwdTeam = 0;
+		int defTeam = 0;
+		double defZoneSizeW1 = 0;
+		double defZoneSizeW2 = 0;
+		int fwdStartCorner = 0;
+		int defStartCorner = 0;
+		String despenserOrientation = "";
+		double shootingDistance = 0;
+		try {
+			/*
+			 * getData() will connect to the server and wait until the user/TA
+			 * presses the "Start" button in the GUI on their laptop with the
+			 * data filled in. Once it's waiting, you can kill it by
+			 * pressing the upper left hand corner button (back/escape) on the EV3.
+			 * getData() will throw exceptions if it can't connect to the server
+			 * (e.g. wrong IP address, server not running on laptop, not connected
+			 * to WiFi router, etc.). It will also throw an exception if it connects 
+			 * but receives corrupted data or a message from the server saying something 
+			 * went wrong. For example, if TEAM_NUMBER is set to 1 above but the server expects
+			 * teams 17 and 5, this robot will receive a message saying an invalid team number 
+			 * was specified and getData() will throw an exception letting you know.
+			 */
+			Map data = conn.getData();
+
+			fwdTeam = ((Long) data.get("FWD_TEAM")).intValue();
+			defTeam = ((Long) data.get("DEF_TEAM")).intValue();
+			defZoneSizeW1 = TILE_LENGTH*((Long) data.get("w1")).intValue();
+			defZoneSizeW2 = TILE_LENGTH*((Long) data.get("w2")).intValue();
+			fwdStartCorner = ((Long) data.get("FWD_CORNER")).intValue();
+			defStartCorner = ((Long) data.get("DEF_CORNER")).intValue();
+			despenserOrientation = (String) data.get("omega");
+			dispX = ((Long) data.get("bx")).intValue();
+			dispY = ((Long) data.get("by")).intValue();
+			shootingDistance = TILE_LENGTH*((Long) data.get("d1")).intValue();
+
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
 		
 		/* Set up odometry display*/
 		final TextLCD t = LocalEV3.get().getTextLCD();
@@ -130,14 +130,14 @@ public class Play {
 		SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
 		float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 		
-		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF,6, colorValueR,colorDataR,colorValueL,colorDataL,shootingDistance);
+		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF, boardDimension , colorValueR,colorDataR,colorValueL,colorDataL,shootingDistance,defZoneSizeW1,defZoneSizeW2);
 		
 		// Create US and Light Localization objects
 		USLocalizerV2 usLoc = new USLocalizerV2(odo,usDistanceF,usDataF,nav,LocalizationType.FALLING_EDGE);
 		LightLocalizerV4 lightLoc = new LightLocalizerV4(odo,colorValueR,colorDataR,colorValueL,colorDataL,nav);
 		
 		//Create launcher
-		BallLauncher launcher = new BallLauncher(leftCatapultMotor, rightCatapultMotor, (float)(10-shootingDistance/TILE_LENGTH));
+		BallLauncher launcher = new BallLauncher(leftCatapultMotor, rightCatapultMotor, (float)(shootingDistance/(5*TILE_LENGTH)));
 		CorrectHeading correctHeading = new CorrectHeading(odo,nav,colorValueR,colorDataR,colorValueL,colorDataL);
 		OdometerCorrection odoCorrection = new OdometerCorrection(odo,nav,colorValueR,colorDataR,colorValueL,colorDataL);
 		
@@ -156,6 +156,28 @@ public class Play {
 			setStartPosition(fwdStartCorner);
 			odoCorrection.start();
 			correctHeading.start();
+			
+			//Re set the dispensor ball positions to work with the rest of the code
+			if(dispX == -1)
+			{
+				dispX = 0;
+			}
+			else if(dispX == 11)
+			{
+				dispX = 10;
+			}
+			
+			if(dispY == -1)
+			{
+				dispY = 0;
+			}
+			else if(dispY == 11)
+			{
+				dispY = 10;
+			}
+			
+			dispX = dispX*TILE_LENGTH;
+			dispY = dispY*TILE_LENGTH;
 			
 			/* While still playing, continusously go to the 
 			 * dispenser, retrieve the ball, go to the 
@@ -214,16 +236,21 @@ public class Play {
 			}
 			
 			//Back up into dispenser to retrieve ball
-			nav.drive(5,xAxis,SLOW,false);
+			nav.drive(7,xAxis,SLOW,false);
+			
 			//Wait for ball to be dispensed
 			try{Thread.sleep(7000);}catch(Exception e){}
 			
+			//Drive out of dispenser to retrieve ball
+			nav.drive(7,xAxis,SLOW,true);
+			
 			// Travel to the center of the shooting line
-			nav.travelTo(3*TILE_LENGTH, 6*TILE_LENGTH-shootingDistance);
+			nav.travelTo(boardDimension/2*TILE_LENGTH-1/2*TILE_LENGTH, boardDimension*TILE_LENGTH-shootingDistance-TILE_LENGTH);
 			
 			
 			//Launch
-			nav.turnTo(90,true);
+			nav.launchingLocalization();
+			odo.setPosition(new double[]{boardDimension/2*TILE_LENGTH, boardDimension*TILE_LENGTH-shootingDistance, 90}, new boolean[]{true, true, true}  );
 			launcher.launch();
 			
 			leftCatapultMotor.rotate(-70,true);
@@ -241,7 +268,18 @@ public class Play {
 			odoCorrection.start();
 			
 			nav.defenseTeam();
-			nav.travelTo(5*TILE_LENGTH, 8*TILE_LENGTH);
+			nav.travelTo(5*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
+			
+			leftCatapultMotor.setSpeed(20);
+			rightCatapultMotor.setSpeed(20);
+			
+			while(true)
+			{
+				nav.turnTo(180,true);
+				nav.travelTo(6*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
+				nav.travelTo(4*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
+				nav.travelTo(5*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
+			}
 			
 		}
 		
@@ -278,7 +316,7 @@ public class Play {
 			nav.turnTo(0, true);
 		}
 		nav.drive(TILE_LENGTH/2,true,FAST,true);
-		nav.rest(500);
+		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
 }

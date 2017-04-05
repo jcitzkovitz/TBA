@@ -222,6 +222,15 @@ public class LightLocalizerV4 {
 			this.leftMotor.rotate(-convertAngle(odo.getWheelRadius(),odo.getBaseWidth(),correctionAngle),true);
 			this.rightMotor.rotate(convertAngle(odo.getWheelRadius(),odo.getBaseWidth(),correctionAngle),false);
 		}
+		
+		if(odo.getAng()<10||odo.getAng()>350)
+		{
+			this.odo.setPosition((new double[] {0,0,0}), (new boolean[] {false,false,true}));
+		}
+		else if(odo.getAng()>80&&odo.getAng()<100)
+		{
+			this.odo.setPosition((new double[] {0,0,90}), (new boolean[] {false,false,true}));
+		}
 
 		rest(1000);
 	}
