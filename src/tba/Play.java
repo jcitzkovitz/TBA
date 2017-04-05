@@ -34,7 +34,7 @@ public class Play {
 	private static final Port usPortR = LocalEV3.get().getPort("S4");
 	
 	/* Instantiate Wifi related fields */
-	private static final String SERVER_IP = "192.168.2.6";
+	private static final String SERVER_IP = "192.168.2.3";
 	private static final int TEAM_NUMBER = 4;
 	private static final boolean ENABLE_DEBUG_WIFI_PRINT = true;
 	/* Set up navigation, odometer, odometer correction and 
@@ -158,20 +158,20 @@ public class Play {
 			correctHeading.start();
 			
 			//Re set the dispensor ball positions to work with the rest of the code
-			if(dispX == -1)
+			if(dispX <= 0)
 			{
 				dispX = 0;
 			}
-			else if(dispX == 11)
+			else if(dispX >= 10)
 			{
 				dispX = 10;
 			}
 			
-			if(dispY == -1)
+			if(dispY <= 0)
 			{
 				dispY = 0;
 			}
-			else if(dispY == 11)
+			else if(dispY >= 10)
 			{
 				dispY = 10;
 			}
@@ -186,18 +186,18 @@ public class Play {
 			while(true)
 			{
 			// Travel to the ball dispenser
-			if(despenserOrientation.equals("N")){
+			if(despenserOrientation.equals("S")){
 				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
-			else if(despenserOrientation.equals("E"))
+			else if(despenserOrientation.equals("W"))
 			{
 				nav.travelTo(dispX-TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
-			else if(despenserOrientation.equals("S"))
+			else if(despenserOrientation.equals("N"))
 			{
 				nav.travelTo(dispX-TILE_LENGTH/2, dispY+TILE_LENGTH/2);
 			}
-			else if(despenserOrientation.equals("W"))
+			else if(despenserOrientation.equals("E"))
 			{
 				nav.travelTo(dispX+TILE_LENGTH/2, dispY-TILE_LENGTH/2);
 			}
@@ -214,22 +214,22 @@ public class Play {
 			
 			//Turn to proper orientation
 			boolean xAxis = true;
-			if(despenserOrientation.equals("N"))
+			if(despenserOrientation.equals("S"))
 			{
 				xAxis=false;
 				nav.turnTo(270, true);
 			}
-			else if(despenserOrientation.equals("E"))
+			else if(despenserOrientation.equals("W"))
 			{
 				xAxis=true;
 				nav.turnTo(180, true);
 			}
-			else if(despenserOrientation.equals("S"))
+			else if(despenserOrientation.equals("N"))
 			{
 				xAxis=false;
 				nav.turnTo(90, true);
 			}
-			else if(despenserOrientation.equals("W"))
+			else if(despenserOrientation.equals("E"))
 			{
 				xAxis=true;
 				nav.turnTo(0, true);
@@ -243,6 +243,7 @@ public class Play {
 			
 			//Drive out of dispenser to retrieve ball
 			nav.drive(7,xAxis,SLOW,true);
+			
 			
 			// Travel to the center of the shooting line
 			nav.travelTo(boardDimension/2*TILE_LENGTH-1/2*TILE_LENGTH, boardDimension*TILE_LENGTH-shootingDistance-TILE_LENGTH);
@@ -275,10 +276,8 @@ public class Play {
 			
 			while(true)
 			{
-				nav.turnTo(180,true);
-				nav.travelTo(6*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
-				nav.travelTo(4*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
-				nav.travelTo(5*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
+				nav.turnTo(0, true);
+				nav.turnTo(180, true);
 			}
 			
 		}
