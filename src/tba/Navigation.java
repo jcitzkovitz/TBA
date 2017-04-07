@@ -18,9 +18,13 @@ import lejos.hardware.port.Port;
 import lejos.robotics.SampleProvider;
 
 /**
+ * @author	Jordan Itzkovitz
+ * @author	William Wang
+ * 
  * The navigation class controls how the robot will maneuver about the grid.
  * The robot navigates along the x and y axes only, thus at no angles other
- * than 0 degrees, 90 degrees, 180 degrees and 270 degrees.*/
+ * than 0 degrees, 90 degrees, 180 degrees and 270 degrees. Obstacle avoidance
+ * is also performed in this class.*/
 
 public class Navigation {
 	final static int FAST = 200, SLOW = 150, ACCELERATION = 1000, ACCELERATION_SLOW = 1000;
@@ -50,6 +54,21 @@ public class Navigation {
 	private double w1;
 	private double w2;
 
+	/**
+	 * Navigation constructor class
+	 * @param 	odo 	Odometer object in charge of providing Odometer class methods
+	 * @param 	nav 	Navigation object in charge of providing Navigation class methods
+	 * @param 	colorSensorR 	Sample provider variable for the right color sensor
+	 * @param 	colorSensorL 	Sample provider variable for the left color sensor
+	 * @param 	colorDataR 	Float array to hold right color sensor data
+	 * @param 	colorDataL 	Float array to hold left color sensor data
+	 * @param 	usSensorR 	Sample provider variable for the us sensor located on the right side of the robot
+	 * @param 	usSensorF 	Sample provider variable for the us sensor located at the front of the robot
+	 * @param 	usDataR 	Float array to hold right us sensor data
+	 * @param 	usDataR 	Float array to hold front us sensor data
+	 * @param 	boardDimensions 	The dimensions of the given board (assuming square board)
+	 * @param 	shootingDistance 	The shooting line distance from the hoop
+	 * */
 	public Navigation(Odometer odo, SampleProvider usSensorR, float[] usDataR, SampleProvider usSensorF,
 					float[] usDataF, int boardDimensions,SampleProvider colorSensorR, float[] colorDataR,
 					SampleProvider colorSensorL, float[] colorDataL, double shootingDistance, double w1, double w2) {
@@ -75,9 +94,15 @@ public class Navigation {
 		this.rightMotor.setAcceleration(ACCELERATION);
 	}
 
-	/*
-	 * Functions to set the motor speeds jointly
-	 */
+	/**
+	 * Sets the motor speeds and sets either forward or backward motion based on the sign of the 
+	 * value passed
+	 * 
+	 * @param 	lSpd 	Left motor speed (int)
+	 * @param 	rSpd 	Right motor speed (int)
+	 * 
+	 * @return 		void
+	 * */
 	public void setSpeeds(float lSpd, float rSpd) {
 		this.leftMotor.setSpeed(lSpd);
 		this.rightMotor.setSpeed(rSpd);
@@ -91,6 +116,15 @@ public class Navigation {
 			this.rightMotor.forward();
 	}
 
+	/**
+	 * Sets the motor speeds and sets either forward or backward motion based on the sign of the 
+	 * value passed
+	 * 
+	 * @param 	lSpd 	Left motor speed (float)
+	 * @param 	rSpd 	Right motor speed (float)
+	 * 
+	 * @return 		void
+	 * */
 	public void setSpeeds(int lSpd, int rSpd) {
 		this.leftMotor.setSpeed(lSpd);
 		this.rightMotor.setSpeed(rSpd);
@@ -104,9 +138,11 @@ public class Navigation {
 			this.rightMotor.forward();
 	}
 
-	/*
-	 * Float the two motors jointly
-	 */
+	/**
+	 * Float the motors
+	 * 
+	 * @return 		void
+	 * */
 	public void setFloat() {
 		this.leftMotor.stop();
 		this.rightMotor.stop();
@@ -114,10 +150,15 @@ public class Navigation {
 		this.rightMotor.flt(true);
 	}
 
-	/*
-	 * TravelTo function which takes as arguments the x and y position in cm Will travel to designated position, while
-	 * constantly updating it's heading
-	 */
+	/**
+	 * Calls realTravelTo() to send the robot to a given x and y point. This method will call realTravelTo()
+	 * in a way to avoid the defensive/bounce zones for offense and defense respectively
+	 * 
+	 * @param 	x 	X point to travel to
+	 * @param 	y 	Y point to travel to
+	 * 
+	 * @return 		void
+	 * */
 	public void travelTo(double x, double y){
 		if(forward){
 			
@@ -139,6 +180,15 @@ public class Navigation {
 		
 		}
 	
+	/**
+	 * Sends the robot to a given x and y point, always travling in the y driection first, followed
+	 * by the x direction. This method also handles obstacle avoidance.
+	 * 
+	 * @param 	x 	X point to travel to
+	 * @param 	y 	Y point to travel to
+	 * 
+	 * @return 		void
+	 * */
 	public void realTravelTo(double x, double y) {
 		this.leftMotor.setAcceleration(ACCELERATION_SLOW);
 		this.rightMotor.setAcceleration(ACCELERATION_SLOW);
@@ -436,10 +486,15 @@ public class Navigation {
 		}
 	
 
-	/*
-	 * TurnTo function which takes an angle and boolean as arguments The boolean controls whether or not to stop the
-	 * motors when the turn is completed
-	 */
+	/**
+	 * Takes an angle and boolean as arguments and turns to a specific angle. 
+	 * The boolean controls whether or not to stop the motors when the turn is completed
+	 * 
+	 * @param 	angle 	Angle to turn to
+	 * @param 	stop 	Boolean to rest motors
+	 * 
+	 * @return		void
+	 * */
 	public void turnTo(double angle, boolean stop) {
 		isTurning = true;
 		double error = angle - this.odometer.getAng();
@@ -470,17 +525,40 @@ public class Navigation {
 		isTurning = false;
 	}
 	
+	/**
+	 * Convert distance to degrees
+	 * 
+	 * @param 	radius 	Radius of the robot
+	 * @param 	distance 	Distance of rotation in radians
+	 * 
+	 * @return 		Converted distance in cm to degrees
+	 * */
 	private static int convertDistance(double radius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
 
+	/**
+	 * Convert Angle to degrees
+	 * 
+	 * @param 	radius 	Radius of the robot
+	 * @param 	distance 	Distance of rotation in radians
+	 * 
+	 * @return 		Distance for wheels to turn in degrees
+	 * */
 	private static int convertAngle(double radius, double width, double angle) {
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 	
-	/*
-	 * Go foward a set distance in cm
-	 */
+	/**
+	 * Drive the robot a set distance and direction
+	 * 
+	 * @param 	distance 	Distance to travel
+	 * @param 	xDirection 	Boolean to state whether the robot is traveling in the x direction or not
+	 * @param 	speed 	Speed for travel
+	 * @param 	pos 	Boolean to state whether to travel forward or backward
+	 * 
+	 * @return 		void
+	 * */
 	public void drive(double distance, boolean xDirection, int speed, boolean pos) {
 		
 		if(pos)
@@ -525,27 +603,33 @@ public class Navigation {
 		this.setSpeeds(0,0);
 	}
 	
-	// Counter clockwise rotation
-	private  void rotateCCW()
-	{
-		this.setSpeeds(-SLOW, SLOW);
-	}
-
-	// Clockwise rotation
-	private  void rotateCW()
-	{
-		this.setSpeeds(SLOW, -SLOW);
-	}
-	
+	/**
+	 * Checks if the robot is turning
+	 * 
+	 * @return 		isTurning boolean
+	 * */
 	public boolean isTurning(){
 		return isTurning;
 	}
 	
+	/**
+	 * Checks if the robot is avoiding
+	 * 
+	 * @return 		avoiding boolean
+	 * */
 	public boolean isAvoiding()
 	{
 		return avoiding;
 	}
 	
+	/**
+	 * Sets the appropriate booleans and global variables in order for the robot to correct its heading
+	 * 
+	 * @param 	rightFirstTemp 	States whether the right color sensor hit the line first or not
+	 * @param 	correctionAng 	Angle for correction
+	 * 
+	 * @return 		void
+	 * */
 	public void correctHeading(boolean rightFirstTemp, double correctionAng)
 	{
 		this.correctionAngle = correctionAng;
@@ -553,6 +637,20 @@ public class Navigation {
 		this.correctHeading = true;
 	}
 	
+	/**
+	 * This method essentially checks if the robot is avoiding "nothing". For example, if the robot senses
+	 * an obstacle and turns to the side of the right sensor but the right sensor is already
+	 * passed the obstacle, the robot will drive a maximum of 1.5 tiles before stopping
+	 * avoidance. If this check is not done, the robot will continue to travel until an obstacle is seen,
+	 * which may be never and thus will crash. This method also handles the driving up until the maximum
+	 * distance is reached.
+	 * 
+	 * @param 	forward 	States whether the robot should travel forward or not
+	 * @param 	xDirection 	States whether the robot is traveling in the x direction or not
+	 * @param 	point 	The starting point of travel to mark how much the robot has traveled since the avoidance began
+	 * 
+	 * @return 		void
+	 * */
 	private void stillFollowing(boolean forward, boolean xDirection, double point)
 	{
 		if(forward)
@@ -607,9 +705,11 @@ public class Navigation {
 		}
 	}
 	
-	
-	
-	
+	/**
+	 * Get the the us Sensor distance value from the right us sensor
+	 * 
+	 * @return 		Right us sensor value
+	 * */
 	private float getFilteredDataR() 
 	{
 		
@@ -624,6 +724,12 @@ public class Navigation {
 		}
 		return distance;
 	}
+	
+	/**
+	 * Get the the us Sensor distance value from the front us sensor
+	 * 
+	 * @return 		Front us sensor value
+	 * */
 	private float getFilteredDataF() 
 	{
 		
@@ -639,9 +745,16 @@ public class Navigation {
 		return distance;
 	}
 	
-	
-	
-	
+	/**
+	 * Do the appropriate heading correction based on the calculate values passed from the correctHeading
+	 * thread
+	 * 
+	 * @param 	rightFirst 	States whether the right sensor hit the black line first or not
+	 * @param 	correctionAngle 	Angle for correction
+	 * @param 	posDirection 	States whether the correction will be done while driving forward or not
+	 * 
+	 * @return 		void
+	 * */
 	private void doCorrectHeading(boolean rightFirst, double correctionAngle, boolean posDirection)
 	{
 		this.setSpeeds(0,0);
@@ -702,18 +815,35 @@ public class Navigation {
 	}
 	
 	
-	
+	/**
+	 * States whether the robot is the forward team
+	 * 
+	 * @return 		void
+	 * */
 	public void forwardTeam(){
 		this.forward = true;
 		this.defense = false;
 	}
 	
+	/**
+	 * States whether the robot is the defensive team
+	 * 
+	 * @return 		void
+	 * */
 	public void defenseTeam(){
 		this.defense = true;
 		this.forward = false;
 	}
 	
-	
+	/**
+	 * Light localization at the launching point. The robot will always be facing the x direction once it reaches
+	 * its destination, thus we travel in the x until a line is crossed, correct the robots heading, and then
+	 * do the same in the y direction depending on the dispensers orientation. The way in which correction is done
+	 * in this method is very similar to LightLocalizerV4, however minor changes had to be made to suit this
+	 * exact situation.
+	 * 
+	 * @return 		void
+	 * */
 	public void launchingLocalization(){
 		this.collecting = true;
 		double minLight = 0.3;
@@ -830,7 +960,15 @@ public class Navigation {
 		this.collecting = false;
 	}
 	
-	
+	/**
+	 * Light localization at the dispenser. The robot will always be facing the x direction once it reaches
+	 * its destination, thus we travel in the x until a line is crossed, correct the robots heading, and then
+	 * do the same in the y direction depending on the dispensers orientation. The way in which correction is done
+	 * in this method is very similar to LightLocalizerV4, however minor changes had to be made to suit this
+	 * exact situation.
+	 * 
+	 * @return 		void
+	 * */
 	public void dispenserLocalization()
 	{
 		this.collecting = true;
@@ -954,24 +1092,11 @@ public class Navigation {
 			try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
-	
-	
-	private void turn(boolean cw, double angle)
-	{
-		if(cw)
-		{
-			this.leftMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),true);
-			this.rightMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),false);
-		}
-		else
-		{
-			this.leftMotor.rotate(-convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),true);
-			this.rightMotor.rotate(convertAngle(odometer.getWheelRadius(),odometer.getBaseWidth(),angle),false);
-		}
-	}
-	
-	
-	
+	/**
+	 * States whether the robot is in the ball dispenser zone or not
+	 * 
+	 * @return 		Boolean stating whether the robot is in the dispenser zone or not
+	 * */
 	private boolean isInDispenserZone()
 	{
 		if((odometer.getX() > Play.dispX-TILE_LENGTH && odometer.getX() < Play.dispX+TILE_LENGTH) && (odometer.getY() > Play.dispY-TILE_LENGTH && odometer.getY() < Play.dispY+TILE_LENGTH))
@@ -981,8 +1106,11 @@ public class Navigation {
 		return false;
 	}
 	
-	
-	
+	/**
+	 * States whether the robot is detecting one of the boarder walls or not
+	 * 
+	 * @return 		Boolean whether the robot is detecting one of the boarder walls or not
+	 * */
 	private boolean isDetectingBorder()
 	{
 		if(odometer.getX()<TILE_LENGTH/2 && (odometer.getAng() > 170 && odometer.getAng() < 190))
@@ -1113,20 +1241,33 @@ public class Navigation {
 		try{Thread.sleep(500);}catch(Exception e){}
 	}
 	
-	
-	
+	/**
+	 * Get the the light strength from the right color sensor
+	 * 
+	 * @return 		Right color sensor value
+	 * */
 	public float getColorDataR(){
 		colorSensorR.fetchSample(colorDataR, 0);
 		float lightStrength = colorDataR[0];
 		return lightStrength;
 	}
 	
+	/**
+	 * Get the the light strength from the left color sensor
+	 * 
+	 * @return 		Left color sensor value
+	 * */
 	public float getColorDataL(){
 		colorSensorL.fetchSample(colorDataL, 0);
 		float lightStrength = colorDataL[0];
 		return lightStrength;
 	}
 	
+	/**
+	 * States whether the robot is collecting the ball or not
+	 * 
+	 * @return 		Boolean stating whether the robot is collecting the ball or not
+	 * */
 	public boolean isCollecting(){
 		return this.collecting;
 	}

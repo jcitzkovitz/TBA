@@ -1,8 +1,10 @@
 package tba;
 
+import java.io.File;
 import java.util.Map;
 
 import tba.USLocalizerV2.LocalizationType;
+import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -57,6 +59,27 @@ public class Play {
 	@SuppressWarnings("rawtypes")
 	public static void main (String[] args)
 	{
+		
+		// Instantiate us and light sensor required variables
+		
+				// Setup us sensor
+				SensorModes usSensorF = new EV3UltrasonicSensor(usPortF);		// usSensor is the instance
+				SampleProvider usDistanceF = usSensorF.getMode("Distance");	// usDistance provides samples from this instance
+				float[] usDataF = new float[usDistanceF.sampleSize()];		// usData is the buffer in which data are returned
+
+				SensorModes usSensorR = new EV3UltrasonicSensor(usPortR);		// usSensor is the instance
+				SampleProvider usDistanceR = usSensorR.getMode("Distance");	// usDistance provides samples from this instance
+				float[] usDataR = new float[usDistanceR.sampleSize()];		// usData is the buffer in which data are returned
+				
+//				// Setup light sensor
+				@SuppressWarnings("resource")
+				SensorModes colorSensorL = new EV3ColorSensor(colorPortL);
+				SampleProvider colorValueL = colorSensorL.getMode("Red");			// colorValue provides samples from this instance
+				float[] colorDataL = new float[colorValueL.sampleSize()];			// colorData is the buffer in which data are returned
+//				
+				SensorModes colorSensorR = new EV3ColorSensor(colorPortR);
+				SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
+				float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 
 		/* Retrieve information from wifi */
 		WifiConnection conn = new WifiConnection(SERVER_IP, TEAM_NUMBER, ENABLE_DEBUG_WIFI_PRINT);
@@ -109,26 +132,6 @@ public class Play {
 		 * set the start position to the corresponding corner,
 		 * notify robot of game position, and play accordingly */
 	
-		// Instantiate us and light sensor required variables
-		
-		// Setup us sensor
-		SensorModes usSensorF = new EV3UltrasonicSensor(usPortF);		// usSensor is the instance
-		SampleProvider usDistanceF = usSensorF.getMode("Distance");	// usDistance provides samples from this instance
-		float[] usDataF = new float[usDistanceF.sampleSize()];		// usData is the buffer in which data are returned
-
-		SensorModes usSensorR = new EV3UltrasonicSensor(usPortR);		// usSensor is the instance
-		SampleProvider usDistanceR = usSensorR.getMode("Distance");	// usDistance provides samples from this instance
-		float[] usDataR = new float[usDistanceR.sampleSize()];		// usData is the buffer in which data are returned
-		
-//		// Setup light sensor
-		@SuppressWarnings("resource")
-		SensorModes colorSensorL = new EV3ColorSensor(colorPortL);
-		SampleProvider colorValueL = colorSensorL.getMode("Red");			// colorValue provides samples from this instance
-		float[] colorDataL = new float[colorValueL.sampleSize()];			// colorData is the buffer in which data are returned
-//		
-		SensorModes colorSensorR = new EV3ColorSensor(colorPortR);
-		SampleProvider colorValueR = colorSensorR.getMode("Red");			// colorValue provides samples from this instance
-		float[] colorDataR = new float[colorValueR.sampleSize()];			// colorData is the buffer in which data are returned
 		
 		nav = new Navigation(odo,usDistanceR, usDataR, usDistanceF, usDataF, boardDimension , colorValueR,colorDataR,colorValueL,colorDataL,shootingDistance,defZoneSizeW1,defZoneSizeW2);
 		
@@ -270,9 +273,6 @@ public class Play {
 			
 			nav.defenseTeam();
 			nav.travelTo(5*TILE_LENGTH, boardDimension*TILE_LENGTH - defZoneSizeW2-TILE_LENGTH/2);
-			
-			leftCatapultMotor.setSpeed(20);
-			rightCatapultMotor.setSpeed(20);
 			
 			while(true)
 			{
